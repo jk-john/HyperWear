@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Array<T> over T[]
+- Prefer `function foo()` over `const foo = () =>`
+- use `kebab-case` for filenames
+- use `camelCase` for schema names and add `Schema` suffix to all names

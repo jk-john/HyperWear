@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # HyperWear — Back-End Structure (MVP v1.0)
 # Paste into Cursor to pin the API, DB, and ops layout.
