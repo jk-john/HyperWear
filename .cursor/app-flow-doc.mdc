@@ -1,0 +1,120 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# HyperWear – App-Flow Doc (MVP, manual Printify + manual HYPE staking)
+# Copy or import this block into your Cursor workspace for quick reference.
+
+──────────────────────────────────────────────────────────────────────────────
+0. Actor Glossary
+   • Visitor  – not yet authenticated
+   • User     – logged-in shopper (Supabase UID)
+   • Ops      – founders handling printing + HYPE staking
+   • Provider – NowPayments OR Stripe
+
+──────────────────────────────────────────────────────────────────────────────
+1. High-Level Flow
+Visitor
+  ↓ sign-in (Supabase Auth)
+Dashboard  ── add-to-cart → Checkout → Provider invoice
+                                   ↘            ↙
+        /thanks  ←  /api/payment/webhook (verify, mark paid)
+               ↘ e-mails (customer + ops)
+Ops e-mail → Printify (manual) → /admin printify-update → status → customer
+Ops swaps USDC/ETH → HYPE (manual) → /admin stake-hype → transparency chart
+
+──────────────────────────────────────────────────────────────────────────────
+2. Step-by-Step
+
+1. **Landing /**
+   – Server component shows hero + `GET /api/inventory` live bar
+   – CTA → Sign-in
+
+2. **Auth**
+   – Supabase: Google • GitHub • email/pass → JWT cookie
+
+3. **Dashboard**
+   – Product grid (server) + Realtime supply & orders (client)
+
+4. **Cart**
+   – Insert into `cart_items`; badge updates via context
+
+5. **Checkout**
+   – RHF + Zod shipping form → `POST /api/create-order`
+   – Draft order (`status = pending_payment`) + copy cart → `order_items`
+
+6. **Payment Choice**
+   – Crypto button → NowPayments invoice URL
+   – Card button  → Stripe Checkout URL
+   – Redirect user
+
+7. **Webhook** `/api/payment/webhook`
+   – Verify HMAC / Stripe-sig
+   – On success: `orders.status = paid`, `inventory.units_sold++`
+   – Send customer confirmation & ops notification e-mails
+
+8. **Thanks page** `/thanks`
+   – Poll order until status === paid, show success copy
+
+9. **Ops Fulfilment (manual)**
+   – Ops uses e-mail JSON to create POD order in Printify
+   – Copies order_id + tracking → `/admin/printify`
+   – Status becomes in_production / shipped
+
+10. **Shipping e-mail**
+    – When `status = shipped`, customer gets tracking link
+
+11. **Manual HYPE staking**
+    – Ops aggregates payouts, swaps → HYPE, stakes via HL UI
+    – Adds tx_hash + amount in `/admin/stake-hype` → row in `staking_events`
+    – Transparency page charts cumulative stake
+
+12. **GDPR purge**
+    – Weekly cron removes address/phone 30 d after `delivered`
+
+──────────────────────────────────────────────────────────────────────────────
+3. Database Tables (Supabase)
+
+users (auth handled)
+products
+inventory (sku, total, units_sold)
+cart_items
+orders (pending_payment → paid → in_production → shipped → delivered)
+order_items
+staking_events (tx_hash, amount, timestamp)
+
+Row-Level Security: user owns cart & orders.
+Realtime: inventory + order status push to client.
+
+──────────────────────────────────────────────────────────────────────────────
+4. API Routes
+
+POST /api/create-order      draft order → pending_payment
+POST /api/payment/webhook   verify provider → mark paid, e-mails
+POST /api/admin/printify    ops paste order_id + tracking
+POST /api/admin/stake-hype  ops paste stake tx-hash + amount
+GET  /api/inventory         return live supply count
+
+──────────────────────────────────────────────────────────────────────────────
+5. E-mail Timeline
+
+• Order confirmed  (trigger: paid webhook)
+• Ops alert        (same trigger)
+• Order shipped    (trigger: ops updates to shipped)
+
+──────────────────────────────────────────────────────────────────────────────
+6. Error / Edge-Case Notes
+
+• Payment expired → order stays pending, user can retry
+• Oversell race   → RLS check on inventory (`units_sold < total`)
+• Bad webhook sig → log + alert, no state change
+
+──────────────────────────────────────────────────────────────────────────────
+7. Future Upgrade Hooks
+
+• Replace manual Printify with API queue
+• Automate USDC → HYPE swap via cloud function
+• Add wallet-gated perks (wagmi / RainbowKit) when needed
+
+# End of HyperWear App-Flow Doc

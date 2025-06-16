@@ -1,8 +1,12 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ───────────────────────────────────────────
+# HyperWear – consolidated .gitignore
+# Node · Next.js · Supabase · Vercel
+# ───────────────────────────────────────────
 
-# dependencies
-/node_modules
-/.pnp
+# → dependencies
+node_modules/
+.pnpm-store/
+.pnp/
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,32 +14,52 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# → builds & output
+.next/
+out/
+dist/
+build/
+.vercel/
+supabase/.output/
+supabase/.nuxt/
+coverage/
 
-# next.js
-/.next/
-/out/
+# → Supabase local state
+supabase/migrations/.history
+supabase/volumes/
+.supabase/.temp/*
 
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# → logs
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+*.log
+*.log.*
 
-# env files (can opt-in for committing if needed)
+# → environment & secrets
 .env*
+!.env.example            # keep template for reference
+*.pem
 
-# vercel
-.vercel
-
-# typescript
+# → TypeScript artifacts
 *.tsbuildinfo
 next-env.d.ts
+
+# → editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+public/**/.DS_Store
+Thumbs.db
+Icon?
+*.swp
+
+# → tests & reports
+jest-html-reporters-*/
+
+# → misc
+public/.cache/
+*.map
+*.dmp

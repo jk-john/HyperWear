@@ -1,0 +1,120 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+──────────────────────────────────────────────────────────────────────────────
+A. Transport & Session
+[ ] Enforce HTTPS on Vercel (automatic).
+
+[ ] Set `next.config.securityHeaders` → `Strict-Transport-Security`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`.
+
+[ ] Supabase JWT cookie: `Secure`, `HttpOnly`, `SameSite=Lax`.
+
+[ ] Rotate Supabase service-role key every 90 d.
+
+──────────────────────────────────────────────────────────────────────────────
+B. Authentication & Authorisation
+[ ] OAuth only via Supabase (Google, GitHub); disable anonymous sign-up in prod.
+
+[ ] Enable **email confirmation** for email/password flow.
+
+[ ] Row-Level Security on `cart_items`, `orders`, `order_items`.
+
+[ ] Validate `ADMIN_UIDS` in admin routes; deny if user not in list.
+
+──────────────────────────────────────────────────────────────────────────────
+C. Input Validation & Sanitisation
+[ ] All form payloads parsed through **Zod** (`validators.ts`).
+
+[ ] Reject orders if any field exceeds 256 chars.
+
+[ ] Use `@lucide-react` icons only; no user-supplied SVGs.
+
+[ ] Escape dynamic text in e-mail templates.
+
+──────────────────────────────────────────────────────────────────────────────
+D. Webhooks
+[ ] Verify **NowPayments** HMAC using `NOWPAYMENTS_IPN_SECRET`.
+
+[ ] Verify **Stripe** signature with `stripe.webhooks.constructEvent`.
+
+[ ] Store raw payload + `sig_header` in `webhook_logs` for replay.
+
+[ ] Respond 2xx only after DB state committed.
+
+──────────────────────────────────────────────────────────────────────────────
+E. Payments
+[ ] Validate `amount_paid` ≥ expected total before marking order `paid`.
+
+[ ] Rate-limit `POST /api/payment/webhook`  (10 req / min / IP via Vercel Edge).
+
+[ ] If provider sends duplicate webhook, ignore (`orders.status` already `paid`).
+
+[ ] Never store full card data—Stripe handles PCI.
+
+──────────────────────────────────────────────────────────────────────────────
+F. Secrets & Key Management
+[ ] No secrets in git; store in Vercel env vars / GitHub Actions secrets.
+
+[ ] GitHub branch protection + secret scanning ON.
+
+[ ] Update SendGrid, Stripe, NP keys yearly.
+
+[ ] Use 2FA on Vercel, GitHub, Supabase, Printify.
+
+──────────────────────────────────────────────────────────────────────────────
+G. Database Hardening
+[ ] Enable `log_statement = ddl` on Supabase to track schema changes.
+
+[ ] Backup schedule: daily snapshot (Supabase built-in).
+
+[ ] Enable Postgres extension `pgcrypto`; use `gen_random_uuid()` for IDs.
+
+[ ] Disallow `DELETE` for non-admin on `products` & `inventory`.
+
+──────────────────────────────────────────────────────────────────────────────
+H. PII & GDPR
+[ ] Store address/phone in `address_json`; run weekly purge job (>30 d).
+
+[ ] Expose “Delete my data” toggle in profile (sets `pending_purge=true`).
+
+[ ] Encrypt SendGrid archives or disable auto-logging of addresses.
+
+[ ] Update privacy policy to reflect crypto-only checkout, data retention.
+
+──────────────────────────────────────────────────────────────────────────────
+I. Front-End Protections
+[ ] Use the built-in Next.js XSS protections (server components).
+
+[ ] Add `Content-Security-Policy` header blocking `script-src 'unsafe-inline'`.
+
+[ ] Avoid `dangerouslySetInnerHTML` entirely.
+
+──────────────────────────────────────────────────────────────────────────────
+J. Monitoring & Incident Response
+[ ] Enable Vercel error alerts to ops email.
+
+[ ] Supabase Logs → forward errors to Logflare or Sentry.
+
+[ ] Plausible self-host flag disabled (use cloud) to avoid log poisoning.
+
+[ ] Create incident runbook (DDOS, webhook failure, key leak scenarios).
+
+──────────────────────────────────────────────────────────────────────────────
+K. Dependency & Build Chain
+[ ] Enable GitHub Dependabot (security updates).
+
+[ ] Run `npm audit --production` in CI; build fails on high severity.
+
+[ ] Pin shadcn/ui + Radix versions to avoid breaking changes.
+
+[ ] Use `eslint-plugin-security` for sink detection.
+
+──────────────────────────────────────────────────────────────────────────────
+L. Manual Ops Notes
+[ ] When swapping USDC/ETH → HYPE, double-check on Etherscan before staking.
+
+[ ] Record tx_hash in `/admin/stake-hype` immediately after broadcast.
+
+[ ] Never handle private keys on shared machines; use hardware wallet for staking.
