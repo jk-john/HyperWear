@@ -21,3 +21,10 @@
   --color-forest: #072723;
   --color-jungle: #072724;
 }
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--color-dark);
+}
