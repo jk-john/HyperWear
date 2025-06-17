@@ -1,6 +1,7 @@
 "use client";
 
-import { useCart } from "@/context/CartContext";
+import { useCartStore } from "@/stores/cart";
+import { Product } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { CardBody, CardContainer, CardItem } from "./ui/3d-card";
@@ -8,29 +9,11 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image_url: string | null;
-    description?: string | null;
-  };
+  product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart();
-
-  const handleAddToCart = () => {
-    if (product.image_url) {
-      const productToAdd = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image_url,
-      };
-      addToCart(productToAdd);
-    }
-  };
+  const { addToCart } = useCartStore();
 
   return (
     <CardContainer containerClassName="py-0 h-full">
@@ -69,7 +52,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="mt-auto pt-4">
             <Button
               className="w-full bg-[#dbfbf6] text-black hover:bg-[#0f3933] hover:text-white"
-              onClick={handleAddToCart}
+              onClick={() => addToCart(product)}
             >
               Add to Cart
             </Button>

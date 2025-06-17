@@ -1,7 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
-import { CartProvider } from "@/context/CartContext";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
@@ -34,12 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
-        <CartProvider>
-          <Header />
-          {children}
-          <Footer />
-          <Toaster />
-        </CartProvider>
+        <Header />
+        {children}
+        <Footer />
+        <Toaster />
       </body>
     </html>
   );

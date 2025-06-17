@@ -1,3 +1,5 @@
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 import { CreditCard, DollarSign, ShoppingBag } from "lucide-react";
@@ -36,72 +38,73 @@ export default async function DashboardPage() {
   const totalSpent =
     orders?.reduce((acc, order) => acc + order.total_price, 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
+  const userName = user.user_metadata?.full_name || "User";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-12">
-        <header className="mb-12">
-          <h1 className="mb-2 text-5xl font-extrabold text-gray-800">
-            Welcome Back!
+    <div className="relative min-h-screen w-full overflow-hidden bg-[var(--color-dark)] pt-10 text-[var(--color-light)]">
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        <header className="mb-12 text-center">
+          <h1 className="mb-2 text-5xl font-extrabold">
+            Welcome Back, {userName}!
           </h1>
-          <p className="text-lg text-gray-500">
+          <p className="text-lg text-[var(--color-accent)]">
             Here&apos;s a summary of your HyperWear activity.
           </p>
         </header>
 
         {/* Stats Cards */}
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="flex items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mr-4 rounded-full bg-green-100 p-3">
-              <ShoppingBag className="h-7 w-7 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Orders</p>
-              <p className="text-3xl font-bold text-gray-800">{totalOrders}</p>
-            </div>
-          </div>
-          <div className="flex items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mr-4 rounded-full bg-blue-100 p-3">
-              <DollarSign className="h-7 w-7 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Spent</p>
-              <p className="text-3xl font-bold text-gray-800">
-                ${totalSpent.toFixed(2)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mr-4 rounded-full bg-purple-100 p-3">
-              <CreditCard className="h-7 w-7 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
+          <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--color-accent)]">
+                Total Orders
+              </CardTitle>
+              <ShoppingBag className="h-5 w-5 text-[var(--color-secondary)]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{totalOrders}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--color-accent)]">
+                Total Spent
+              </CardTitle>
+              <DollarSign className="h-5 w-5 text-[var(--color-secondary)]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">${totalSpent.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--color-accent)]">
                 Account Status
-              </p>
-              <p className="text-3xl font-bold text-gray-800">Active</p>
-            </div>
-          </div>
+              </CardTitle>
+              <CreditCard className="h-5 w-5 text-[var(--color-secondary)]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">Active</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Recent Orders */}
         <div>
-          <h2 className="mb-6 text-3xl font-bold text-gray-800">
-            Recent Orders
-          </h2>
+          <h2 className="mb-6 text-center text-3xl font-bold">Recent Orders</h2>
           <div className="space-y-6">
             {orders && orders.length > 0 ? (
               orders.map((order) => (
                 <div
                   key={order.id}
-                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                  className="rounded-2xl border border-[var(--color-primary)] bg-[var(--color-primary)]/50 p-6 shadow-lg backdrop-blur-sm transition-shadow hover:shadow-[var(--color-secondary)]/10"
                 >
                   <div className="mb-4 flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-500">
+                      <p className="text-sm font-semibold text-[var(--color-accent)]">
                         Order #{order.id.substring(0, 8)}
                       </p>
-                      <p className="text-2xl font-bold text-gray-800">
+                      <p className="text-2xl font-bold">
                         ${order.total_price.toFixed(2)}
                       </p>
                     </div>
@@ -109,15 +112,15 @@ export default async function DashboardPage() {
                       <span
                         className={`rounded-full px-3 py-1 text-sm font-semibold ${
                           order.status === "Processing"
-                            ? "bg-yellow-100 text-yellow-800"
+                            ? "bg-yellow-900/50 text-yellow-300"
                             : order.status === "Shipped"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
+                              ? "bg-blue-900/50 text-blue-300"
+                              : "bg-green-900/50 text-green-300"
                         }`}
                       >
                         {order.status || "Completed"}
                       </span>
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-[var(--color-accent)]">
                         {new Date(order.created_at || "").toLocaleDateString()}
                       </p>
                     </div>
@@ -128,7 +131,7 @@ export default async function DashboardPage() {
                         item.products && (
                           <div
                             key={item.id}
-                            className="flex items-center space-x-4 border-t border-gray-100 py-3 last:border-b-0"
+                            className="flex items-center space-x-4 border-t border-[var(--color-primary)] py-3 last:border-b-0"
                           >
                             <img
                               src={item.products.image_url ?? undefined}
@@ -136,10 +139,10 @@ export default async function DashboardPage() {
                               className="h-16 w-16 rounded-lg object-cover"
                             />
                             <div>
-                              <p className="font-semibold text-gray-700">
+                              <p className="font-semibold">
                                 {item.products.name}
                               </p>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-[var(--color-accent)]">
                                 Qty: {item.quantity}
                               </p>
                             </div>
@@ -150,12 +153,10 @@ export default async function DashboardPage() {
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-gray-200 bg-white py-12 text-center">
-                <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  No orders yet
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
+              <div className="rounded-2xl border border-[var(--color-primary)] bg-[var(--color-primary)]/50 py-12 text-center backdrop-blur-sm">
+                <ShoppingBag className="mx-auto h-12 w-12 text-[var(--color-accent)]" />
+                <h3 className="mt-4 text-lg font-medium">No orders yet</h3>
+                <p className="mt-1 text-sm text-[var(--color-accent)]">
                   Looks like you haven&apos;t placed any orders.
                 </p>
               </div>
@@ -163,6 +164,7 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+      <BackgroundBeams />
     </div>
   );
 }

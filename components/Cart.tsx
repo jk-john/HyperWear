@@ -11,20 +11,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useCart } from "@/context/CartContext";
+import { useCartStore } from "@/stores/cart";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, totalPrice } =
+    useCartStore();
   const totalCartItems = cartItems.reduce(
     (total, item) => total + item.quantity,
-    0
-  );
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
+    0,
   );
 
   return (
@@ -33,19 +30,19 @@ export const Cart = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative h-11 w-11 text-primary/80 hover:text-primary hover:bg-primary/5 transition-all duration-300 rounded-full"
+          className="text-primary/80 hover:text-primary hover:bg-primary/5 relative h-11 w-11 rounded-full transition-all duration-300"
         >
           <ShoppingBag className="h-5 w-5" />
           {totalCartItems > 0 && (
-            <Badge className="absolute -top-0.5 -right-0.5 h-5 w-5 flex items-center justify-center p-0 bg-accent text-primary text-xs font-bold rounded-full border-2 border-white">
+            <Badge className="bg-accent text-primary absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
               {totalCartItems}
             </Badge>
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[540px] bg-white/95 backdrop-blur-xl flex flex-col">
+      <SheetContent className="flex w-[400px] flex-col bg-white/95 backdrop-blur-xl sm:w-[540px]">
         <SheetHeader className="px-6 pt-6">
-          <SheetTitle className="text-2xl font-bold font-display text-primary">
+          <SheetTitle className="font-display text-primary text-2xl font-bold">
             Shopping Cart ({totalCartItems})
           </SheetTitle>
         </SheetHeader>
@@ -55,20 +52,20 @@ export const Cart = () => {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 py-6">
                   <Image
-                    src={item.image}
+                    src={item.image_url}
                     alt={item.name}
                     width={80}
                     height={80}
                     className="rounded-lg border border-gray-200"
                   />
                   <div className="flex-1">
-                    <h3 className="font-semibold font-body text-primary">
+                    <h3 className="font-body text-primary font-semibold">
                       {item.name}
                     </h3>
-                    <p className="text-sm text-primary/80">
+                    <p className="text-primary/80 text-sm">
                       ${item.price.toFixed(2)}
                     </p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="icon"
@@ -79,7 +76,7 @@ export const Cart = () => {
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
-                      <span className="font-bold w-8 text-center">
+                      <span className="w-8 text-center font-bold">
                         {item.quantity}
                       </span>
                       <Button
@@ -94,14 +91,14 @@ export const Cart = () => {
                       </Button>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end justify-between h-full">
-                    <p className="font-bold text-lg text-primary">
+                  <div className="flex h-full flex-col items-end justify-between">
+                    <p className="text-primary text-lg font-bold">
                       ${(item.price * item.quantity).toFixed(2)}
                     </p>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-primary/50 hover:text-red-500 hover:bg-red-500/10"
+                      className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
                       onClick={() => removeFromCart(item.id)}
                     >
                       <X className="h-5 w-5" />
@@ -111,9 +108,9 @@ export const Cart = () => {
               ))}
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
-              <ShoppingBag className="h-24 w-24 text-primary/20" />
-              <h3 className="mt-6 text-xl font-semibold font-display text-primary">
+            <div className="flex h-full flex-1 flex-col items-center justify-center text-center">
+              <ShoppingBag className="text-primary/20 h-24 w-24" />
+              <h3 className="font-display text-primary mt-6 text-xl font-semibold">
                 Your cart is empty
               </h3>
               <p className="text-primary/60 mt-2">
@@ -121,7 +118,7 @@ export const Cart = () => {
               </p>
               <SheetClose asChild>
                 <Link href="/products">
-                  <Button className="mt-6 bg-primary text-white hover:bg-secondary hover:text-black font-semibold px-6 h-11 rounded-full transition-all duration-300 font-body">
+                  <Button className="bg-primary hover:bg-secondary font-body mt-6 h-11 rounded-full px-6 font-semibold text-white transition-all duration-300 hover:text-black">
                     Start Shopping
                   </Button>
                 </Link>
@@ -130,17 +127,17 @@ export const Cart = () => {
           )}
         </div>
         {cartItems.length > 0 && (
-          <SheetFooter className="px-6 py-6 bg-gray-50/80 rounded-t-2xl">
+          <SheetFooter className="rounded-t-2xl bg-gray-50/80 px-6 py-6">
             <div className="w-full">
-              <div className="flex justify-between font-bold text-lg text-primary">
+              <div className="text-primary flex justify-between text-lg font-bold">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>${totalPrice().toFixed(2)}</span>
               </div>
-              <p className="text-sm text-primary/60 mt-1">
+              <p className="text-primary/60 mt-1 text-sm">
                 Shipping and taxes calculated at checkout.
               </p>
               <Link href="/checkout">
-                <Button className="w-full mt-4 bg-primary text-white hover:bg-secondary hover:text-black font-semibold h-12 rounded-full transition-all duration-300 font-body text-base">
+                <Button className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black">
                   Proceed to Checkout
                 </Button>
               </Link>
