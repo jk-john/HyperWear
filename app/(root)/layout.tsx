@@ -1,4 +1,6 @@
-import { CartProvider } from "@/context/CartContext";
+import { AuthToast } from "@/components/ui/AuthToast";
+import { Toaster } from "@/components/ui/sonner";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -6,10 +8,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <CartProvider>
-      <div className="flex flex-col min-h-screen bg-primary">
-        <main className="flex-grow">{children}</main>
-      </div>
-    </CartProvider>
+    <div className="flex flex-col min-h-screen bg-primary">
+      <main className="flex-grow">{children}</main>
+      <Toaster />
+      <Suspense>
+        <AuthToast />
+      </Suspense>
+    </div>
   );
 }

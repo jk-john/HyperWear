@@ -11,17 +11,24 @@ interface ProductCardProps {
   product: {
     id: string;
     name: string;
-    category: string;
+    slug: string;
     price: number;
-    originalPrice?: number;
-    colors?: string[];
-    image: string;
-    tags: string[];
+    image_url: string;
   };
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    const productToAdd = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url,
+    };
+    addToCart(productToAdd);
+  };
 
   return (
     <CardContainer containerClassName="py-0 h-full">
@@ -32,7 +39,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <Badge variant="secondary">New</Badge>
             </div>
             <Image
-              src={product.image}
+              src={product.image_url}
               alt={product.name}
               width={350}
               height={350}
@@ -47,10 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         >
           <div className="flex flex-col">
             <div>
-              <p className="text-teal-400 text-sm font-medium">
-                {product.category}
-              </p>
-              <Link href={`/products/${product.id}`}>
+              <Link href={`/products/${product.slug}`}>
                 <h3 className="text-white text-lg font-semibold mt-1">
                   {product.name}
                 </h3>
@@ -58,18 +62,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
             <div className="flex items-center gap-2 mt-2">
               <p className="text-white text-2xl font-bold">${product.price}</p>
-              {product.originalPrice &&
-                product.originalPrice > product.price && (
-                  <p className="text-gray-400 line-through text-lg">
-                    ${product.originalPrice}
-                  </p>
-                )}
             </div>
           </div>
           <div className="mt-auto pt-4">
             <Button
               className="w-full bg-[#dbfbf6] hover:bg-[#0f3933] hover:text-white text-black"
-              onClick={() => addToCart(product)}
+              onClick={handleAddToCart}
             >
               Add to Cart
             </Button>

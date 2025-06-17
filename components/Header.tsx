@@ -12,7 +12,13 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Menu, Search, User } from "lucide-react";
 import Image from "next/image";
@@ -180,7 +186,10 @@ const Header = () => {
                   side="right"
                   className="w-[300px] bg-white/95 backdrop-blur-xl"
                 >
-                  <nav className="flex flex-col space-y-2 mt-8">
+                  <SheetHeader>
+                    <SheetTitle className="sr-only">Menu</SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col space-y-2">
                     <Link
                       href="/products/tee-shirts"
                       className="text-primary/80 hover:text-primary font-body font-medium py-3 px-4 rounded-lg hover:bg-primary/5 transition-colors"
