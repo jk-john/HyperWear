@@ -25,7 +25,7 @@ const Footer = () => {
               placeholder="Enter your email"
               className="bg-dark1 h-12 border-tealMid/50 text-white placeholder:text-white/40 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
             />
-            <Button className="bg-accent text-primary font-bold h-12 px-8 rounded-lg hover:bg-accent/90 transition-colors">
+            <Button className="bg-white text-jungle font-bold h-12 px-8 rounded-lg hover:bg-cream/90 transition-all duration-300 shadow-lg shadow-accent/20 transform hover:-translate-y-1">
               <Mail className="h-5 w-5 mr-2" />
               Subscribe
             </Button>
@@ -47,21 +47,21 @@ const Footer = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white/70 hover:text-accent hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
+                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
               >
                 <Twitter className="h-5 w-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white/70 hover:text-accent hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
+                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
               >
                 <Instagram className="h-5 w-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white/70 hover:text-accent hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
+                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
               >
                 <Youtube className="h-5 w-5" />
               </Button>
@@ -104,7 +104,7 @@ const Footer = () => {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-white/70 hover:text-accent transition-colors duration-200"
+                      className="text-white/70 hover:text-white transition-colors duration-200"
                     >
                       {link}
                     </a>
@@ -121,13 +121,13 @@ const Footer = () => {
             © 2025 HyperWear. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm text-white/50">
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="#" className="hover:text-white transition-colors">
               Terms of Service
             </a>
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="#" className="hover:text-white transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="#" className="hover:text-white transition-colors">
               Cookie Policy
             </a>
           </div>

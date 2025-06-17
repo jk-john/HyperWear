@@ -49,7 +49,7 @@ ListItem.displayName = "ListItem";
 const Header = () => {
   return (
     <header className="sticky top-4 z-50 px-4">
-      <div className="flexmax-w-7xl mx-auto bg-white/90 backdrop-blur-xl rounded-full shadow-lg ring-1 ring-black/5">
+      <div className="flexmax-w-7xl mx-auto bg-white backdrop-blur-xl rounded-full shadow-lg ring-1 ring-black/5">
         <div className="px-4">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-2">
@@ -60,8 +60,9 @@ const Header = () => {
                 height={256}
                 className="w-14 h-14 rounded-full"
               />
-              <div className="text-4xl font-bold font-display text-primary">
-                HyperWear
+              <div className="text-4xl font-bold font-display text-primary hover:text-secondary transition-colors duration-300">
+                <span className="text-jungle">Hyper</span>
+                <span className="text-mint">Wear</span>
               </div>
             </Link>
 
