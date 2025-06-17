@@ -38,7 +38,7 @@ const ListItem = React.forwardRef<
           href={props.href || "/"}
           ref={ref}
           className={cn(
-            "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
+            "hover:bg-cream hover:text-accent-foreground focus:bg-cream focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
             className,
           )}
           {...props}
@@ -100,14 +100,14 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden items-center gap-10 space-x-2 md:flex">
-              <NavigationMenu className="rounded-lg border-none bg-white/90 px-4 py-2 backdrop-blur-xl">
+              <NavigationMenu className="rounded-lg border-none bg-white px-4 py-2 backdrop-blur-xl">
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger className="font-body outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                    <NavigationMenuTrigger className="font-body hover:bg-cream hover:text-accent-foreground outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
                       Products
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="font-body grid w-[400px] gap-3 rounded-lg border-none bg-white/90 p-4 backdrop-blur-xl md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      <ul className="font-body grid w-[400px] gap-3 rounded-lg border-none bg-white p-4 backdrop-blur-xl md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                         <ListItem
                           href="/products/tee-shirts"
                           title="Tee-Shirts"
@@ -130,7 +130,10 @@ const Header = () => {
                   <NavigationMenuItem>
                     <NavigationMenuLink
                       asChild
-                      className={navigationMenuTriggerStyle()}
+                      className={
+                        navigationMenuTriggerStyle() +
+                        " hover:bg-cream hover:text-accent-foreground"
+                      }
                     >
                       <Link href="/collections">Collections</Link>
                     </NavigationMenuLink>
@@ -139,7 +142,10 @@ const Header = () => {
                   <NavigationMenuItem>
                     <NavigationMenuLink
                       asChild
-                      className={navigationMenuTriggerStyle()}
+                      className={
+                        navigationMenuTriggerStyle() +
+                        " hover:bg-cream hover:text-accent-foreground"
+                      }
                     >
                       <Link href="/new-arrivals">
                         <span className="relative">
@@ -157,7 +163,10 @@ const Header = () => {
                   <NavigationMenuItem>
                     <NavigationMenuLink
                       asChild
-                      className={navigationMenuTriggerStyle()}
+                      className={
+                        navigationMenuTriggerStyle() +
+                        " hover:bg-cream hover:text-accent-foreground"
+                      }
                     >
                       <Link href="/community">Community</Link>
                     </NavigationMenuLink>
