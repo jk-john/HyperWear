@@ -7,10 +7,10 @@ const VISIBLE_PRODUCTS = 9;
 
 export default function FeaturedProducts() {
   return (
-    <section className="py-20">
+    <section className="bg-white py-20">
       <div className="container mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold text-white font-display">
+        <div className="mb-12 text-center">
+          <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
             Featured Products
           </h2>
         </div>

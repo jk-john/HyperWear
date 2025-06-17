@@ -15,6 +15,8 @@ import { useCartStore } from "@/stores/cart";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } =
@@ -23,9 +25,16 @@ export const Cart = () => {
     (total, item) => total + item.quantity,
     0,
   );
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    router.push("/checkout");
+    setIsOpen(false);
+  };
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -136,11 +145,12 @@ export const Cart = () => {
               <p className="text-primary/60 mt-1 text-sm">
                 Shipping and taxes calculated at checkout.
               </p>
-              <Link href="/checkout">
-                <Button className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black">
-                  Proceed to Checkout
-                </Button>
-              </Link>
+              <Button
+                onClick={handleCheckout}
+                className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
+              >
+                Proceed to Checkout
+              </Button>
             </div>
           </SheetFooter>
         )}

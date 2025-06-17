@@ -13,20 +13,20 @@ export default function Hero() {
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
+        className="absolute top-0 left-0 h-full w-full object-cover"
         // poster="/path-to-your-poster-image.jpg" // Optional: show an image while the video loads
       >
         {/* <source src="/your-video.mp4" type="video/mp4" /> */}
         {/* Add your video source here */}
       </video>
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="bg-jungle/50 absolute inset-0" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center p-4 text-center text-white">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
           className={cn(
-            "font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
+            "font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl",
           )}
         >
           The Place To House All HyperLiquid Fans
@@ -35,7 +35,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeInOut" }}
-          className="mt-6 max-w-2xl text-lg leading-8 text-cream text-center font-body"
+          className="text-cream font-body mt-6 max-w-2xl text-center text-lg leading-8"
         >
           Crypto is fragmented today, but your community doesn&apos;t have to
           be. For the first time, wear the movement that unites projects,
@@ -49,7 +49,7 @@ export default function Hero() {
         >
           <Button
             asChild
-            className="rounded-full bg-secondary text-primary shadow-lg transition-all hover:bg-secondary/90 hover:shadow-secondary/40"
+            className="bg-secondary text-primary hover:bg-secondary/90 hover:shadow-secondary/40 rounded-full shadow-lg transition-all"
           >
             <Link href="/products">Shop Collection</Link>
           </Button>

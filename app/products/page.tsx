@@ -1,4 +1,4 @@
-import ProductCard from "@/components/ProductCard";
+import ProductGrid from "@/components/ProductGrid";
 import { getProducts } from "@/lib/supabase";
 
 export const metadata = {
@@ -9,13 +9,15 @@ export default async function ProductsPage() {
   const products = await getProducts();
 
   return (
-    <main className="container mx-auto py-8">
-      <h1 className="text-3xl font-display mb-6">All Products</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+    <section className="bg-white py-20">
+      <div className="container mx-auto">
+        <div className="mb-12 text-center">
+          <h1 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
+            All Products
+          </h1>
+        </div>
+        <ProductGrid products={products} />
       </div>
-    </main>
+    </section>
   );
 }
