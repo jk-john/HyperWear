@@ -7,11 +7,20 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export async function getProducts() {
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, price, image_url")
-    .eq("active", true)
+    .select("id, name, description, price, image_url")
     .order("name");
   if (error) throw error;
   return data;
+}
+
+export async function searchProducts(query: string) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, name, description, price, image_url")
+    .ilike("name", `%${query}%`)
+    .order("name");
+  if (error) throw error;
+  return data || [];
 }
 
 export async function getProductBySlug(slug: string) {

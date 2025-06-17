@@ -11,9 +11,9 @@ interface ProductCardProps {
   product: {
     id: string;
     name: string;
-    slug: string;
     price: number;
-    image_url: string;
+    image_url: string | null;
+    description?: string | null;
   };
 }
 
@@ -21,52 +21,54 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    const productToAdd = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image_url,
-    };
-    addToCart(productToAdd);
+    if (product.image_url) {
+      const productToAdd = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_url,
+      };
+      addToCart(productToAdd);
+    }
   };
 
   return (
     <CardContainer containerClassName="py-0 h-full">
-      <CardBody className="bg-white/5 p-4 rounded-2xl flex flex-col justify-between gap-4 w-[350px] h-[450px] font-body">
-        <CardItem translateZ="50" className="w-full h-[60%]">
-          <div className="relative group h-full">
+      <CardBody className="font-body flex h-[450px] w-[350px] flex-col justify-between gap-4 rounded-2xl bg-white/5 p-4">
+        <CardItem translateZ="50" className="h-[60%] w-full">
+          <div className="group relative h-full">
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
               <Badge variant="secondary">New</Badge>
             </div>
             <Image
-              src={product.image_url}
+              src={product.image_url || "/placeholder.png"}
               alt={product.name}
               width={350}
               height={350}
-              className="w-full h-full rounded-xl object-cover"
+              className="h-full w-full rounded-xl object-cover"
             />
           </div>
         </CardItem>
 
         <CardItem
           translateZ="20"
-          className="flex flex-col h-[40%] justify-between"
+          className="flex h-[40%] flex-col justify-between"
         >
           <div className="flex flex-col">
             <div>
-              <Link href={`/products/${product.slug}`}>
-                <h3 className="text-white text-lg font-semibold mt-1">
+              <Link href={`/products/${product.id}`}>
+                <h3 className="mt-1 text-lg font-semibold text-white">
                   {product.name}
                 </h3>
               </Link>
             </div>
-            <div className="flex items-center gap-2 mt-2">
-              <p className="text-white text-2xl font-bold">${product.price}</p>
+            <div className="mt-2 flex items-center gap-2">
+              <p className="text-2xl font-bold text-white">${product.price}</p>
             </div>
           </div>
           <div className="mt-auto pt-4">
             <Button
-              className="w-full bg-[#dbfbf6] hover:bg-[#0f3933] hover:text-white text-black"
+              className="w-full bg-[#dbfbf6] text-black hover:bg-[#0f3933] hover:text-white"
               onClick={handleAddToCart}
             >
               Add to Cart
