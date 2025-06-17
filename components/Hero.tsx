@@ -35,7 +35,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeInOut" }}
-          className="mt-6 max-w-2xl text-lg leading-8 text-cream"
+          className="mt-6 max-w-2xl text-lg leading-8 text-cream text-center font-body"
         >
           Crypto is fragmented today, but your community doesn&apos;t have to
           be. For the first time, wear the movement that unites projects,

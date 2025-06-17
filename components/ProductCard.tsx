@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { CardBody, CardContainer, CardItem } from "./ui/3d-card";
@@ -26,7 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <CardContainer containerClassName="py-0">
-      <CardBody className="bg-white/5 p-4 rounded-2xl grid grid-rows-[1fr_auto] gap-4 w-full h-[450px]">
+      <CardBody className="bg-white/5 p-4 rounded-2xl grid grid-rows-[1fr_auto] gap-4 w-full h-[450px] font-body">
         <CardItem translateZ="50" className="w-full">
           <div className="relative group h-full">
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
@@ -48,15 +48,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               height={350}
               className="w-full h-full rounded-xl object-cover"
             />
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
-              <Button
-                className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                onClick={() => addToCart(product)}
-              >
-                <ShoppingBag className="w-5 h-5 mr-2" />
-                Quick Add
-              </Button>
-            </div>
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center"></div>
           </div>
         </CardItem>
 

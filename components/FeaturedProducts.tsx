@@ -26,7 +26,7 @@ export default function FeaturedProducts() {
     <section className="py-20">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-12">
-          <h2 className="text-4xl font-bold text-white font-display">
+          <h2 className="text-4xl font-semibold text-white font-display mb-20">
             Featured Products
           </h2>
           <div className="w-64">
