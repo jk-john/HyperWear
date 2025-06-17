@@ -1,5 +1,6 @@
 "use client";
 
+import { Cart } from "@/components/Cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +13,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
-import { Menu, Search, ShoppingBag, User } from "lucide-react";
+import { Menu, Search, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -47,15 +47,9 @@ const ListItem = React.forwardRef<
 ListItem.displayName = "ListItem";
 
 const Header = () => {
-  const { cartItems } = useCart();
-  const totalCartItems = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-
   return (
     <header className="sticky top-4 z-50 px-4">
-      <div className="max-w-7xl mx-auto bg-white/90 backdrop-blur-xl rounded-full shadow-lg ring-1 ring-black/5">
+      <div className="flexmax-w-7xl mx-auto bg-white/90 backdrop-blur-xl rounded-full shadow-lg ring-1 ring-black/5">
         <div className="px-4">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-2">
@@ -72,8 +66,8 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-2">
-              <NavigationMenu>
+            <nav className="hidden md:flex items-center space-x-2 gap-10">
+              <NavigationMenu className=" bg-white/90 backdrop-blur-xl rounded-lg border-none px-4 py-2">
                 <NavigationMenuList>
                   <NavigationMenuItem>
                     <NavigationMenuTrigger className="font-body focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none">
@@ -99,39 +93,48 @@ const Header = () => {
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
-                    <Link href="/collections" legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={navigationMenuTriggerStyle()}
-                      >
-                        Collections
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                      asChild
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      <Link href="/collections">Collections</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      <Link href="/new-arrivals">
+                        <span className="relative">
+                          New Arrivals
+                          <Badge
+                            variant="secondary"
+                            className="absolute -top-5.5 -right-6 font-body animate-pulse"
+                          >
+                            Coming Soon
+                          </Badge>
+                        </span>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link href="/new-arrivals" legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={navigationMenuTriggerStyle()}
-                      >
-                        New Arrivals
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/community" legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={navigationMenuTriggerStyle()}
-                      >
-                        Community
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                      asChild
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      <Link href="/community">Community</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-8 px-2 py-1 bg-white/90 backdrop-blur-xl rounded-lg border-none">
               <Link href="/search">
                 <Button
                   variant="ghost"
@@ -152,20 +155,7 @@ const Header = () => {
                 </Button>
               </Link>
 
-              <Link href="/cart">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-11 w-11 text-primary/80 hover:text-primary hover:bg-primary/5 transition-all duration-300 rounded-full"
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  {totalCartItems > 0 && (
-                    <Badge className="absolute -top-0.5 -right-0.5 h-5 w-5 flex items-center justify-center p-0 bg-accent text-primary text-xs font-bold rounded-full border-2 border-white">
-                      {totalCartItems}
-                    </Badge>
-                  )}
-                </Button>
-              </Link>
+              <Cart />
 
               {/* Shop Now Button */}
               <Link href="/products">

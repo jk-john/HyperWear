@@ -1,3 +1,5 @@
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/context/CartContext";
 import type { Metadata } from "next";
@@ -33,7 +35,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
         <CartProvider>
+          <Header />
           {children}
+          <Footer />
           <Toaster />
         </CartProvider>
       </body>

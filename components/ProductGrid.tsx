@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import ProductCard from "./ProductCard";
 
 interface Product {
@@ -16,26 +15,14 @@ interface Product {
 
 interface ProductGridProps {
   products: Product[];
-  currentIndex: number;
 }
 
-export default function ProductGrid({
-  products,
-  currentIndex,
-}: ProductGridProps) {
+export default function ProductGrid({ products }: ProductGridProps) {
   return (
-    <motion.div
-      className="flex gap-8"
-      animate={{
-        x: `-${currentIndex * (100 / 4)}%`, // Assuming 4 items are visible
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {products.map((product) => (
-        <div key={product.id} className="flex-shrink-0 w-1/4">
-          <ProductCard product={product} />
-        </div>
+        <ProductCard key={product.id} product={product} />
       ))}
-    </motion.div>
+    </div>
   );
 }
