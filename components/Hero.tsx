@@ -56,8 +56,11 @@ export default function Hero() {
             </Button>
           </div>
           <div className="shimmer rounded-full">
-            <Button className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white">
-              About Us
+            <Button
+              asChild
+              className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
+            >
+              <Link href="/about">About Us</Link>
             </Button>
           </div>
         </motion.div>

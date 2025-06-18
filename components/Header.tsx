@@ -21,6 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import ShimmerButton from "@/components/ui/ShimmerButton";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
@@ -95,10 +96,14 @@ const Header = () => {
                 height={256}
                 className="h-14 w-14 rounded-full"
               />
-              <div className="font-display text-primary hover:text-secondary text-4xl font-bold transition-colors duration-300">
-                <span className="text-jungle">Hyper</span>
-                <span className="text-mint">Wear</span>
-              </div>
+              <AnimatedText
+                text="HyperWear"
+                textClassName="text-jungle font-display text-4xl font-bold"
+                underlineClassName="text-mint"
+                underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
+                underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
+                underlineDuration={1.5}
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -118,7 +123,10 @@ const Header = () => {
                           Re-discover the basics
                         </ListItem>
                         <ListItem href="/products/caps" title="Caps">
-                          The best caps for your style
+                          The best caps for your style.
+                        </ListItem>
+                        <ListItem href="/products/plushies" title="Plushies">
+                          The best plushies for your home and office.
                         </ListItem>
                         <ListItem
                           href="/products/accessories"

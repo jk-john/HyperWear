@@ -54,7 +54,7 @@ body {
     );
   }
 
-  .shimmer:hover::after {
+  .shimmer::after {
     animation: shimmer 2s infinite;
   }
 }
