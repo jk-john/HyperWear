@@ -21,6 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import ShimmerButton from "@/components/ui/ShimmerButton";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -227,9 +228,7 @@ const Header = () => {
 
               {/* Shop Now Button */}
               <Link href="/products">
-                <Button className="bg-primary hover:bg-secondary font-body hidden h-11 rounded-full px-6 font-semibold text-white transition-all duration-300 hover:text-black md:flex">
-                  Shop Now
-                </Button>
+                <ShimmerButton className="hidden md:flex" />
               </Link>
 
               {/* Mobile Menu */}
@@ -308,9 +307,7 @@ const Header = () => {
                         </Link>
                       )}
                       <Link href="/products">
-                        <Button className="bg-secondary text-primary hover:bg-primary mt-4 h-12 w-full rounded-full font-semibold transition-colors hover:text-white">
-                          Shop Now
-                        </Button>
+                        <ShimmerButton className="mt-4 w-full" />
                       </Link>
                     </div>
                   </nav>
