@@ -92,7 +92,7 @@ export function SignInForm() {
   };
 
   return (
-    <Card className="w-full sm:w-96 border-[var(--color-emerald)] bg-[var(--color-deep)]">
+    <Card className="w-full border-[var(--color-emerald)] bg-[var(--color-deep)] sm:w-96">
       <CardHeader>
         <CardTitle className="text-[var(--color-light)]">
           Sign in to HyperWear
@@ -108,7 +108,7 @@ export function SignInForm() {
             size="sm"
             variant="outline"
             type="button"
-            className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-emerald)] hover:bg-[var(--color-mint)]"
+            className="border-[var(--color-emerald)] bg-[var(--color-emerald)] text-[var(--color-light)] hover:bg-[var(--color-mint)]"
             onClick={() => handleOAuthSignIn("github")}
           >
             <Icons.gitHub className="mr-2 size-4" />
@@ -118,7 +118,7 @@ export function SignInForm() {
             size="sm"
             variant="outline"
             type="button"
-            className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-emerald)] hover:bg-[var(--color-mint)]"
+            className="border-[var(--color-emerald)] bg-[var(--color-emerald)] text-[var(--color-light)] hover:bg-[var(--color-mint)]"
             onClick={() => handleOAuthSignIn("google")}
           >
             <Icons.google className="mr-2 size-4" />
@@ -140,10 +140,10 @@ export function SignInForm() {
               type="email"
               placeholder="Enter your email"
               {...form.register("email")}
-              className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+              className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
             />
             {form.formState.errors.email && (
-              <p className="text-red-500 text-xs pt-1">
+              <p className="pt-1 text-xs text-red-500">
                 {form.formState.errors.email.message}
               </p>
             )}
@@ -159,7 +159,7 @@ export function SignInForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 {...form.register("password")}
-                className="pr-10 bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+                className="border-[var(--color-mint)] bg-[var(--color-emerald)] pr-10 text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
               />
               <button
                 type="button"
@@ -174,10 +174,19 @@ export function SignInForm() {
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-red-500 text-xs pt-1">
+              <p className="pt-1 text-xs text-red-500">
                 {form.formState.errors.password.message}
               </p>
             )}
+          </div>
+
+          <div className="flex items-center justify-end">
+            <Link
+              href="/password-reset"
+              className="text-sm text-gray-400 hover:text-white"
+            >
+              Forgot your password?
+            </Link>
           </div>
 
           <Button
@@ -193,7 +202,7 @@ export function SignInForm() {
       <CardFooter className="flex justify-center pt-4 pb-4">
         <Link
           href="/sign-up"
-          className="text-white hover:text-[var(--color-secondary)] text-sm"
+          className="text-sm text-white hover:text-[var(--color-secondary)]"
         >
           Don&apos;t have an account? Sign up
         </Link>

@@ -13,23 +13,26 @@ export type Database = {
         Row: {
           id: string;
           order_id: string | null;
-          price: number;
+          price_at_purchase: number;
           product_id: string | null;
           quantity: number;
+          selected_size: string | null;
         };
         Insert: {
           id?: string;
           order_id?: string | null;
-          price: number;
+          price_at_purchase: number;
           product_id?: string | null;
           quantity: number;
+          selected_size?: string | null;
         };
         Update: {
           id?: string;
           order_id?: string | null;
-          price?: number;
+          price_at_purchase?: number;
           product_id?: string | null;
           quantity?: number;
+          selected_size?: string | null;
         };
         Relationships: [
           {
@@ -53,73 +56,91 @@ export type Database = {
           created_at: string | null;
           id: string;
           shipping_address: Json | null;
-          status: string | null;
-          total_price: number;
+          shipping_cost: number;
+          status: Database["public"]["Enums"]["order_status"] | null;
+          stripe_payment_intent_id: string | null;
+          subtotal: number;
+          total_amount: number;
           user_id: string | null;
         };
         Insert: {
           created_at?: string | null;
           id?: string;
           shipping_address?: Json | null;
-          status?: string | null;
-          total_price: number;
+          shipping_cost?: number;
+          status?: Database["public"]["Enums"]["order_status"] | null;
+          stripe_payment_intent_id?: string | null;
+          subtotal?: number;
+          total_amount: number;
           user_id?: string | null;
         };
         Update: {
           created_at?: string | null;
           id?: string;
           shipping_address?: Json | null;
-          status?: string | null;
-          total_price?: number;
+          shipping_cost?: number;
+          status?: Database["public"]["Enums"]["order_status"] | null;
+          stripe_payment_intent_id?: string | null;
+          subtotal?: number;
+          total_amount?: number;
           user_id?: string | null;
         };
         Relationships: [];
       };
       products: {
         Row: {
+          available_sizes: string[] | null;
+          category: Database["public"]["Enums"]["product_category"] | null;
           created_at: string | null;
           description: string | null;
           id: string;
-          image_url: string | null;
+          images: string[] | null;
           name: string;
           price: number;
+          tags: string[] | null;
         };
         Insert: {
+          available_sizes?: string[] | null;
+          category?: Database["public"]["Enums"]["product_category"] | null;
           created_at?: string | null;
           description?: string | null;
           id?: string;
-          image_url?: string | null;
+          images?: string[] | null;
           name: string;
           price: number;
+          tags?: string[] | null;
         };
         Update: {
+          available_sizes?: string[] | null;
+          category?: Database["public"]["Enums"]["product_category"] | null;
           created_at?: string | null;
           description?: string | null;
           id?: string;
-          image_url?: string | null;
+          images?: string[] | null;
           name?: string;
           price?: number;
+          tags?: string[] | null;
         };
         Relationships: [];
       };
       profiles: {
         Row: {
           avatar_url: string | null;
-          full_name: string | null;
           id: string;
           updated_at: string | null;
+          username: string | null;
         };
         Insert: {
           avatar_url?: string | null;
-          full_name?: string | null;
           id: string;
           updated_at?: string | null;
+          username?: string | null;
         };
         Update: {
           avatar_url?: string | null;
-          full_name?: string | null;
           id?: string;
           updated_at?: string | null;
+          username?: string | null;
         };
         Relationships: [];
       };
@@ -131,7 +152,13 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      order_status:
+        | "pending"
+        | "processing"
+        | "shipped"
+        | "delivered"
+        | "canceled";
+      product_category: "T-shirts" | "Caps" | "Accessories" | "Plush";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -246,6 +273,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      order_status: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "canceled",
+      ],
+      product_category: ["T-shirts", "Caps", "Accessories", "Plush"],
+    },
   },
 } as const;

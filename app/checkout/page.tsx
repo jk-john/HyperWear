@@ -80,7 +80,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[--color-dark] text-white">
+    <div className="bg-jungle min-h-screen text-white">
       <div className="container mx-auto px-4 py-12">
         <h1 className="font-display mb-12 text-center text-5xl font-bold text-[--color-secondary]">
           Checkout
@@ -91,7 +91,7 @@ export default function CheckoutPage() {
             className="grid grid-cols-1 gap-16 lg:grid-cols-2"
           >
             {/* Shipping Information & Payment */}
-            <div className="rounded-lg bg-[--color-primary] p-8 shadow-lg">
+            <div className="bg-primary rounded-lg p-8 shadow-lg">
               <h2 className="font-display mb-6 text-3xl font-semibold text-white">
                 Shipping Information
               </h2>
@@ -264,7 +264,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="space-y-8">
+            <div className="bg-primary space-y-8 rounded-lg p-4 shadow-lg">
               <div className="rounded-lg bg-[--color-primary] p-8 shadow-lg">
                 <h2 className="font-display mb-6 text-3xl font-semibold text-white">
                   Order Summary
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 size="lg"
-                className="bg-secondary hover:bg-mint hover:text-dark text-dark transition-color w-full py-6 text-lg font-bold hover:text-white"
+                className="bg-secondary hover:bg-mint text-dark transition-color w-full py-6 text-lg font-bold hover:text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Processing..." : "Place Order"}
