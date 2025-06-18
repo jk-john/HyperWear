@@ -350,7 +350,7 @@ export default function CheckoutPage() {
               </div>
               <Button
                 type="submit"
-                className="bg-cream hover:bg-cream/90 mt-8 w-full py-6 text-lg font-bold text-white transition-colors"
+                className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Processing..." : "Place Order"}

@@ -60,14 +60,14 @@ export function PurrNftForm() {
       className="space-y-6 rounded-lg border border-gray-700 bg-gray-800/20 p-8 backdrop-blur-sm"
     >
       <div className="space-y-2">
-        <Label htmlFor="evm_address" className="text-gray-300">
+        <Label htmlFor="evm_address" className="font-body text-md text-white">
           EVM Address
         </Label>
         <Input
           id="evm_address"
           placeholder="0x..."
           {...form.register("evm_address")}
-          className="border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
+          className="bg-gray-mint border-mint placeholder:text-mint hover:border-mint/80 mt-4 text-white"
         />
         {form.formState.errors.evm_address && (
           <p className="pt-1 text-xs text-red-400">
@@ -76,7 +76,7 @@ export function PurrNftForm() {
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email_address" className="text-gray-300">
+        <Label htmlFor="email_address" className="font-body text-md text-white">
           Email Address
         </Label>
         <Input
@@ -84,7 +84,7 @@ export function PurrNftForm() {
           type="email"
           placeholder="your@email.com"
           {...form.register("email_address")}
-          className="border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
+          className="bg-gray-mint border-mint placeholder:text-mint hover:border-mint/80 mt-4 text-white"
         />
         {form.formState.errors.email_address && (
           <p className="pt-1 text-xs text-red-400">
@@ -94,7 +94,7 @@ export function PurrNftForm() {
       </div>
       <Button
         type="submit"
-        className="w-full bg-indigo-500 text-white hover:bg-indigo-600"
+        className="bg-secondary text-jungle hover:bg-mint hover:shadow-cream/40 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
         disabled={isLoading}
       >
         {isLoading ? "Submitting..." : "Submit"}
