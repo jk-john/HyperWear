@@ -1,4 +1,5 @@
 import ProductGrid from "@/components/ProductGrid";
+import { OrderLimitBanner } from "@/components/ui/OrderLimitBanner";
 import { getProducts } from "@/lib/supabase";
 
 export const metadata = {
@@ -16,6 +17,7 @@ export default async function ProductsPage() {
             All Products
           </h1>
         </div>
+        <OrderLimitBanner />
         <ProductGrid products={products} />
       </div>
     </section>

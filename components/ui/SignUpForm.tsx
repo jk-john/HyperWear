@@ -16,8 +16,8 @@ import { z } from "zod";
 const BottomGradient = () => {
   return (
     <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
+      <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+      <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
     </>
   );
 };
@@ -31,7 +31,7 @@ const LabelInputContainer = ({
   className?: string;
 }) => {
   return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
+    <div className={cn("flex w-full flex-col space-y-2", className)}>
       {children}
     </div>
   );
@@ -100,7 +100,7 @@ const PasswordStrengthInput = ({
           aria-describedby={`${id}-description`}
         />
         <button
-          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10  focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="text-muted-foreground/80 hover:text-foreground focus-visible:outline-ring/70 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg outline-offset-2 transition-colors focus:z-10 focus-visible:outline-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           onClick={toggleVisibility}
           aria-label={isVisible ? "Hide password" : "Show password"}
@@ -116,7 +116,7 @@ const PasswordStrengthInput = ({
       </div>
 
       <div
-        className="h-1 w-full overflow-hidden rounded-full bg-border"
+        className="bg-border h-1 w-full overflow-hidden rounded-full"
         role="progressbar"
         aria-valuenow={strengthScore}
         aria-valuemin={0}
@@ -125,17 +125,17 @@ const PasswordStrengthInput = ({
       >
         <div
           className={`h-full ${getStrengthColor(
-            strengthScore
+            strengthScore,
           )} transition-all duration-500 ease-out`}
           style={{ width: `${(strengthScore / 4) * 100}%` }}
         ></div>
       </div>
 
-      {error && <p className="text-red-500 text-xs pt-1">{error}</p>}
+      {error && <p className="pt-1 text-xs text-red-500">{error}</p>}
 
       <p
         id={`${id}-description`}
-        className="text-sm font-medium text-foreground"
+        className="text-foreground text-sm font-medium"
       >
         {getStrengthText(strengthScore)}. Must contain:
       </p>
@@ -226,6 +226,7 @@ export const SignupForm = () => {
         data: {
           first_name: values.firstName,
           last_name: values.lastName,
+          full_name: `${values.firstName} ${values.lastName}`,
         },
       },
     });
@@ -237,7 +238,7 @@ export const SignupForm = () => {
     }
 
     toast.success(
-      "Signed up successfully! Please check your email to verify your account."
+      "Signed up successfully! Please check your email to verify your account.",
     );
     router.push("/sign-in");
     router.refresh();
@@ -259,16 +260,16 @@ export const SignupForm = () => {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto rounded-2xl p-8 shadow-lg bg-[var(--color-deep)] text-[var(--color-light)] border border-[var(--color-emerald)]">
-      <h2 className="font-bold text-2xl text-[var(--color-light)] mb-2">
+    <div className="mx-auto w-full max-w-md rounded-2xl border border-[var(--color-emerald)] bg-[var(--color-deep)] p-8 text-[var(--color-light)] shadow-lg">
+      <h2 className="mb-2 text-2xl font-bold text-[var(--color-light)]">
         Create Your Account
       </h2>
-      <p className="text-[var(--color-accent)] text-sm mb-8">
+      <p className="mb-8 text-sm text-[var(--color-accent)]">
         Join us today and start your journey with HyperWear.
       </p>
 
       <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
           <LabelInputContainer>
             <Label htmlFor="firstname" className="text-[var(--color-light)]">
               First name
@@ -278,10 +279,10 @@ export const SignupForm = () => {
               placeholder="John"
               type="text"
               {...form.register("firstName")}
-              className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+              className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
             />
             {form.formState.errors.firstName && (
-              <p className="text-red-500 text-xs pt-1">
+              <p className="pt-1 text-xs text-red-500">
                 {form.formState.errors.firstName.message}
               </p>
             )}
@@ -295,10 +296,10 @@ export const SignupForm = () => {
               placeholder="Doe"
               type="text"
               {...form.register("lastName")}
-              className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+              className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
             />
             {form.formState.errors.lastName && (
-              <p className="text-red-500 text-xs pt-1">
+              <p className="pt-1 text-xs text-red-500">
                 {form.formState.errors.lastName.message}
               </p>
             )}
@@ -314,10 +315,10 @@ export const SignupForm = () => {
             placeholder="john.doe@example.com"
             type="email"
             {...form.register("email")}
-            className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+            className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
           />
           {form.formState.errors.email && (
-            <p className="text-red-500 text-xs pt-1">
+            <p className="pt-1 text-xs text-red-500">
               {form.formState.errors.email.message}
             </p>
           )}
@@ -347,17 +348,17 @@ export const SignupForm = () => {
             placeholder="Confirm your password"
             type="password"
             {...form.register("confirmPassword")}
-            className="bg-[var(--color-emerald)] text-[var(--color-light)] border-[var(--color-mint)] placeholder:text-[var(--color-accent)]"
+            className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
           />
           {form.formState.errors.confirmPassword && (
-            <p className="text-red-500 text-xs pt-1">
+            <p className="pt-1 text-xs text-red-500">
               {form.formState.errors.confirmPassword.message}
             </p>
           )}
         </LabelInputContainer>
 
         <button
-          className="bg-[var(--color-mint)] text-[var(--color-dark)] relative group/btn w-full rounded-md h-10 font-medium shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-secondary)] disabled:opacity-50"
+          className="group/btn relative h-10 w-full rounded-md bg-[var(--color-mint)] font-medium text-[var(--color-dark)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-secondary)] disabled:opacity-50"
           type="submit"
           disabled={isLoading}
         >
@@ -365,11 +366,11 @@ export const SignupForm = () => {
           <BottomGradient />
         </button>
 
-        <div className="bg-gradient-to-r from-transparent via-[var(--color-emerald)] to-transparent my-8 h-[1px] w-full" />
+        <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-[var(--color-emerald)] to-transparent" />
 
         <div className="flex flex-col space-y-4">
           <button
-            className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-[var(--color-light)] rounded-md h-10 font-medium shadow-lg bg-[var(--color-deep)] border border-[var(--color-emerald)] hover:bg-[var(--color-emerald)] transition-all duration-300 ease-in-out"
+            className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
             type="button"
             onClick={() => handleOAuthSignIn("github")}
           >

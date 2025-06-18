@@ -15,15 +15,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCartStore } from "@/stores/cart";
+import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import { createCheckoutSession } from "./actions";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  firstName: z
+    .string()
+    .min(2, { message: "First name must be at least 2 characters." }),
+  lastName: z
+    .string()
+    .min(2, { message: "Last name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   street: z.string().min(1, { message: "Street is required." }),
   city: z.string().min(1, { message: "City is required." }),
@@ -40,7 +47,8 @@ export default function CheckoutPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       street: "",
       city: "",
@@ -50,11 +58,28 @@ export default function CheckoutPage() {
     },
   });
 
+  useEffect(() => {
+    const supabase = createClient();
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        form.setValue("email", user.email || "");
+        const [firstName, lastName] =
+          user.user_metadata.full_name?.split(" ") || [];
+        form.setValue("firstName", firstName || "");
+        form.setValue("lastName", lastName || "");
+      }
+    };
+    fetchUser();
+  }, [form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
       const shippingAddress = {
-        name: values.name,
+        name: `${values.firstName} ${values.lastName}`,
         email: values.email,
         street: values.street,
         city: values.city,
@@ -62,18 +87,24 @@ export default function CheckoutPage() {
         country: values.country,
       };
 
-      // Store shipping info in local storage to retrieve on success page
       localStorage.setItem("shippingAddress", JSON.stringify(shippingAddress));
 
       if (values.paymentMethod === "stripe") {
-        await createCheckoutSession(shippingAddress, values.email);
+        const result = await createCheckoutSession(
+          cartItems,
+          shippingAddress,
+          values.email,
+        );
+        if (result?.error) {
+          toast.error(result.error);
+        }
       } else {
+        toast.error("NowPayments is not yet implemented.");
         console.log("Redirecting to NowPayments...");
-        // Mock redirection for NowPayments
       }
     } catch (error) {
       console.error("Submission error:", error);
-      // Optionally show an error message to the user
+      toast.error("An unexpected error occurred during checkout.");
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +121,6 @@ export default function CheckoutPage() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid grid-cols-1 gap-16 lg:grid-cols-2"
           >
-            {/* Shipping Information & Payment */}
             <div className="bg-primary rounded-lg p-8 shadow-lg">
               <h2 className="font-display mb-6 text-3xl font-semibold text-white">
                 Shipping Information
@@ -99,15 +129,15 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="firstName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-white/80">
-                          Full Name
+                          First Name
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="John Doe"
+                            placeholder="John"
                             {...field}
                             className="border-[--color-deep] bg-[--color-jungle] text-white focus:border-[--color-mint]"
                           />
@@ -118,15 +148,15 @@ export default function CheckoutPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="lastName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-white/80">
-                          Email Address
+                          Last Name
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="john.doe@example.com"
+                            placeholder="Doe"
                             {...field}
                             className="border-[--color-deep] bg-[--color-jungle] text-white focus:border-[--color-mint]"
                           />
@@ -136,6 +166,25 @@ export default function CheckoutPage() {
                     )}
                   />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/80">
+                        Email Address
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="john.doe@example.com"
+                          {...field}
+                          className="border-[--color-deep] bg-[--color-jungle] text-white focus:border-[--color-mint]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="street"
@@ -210,7 +259,6 @@ export default function CheckoutPage() {
                     )}
                   />
                 </div>
-                {/* Payment Method Section */}
                 <div className="pt-6">
                   <h3 className="font-display mb-4 text-2xl font-semibold text-white">
                     Payment Method
@@ -226,36 +274,36 @@ export default function CheckoutPage() {
                             defaultValue={field.value}
                             className="space-y-4"
                           >
-                            <FormItem className="flex items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
+                            <FormLabel className="flex cursor-pointer items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
                               <FormControl>
                                 <RadioGroupItem
                                   value="stripe"
                                   className="text-[--color-mint]"
                                 />
                               </FormControl>
-                              <FormLabel className="flex items-center gap-4 font-medium text-white">
+                              <span className="flex items-center gap-4 font-medium text-white">
                                 Credit Card (Stripe)
                                 <StripeIcon />
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
+                              </span>
+                            </FormLabel>
+                            <FormLabel className="flex cursor-pointer items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
                               <FormControl>
                                 <RadioGroupItem
                                   value="nowpayments"
                                   className="text-[--color-mint]"
                                 />
                               </FormControl>
-                              <FormLabel className="flex items-center gap-2 font-medium text-white">
+                              <span className="flex items-center gap-2 font-medium text-white">
                                 Cryptocurrency (NowPayments)
                                 <div className="flex items-center">
                                   <UsdcIcon />
                                   <UsdtIcon />
                                 </div>
-                              </FormLabel>
-                            </FormItem>
+                              </span>
+                            </FormLabel>
                           </RadioGroup>
                         </FormControl>
-                        <FormMessage className="pt-2" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -264,60 +312,45 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="bg-primary space-y-8 rounded-lg p-4 shadow-lg">
-              <div className="rounded-lg bg-[--color-primary] p-8 shadow-lg">
-                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
-                  Order Summary
-                </h2>
-                <div className="space-y-6">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4">
+            <div className="bg-primary rounded-lg p-8 shadow-lg">
+              <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+                Order Summary
+              </h2>
+              <div className="space-y-6">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
                       <Image
                         src={item.image_url}
                         alt={item.name}
-                        width={80}
-                        height={80}
-                        className="rounded-lg object-cover"
+                        width={64}
+                        height={64}
+                        className="rounded-md"
                       />
-                      <div className="flex-grow">
-                        <p className="font-semibold text-white">{item.name}</p>
-                        <p className="text-sm text-white/80">
-                          Quantity: {item.quantity}
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-sm text-white/70">
+                          Qty: {item.quantity}
                         </p>
                       </div>
-                      <p className="font-semibold text-white">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </p>
                     </div>
-                  ))}
-                </div>
-                <div className="my-6 border-t border-[--color-deep]" />
-                <div className="space-y-3 text-lg">
-                  <div className="flex justify-between">
-                    <p className="text-white/80">Subtotal</p>
-                    <p className="font-semibold text-white">
-                      ${totalPrice().toFixed(2)}
+                    <p className="font-semibold">
+                      ${(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
-                  <div className="flex justify-between">
-                    <p className="text-white/80">Shipping</p>
-                    <p className="font-semibold text-white">
-                      Calculated at next step
-                    </p>
-                  </div>
-                  <div className="border-t border-[--color-deep] pt-3" />
-                  <div className="flex justify-between font-bold">
-                    <p className="text-white">Total</p>
-                    <p className="text-[--color-secondary]">
-                      ${totalPrice().toFixed(2)}
-                    </p>
-                  </div>
-                </div>
+                ))}
+              </div>
+              <div className="my-8 h-px bg-white/20" />
+              <div className="flex items-center justify-between text-xl font-bold">
+                <p>Total</p>
+                <p>${totalPrice().toFixed(2)}</p>
               </div>
               <Button
                 type="submit"
-                size="lg"
-                className="bg-secondary hover:bg-mint text-dark transition-color w-full py-6 text-lg font-bold hover:text-white"
+                className="bg-cream hover:bg-cream/90 mt-8 w-full py-6 text-lg font-bold text-white transition-colors"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Processing..." : "Place Order"}

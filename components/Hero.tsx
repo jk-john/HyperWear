@@ -51,7 +51,7 @@ export default function Hero() {
             asChild
             className="bg-secondary text-primary hover:bg-secondary/90 hover:shadow-secondary/40 rounded-full shadow-lg transition-all"
           >
-            <Link href="/products">Shop Collection</Link>
+            <Link href="/products">Shop Now</Link>
           </Button>
           <Button
             variant="outline"

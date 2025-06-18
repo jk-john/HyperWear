@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   throw new Error("Supabase URL or service key not provided in .env.local");
@@ -14,6 +14,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Tests products
 const products = [
   {
     id: "1",

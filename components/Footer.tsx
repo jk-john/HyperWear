@@ -2,73 +2,71 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Instagram, Mail, Twitter, Youtube } from "lucide-react";
+import { Instagram, Mail, Twitter } from "lucide-react";
+import Link from "next/link";
 
 // TODO: The footer is not working
 
 const Footer = () => {
   return (
-    <footer className="bg-dark2 text-white font-body">
+    <footer className="bg-dark2 font-body text-white">
       <div className="container mx-auto px-6 py-16">
         {/* Newsletter Section */}
-        <div className="text-center mb-20">
-          <h3 className="text-4xl font-display font-bold mb-4">
+        <div className="mb-20 text-center">
+          <h3 className="font-display mb-4 text-4xl font-bold">
             Stay in the Loop
           </h3>
-          <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+          <p className="mx-auto mb-8 max-w-2xl text-white/70">
             Crypto was Fragmented. HyperLiquid made it United. Wear the
             Movement.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <div className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row">
             <Input
               type="email"
               placeholder="Enter your email"
-              className="bg-dark1 h-12 border-tealMid/50 text-white placeholder:text-white/40 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+              className="bg-dark1 border-tealMid/50 focus:ring-accent focus:border-accent h-12 rounded-lg text-white transition-all placeholder:text-white/40 focus:ring-2"
             />
-            <Button className="bg-white text-jungle font-bold h-12 px-8 rounded-lg hover:bg-cream/90 transition-all duration-300 shadow-lg shadow-accent/20 transform hover:-translate-y-1">
-              <Mail className="h-5 w-5 mr-2" />
+            <Button className="text-jungle hover:bg-cream/90 shadow-accent/20 h-12 transform rounded-lg bg-white px-8 font-bold shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Mail className="mr-2 h-5 w-5" />
               Subscribe
             </Button>
           </div>
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand Column */}
-          <div>
-            <div className="text-3xl font-display font-bold mb-4">
+          <div className="lg:col-span-2">
+            <div className="font-display mb-4 text-3xl font-bold">
               <span>HyperWear</span>
             </div>
-            <p className="text-white/70 mb-6 leading-relaxed">
+            <p className="mb-8 pr-28 text-justify leading-relaxed text-white/70">
               We&apos;re designing premium merch to reflect and empower the
               unique spirit of the Hyperliquid community.
+              <p></p>HyperWear is an independent community project inspired by
+              HyperLiquid. It is not affiliated with or endorsed by HyperLiquid.
             </p>
+
             <div className="flex space-x-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
+                className="hover:bg-dark1 h-11 w-11 transform rounded-lg text-white/70 transition-all duration-300 hover:scale-110 hover:text-white"
               >
                 <Twitter className="h-5 w-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
+                className="hover:bg-dark1 h-11 w-11 transform rounded-lg text-white/70 transition-all duration-300 hover:scale-110 hover:text-white"
               >
                 <Instagram className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white/70 hover:text-white hover:bg-dark1 rounded-lg h-11 w-11 transform hover:scale-110 transition-all duration-300"
-              >
-                <Youtube className="h-5 w-5" />
               </Button>
             </div>
           </div>
 
           {/* Links Columns */}
+
           {[
             {
               title: "Products",
@@ -96,18 +94,18 @@ const Footer = () => {
             },
           ].map((column) => (
             <div key={column.title}>
-              <h4 className="font-bold text-lg mb-5 text-white">
+              <h4 className="mb-5 text-lg font-bold text-white">
                 {column.title}
               </h4>
               <ul className="space-y-3">
                 {column.links.map((link) => (
                   <li key={link}>
-                    <a
-                      href="#"
-                      className="text-white/70 hover:text-white transition-colors duration-200"
+                    <Link
+                      href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="text-white/70 transition-colors duration-200 hover:text-white"
                     >
                       {link}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -116,20 +114,20 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-dark1 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-white/50 text-sm mb-4 md:mb-0">
+        <div className="border-dark1 flex flex-col items-center justify-between border-t pt-8 md:flex-row">
+          <p className="mb-4 text-sm text-white/50 md:mb-0">
             © 2025 HyperWear. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm text-white/50">
-            <a href="#" className="hover:text-white transition-colors">
+            <Link href="#" className="transition-colors hover:text-white">
               Terms of Service
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link href="#" className="transition-colors hover:text-white">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link href="#" className="transition-colors hover:text-white">
               Cookie Policy
-            </a>
+            </Link>
           </div>
         </div>
       </div>

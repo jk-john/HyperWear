@@ -7,7 +7,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export async function getProducts() {
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, description, price, image_url")
+    .select("*")
     .order("name");
   if (error) throw error;
   return data;
@@ -16,7 +16,7 @@ export async function getProducts() {
 export async function searchProducts(query: string) {
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, description, price, image_url")
+    .select("*")
     .ilike("name", `%${query}%`)
     .order("name");
   if (error) throw error;
@@ -26,7 +26,7 @@ export async function searchProducts(query: string) {
 export async function getProductBySlug(slug: string) {
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, price, description, image_url")
+    .select("*")
     .eq("slug", slug)
     .single();
   if (error && error.code !== "PGRST116") throw error; // ignore "no rows" code

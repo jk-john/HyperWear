@@ -3,6 +3,7 @@
 import { Cart } from "@/components/Cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -177,15 +178,27 @@ const Header = () => {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-8 rounded-lg border-none bg-white/90 px-2 py-1 backdrop-blur-xl">
-              <Link href="/search">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-primary/80 hover:text-primary hover:bg-primary/5 hidden h-11 w-11 rounded-full transition-all duration-300 md:flex"
-                >
-                  <Search className="h-5 w-5" />
-                </Button>
-              </Link>
+              <form
+                action={(formData) => {
+                  const query = formData.get("q");
+                  if (typeof query === "string" && query.trim() !== "") {
+                    window.location.href = `/search?q=${encodeURIComponent(
+                      query,
+                    )}`;
+                  }
+                }}
+                className="hidden items-center md:flex"
+              >
+                <div className="relative">
+                  <Input
+                    type="search"
+                    name="q"
+                    placeholder="Search..."
+                    className="h-11 rounded-full bg-gray-100 pr-4 pl-10"
+                  />
+                  <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+              </form>
 
               {user ? (
                 <Link href="/dashboard">
