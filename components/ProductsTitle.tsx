@@ -39,15 +39,15 @@ interface StylishTitleProps {
 }
 
 const StylishTitle: React.FC<StylishTitleProps> = ({
-  title = "Stay Liquid, Wear Hyper.", // Updated default title
-  subtitle = "First Drop: Limited to 100 total orders!", // Updated default subtitle
-  animatedWords = ["Community", "First", "HYPER", "LIQUID"], // Updated animated words
+  title = "Stay Liquid, Wear Hyper.",
+  subtitle = "First Drop: Limited to 100 total orders!",
+  animatedWords = ["Community", "First", "HYPER", "LIQUID"],
   showSparkles = true,
   sparklesCount = 8,
   sparkleColors = {
-    first: "var(--color-primary)",
-    second: "var(--color-secondary)",
-  }, // Updated sparkle colors to use theme variables
+    first: "primary",
+    second: "secondary",
+  },
   className,
   titleClassName,
   subtitleClassName,
@@ -231,9 +231,8 @@ const StylishTitle: React.FC<StylishTitleProps> = ({
       {subtitle && (
         <p
           className={cn(
-            "mx-auto max-w-xl text-xl md:text-xl",
-            "font-body", // Apply font-body from theme
-            "text-primary", // Updated subtitle color to primary for better visibility
+            "font-body mt-10 max-w-xl text-2xl font-normal italic *:mx-auto md:text-2xl",
+            "text-primary",
             subtitleClassName,
           )}
         >
@@ -269,4 +268,12 @@ const Sparkle: React.FC<Sparkle> = ({ id, x, y, color, delay, scale }) => {
   );
 };
 
-export default StylishTitle;
+function StylishTitleDemo() {
+  return (
+    <div className="mb-12 flex items-center justify-center p-8">
+      <StylishTitle />
+    </div>
+  );
+}
+
+export default StylishTitleDemo;

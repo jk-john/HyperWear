@@ -14,15 +14,7 @@ export default async function ProductsPage() {
     <section className="bg-white py-20">
       <div className="container mx-auto">
         <div className="mb-1text-center">
-          <StylishTitle
-            title="All Products"
-            animatedWords={["Products"]}
-            subtitle="All Products"
-            titleClassName="text-4xl md:text-6xl lg:text-7xl"
-            subtitleClassName="text-xl md:text-xl"
-            animatedTextClassName="text-2xl md:text-3xl lg:text-4xl"
-            wordInterval={3000}
-          />
+          <StylishTitle />
         </div>
         <ProductGrid products={products} />
       </div>
