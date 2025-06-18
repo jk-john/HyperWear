@@ -1,5 +1,6 @@
 import ProductGrid from "@/components/ProductGrid";
-import { OrderLimitBanner } from "@/components/ui/OrderLimitBanner";
+import StylishTitle from "@/components/ProductsTitle";
+
 import { getProducts } from "@/lib/supabase";
 
 export const metadata = {
@@ -12,12 +13,17 @@ export default async function ProductsPage() {
   return (
     <section className="bg-white py-20">
       <div className="container mx-auto">
-        <div className="mb-12 text-center">
-          <h1 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
-            All Products
-          </h1>
+        <div className="mb-1text-center">
+          <StylishTitle
+            title="All Products"
+            animatedWords={["Products"]}
+            subtitle="All Products"
+            titleClassName="text-4xl md:text-6xl lg:text-7xl"
+            subtitleClassName="text-xl md:text-xl"
+            animatedTextClassName="text-2xl md:text-3xl lg:text-4xl"
+            wordInterval={3000}
+          />
         </div>
-        <OrderLimitBanner />
         <ProductGrid products={products} />
       </div>
     </section>
