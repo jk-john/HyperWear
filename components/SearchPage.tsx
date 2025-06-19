@@ -1,13 +1,19 @@
 "use client";
 
+import ProductGrid from "@/components/ProductGrid";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Product } from "@/types";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function SearchPage() {
+export default function SearchPage({
+  products,
+  query: initialQuery,
+}: {
+  products: Product[];
+  query: string;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
   const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
@@ -35,6 +41,13 @@ export default function SearchPage() {
           placeholder="Search for products..."
           className="w-full text-lg"
         />
+      </div>
+      <div className="mt-6">
+        {products.length > 0 ? (
+          <ProductGrid products={products} />
+        ) : (
+          query && <p>No products found for &quot;{query}&quot;.</p>
+        )}
       </div>
     </div>
   );

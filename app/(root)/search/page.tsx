@@ -1,5 +1,5 @@
-import ProductGrid from "@/components/ProductGrid";
 import SearchPage from "@/components/SearchPage";
+import { PageProps } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
@@ -7,11 +7,7 @@ export const metadata = {
   title: "Search • HyperWear",
 };
 
-export default async function Search({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function Search({ searchParams }: PageProps) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const query = searchParams?.q as string;
@@ -27,14 +23,7 @@ export default async function Search({
 
   return (
     <main className="container mx-auto py-8">
-      <SearchPage />
-      <div className="mt-6">
-        {products.length > 0 ? (
-          <ProductGrid products={products} />
-        ) : (
-          query && <p>No products found for &quot;{query}&quot;.</p>
-        )}
-      </div>
+      <SearchPage products={products} query={query} />
     </main>
   );
 }
