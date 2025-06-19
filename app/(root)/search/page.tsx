@@ -1,5 +1,4 @@
 import SearchPage from "@/components/SearchPage";
-import { PageProps } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
@@ -7,7 +6,11 @@ export const metadata = {
   title: "Search • HyperWear",
 };
 
-export default async function Search({ searchParams }: PageProps) {
+export default async function Search({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const query = searchParams?.q as string;
