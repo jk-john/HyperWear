@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -35,12 +36,12 @@ export const CardContainer = ({
     containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
   };
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = () => {
     setIsMouseEntered(true);
     if (!containerRef.current) return;
   };
 
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseLeave = () => {
     if (!containerRef.current) return;
     setIsMouseEntered(false);
     containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
@@ -49,8 +50,8 @@ export const CardContainer = ({
     <MouseEnterContext.Provider value={[isMouseEntered, setIsMouseEntered]}>
       <div
         className={cn(
-          "py-20 flex items-center justify-center",
-          containerClassName
+          "flex items-center justify-center py-20",
+          containerClassName,
         )}
         style={{
           perspective: "1000px",
@@ -62,8 +63,8 @@ export const CardContainer = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           className={cn(
-            "flex items-center justify-center relative transition-all duration-200 ease-linear",
-            className
+            "relative flex items-center justify-center transition-all duration-200 ease-linear",
+            className,
           )}
           style={{
             transformStyle: "preserve-3d",
@@ -86,8 +87,8 @@ export const CardBody = ({
   return (
     <div
       className={cn(
-        "h-96 w-96 [transform-style:preserve-3d]  [&>*]:[transform-style:preserve-3d]",
-        className
+        "h-96 w-96 [transform-style:preserve-3d] [&>*]:[transform-style:preserve-3d]",
+        className,
       )}
     >
       {children}
@@ -116,23 +117,31 @@ export const CardItem = ({
   rotateX?: number | string;
   rotateY?: number | string;
   rotateZ?: number | string;
-  [key: string]: any;
+  [key: string]: unknown;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isMouseEntered] = useMouseEnter();
 
-  useEffect(() => {
-    handleAnimations();
-  }, [isMouseEntered]);
-
-  const handleAnimations = () => {
+  const handleAnimations = useCallback(() => {
     if (!ref.current) return;
     if (isMouseEntered) {
       ref.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`;
     } else {
       ref.current.style.transform = `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;
     }
-  };
+  }, [
+    isMouseEntered,
+    translateX,
+    translateY,
+    translateZ,
+    rotateX,
+    rotateY,
+    rotateZ,
+  ]);
+
+  useEffect(() => {
+    handleAnimations();
+  }, [handleAnimations]);
 
   return (
     <Tag
