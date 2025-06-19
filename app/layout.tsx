@@ -2,6 +2,7 @@ import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
@@ -41,6 +42,7 @@ export default function RootLayout({
         <Toaster />
         <CookieBanner />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
