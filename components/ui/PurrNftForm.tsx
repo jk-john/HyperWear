@@ -55,10 +55,7 @@ export function PurrNftForm() {
   };
 
   return (
-    <form
-      onSubmit={form.handleSubmit(handleSubmit)}
-      className="space-y-6 rounded-lg border border-gray-700 bg-gray-800/20 p-8 backdrop-blur-sm"
-    >
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="evm_address" className="font-body text-md text-white">
           EVM Address
@@ -67,7 +64,7 @@ export function PurrNftForm() {
           id="evm_address"
           placeholder="0x..."
           {...form.register("evm_address")}
-          className="bg-gray-mint border-mint placeholder:text-mint hover:border-mint/80 mt-4 text-white"
+          className="border-mint placeholder:text-mint hover:border-mint/80 mt-4 bg-transparent text-white"
         />
         {form.formState.errors.evm_address && (
           <p className="pt-1 text-xs text-red-400">
@@ -84,7 +81,7 @@ export function PurrNftForm() {
           type="email"
           placeholder="your@email.com"
           {...form.register("email_address")}
-          className="bg-gray-mint border-mint placeholder:text-mint hover:border-mint/80 mt-4 text-white"
+          className="border-mint placeholder:text-mint hover:border-mint/80 mt-4 bg-transparent text-white"
         />
         {form.formState.errors.email_address && (
           <p className="pt-1 text-xs text-red-400">
@@ -94,7 +91,7 @@ export function PurrNftForm() {
       </div>
       <Button
         type="submit"
-        className="bg-secondary text-jungle hover:bg-mint hover:shadow-cream/40 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
+        className="text-jungle bg-mint hover:bg-mint/80 hover:shadow-cream/40 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
         disabled={isLoading}
       >
         {isLoading ? "Submitting..." : "Submit"}

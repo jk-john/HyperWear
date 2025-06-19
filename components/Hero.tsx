@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { VelocityScroll } from "./magicui/scroll-based-velocity";
 
 export default function Hero() {
   return (
@@ -21,16 +21,12 @@ export default function Hero() {
       </video>
       <div className="bg-jungle/50 absolute inset-0" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center p-4 text-center text-white">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className={cn(
-            "font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl",
-          )}
+        <VelocityScroll
+          defaultVelocity={2}
+          className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
         >
-          The Place To House All HyperLiquid Fans
-        </motion.h1>
+          The Place To House All Hyperliquid Fans.
+        </VelocityScroll>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

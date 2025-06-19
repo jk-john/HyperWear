@@ -1,3 +1,4 @@
+import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
@@ -37,6 +38,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <Toaster />
+        <CookieBanner />
       </body>
     </html>
   );

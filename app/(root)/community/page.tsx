@@ -2,6 +2,7 @@ import { PurrNftForm } from "@/components/ui/PurrNftForm";
 
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { Separator } from "@/components/ui/separator";
+import { WorldMap } from "@/components/ui/world-map";
 import { Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
 
@@ -11,7 +12,7 @@ export default function CommunityPage() {
       className="relative flex min-h-screen w-full flex-col items-center justify-start rounded-md pt-20 antialiased"
       style={{ backgroundColor: "var(--color-dark)" }}
     >
-      <div className="mx-auto max-w-2xl p-4 text-center">
+      <div className="mx-auto max-w-4xl p-4 text-center">
         <h1
           className="font-display relative z-10 bg-gradient-to-b from-white to-neutral-600 bg-clip-text text-lg font-bold text-transparent md:text-7xl"
           style={{ color: "var(--color-light)" }}
@@ -28,25 +29,34 @@ export default function CommunityPage() {
           something amazing together for the HyperLiquid community.
         </p>
       </div>
+      <div className="mt-8 h-auto w-2/3">
+        <WorldMap lineColor="#0f3933" />
+      </div>
 
       <Separator className="my-12 bg-gray-700/50" />
 
       <div className="relative z-10 w-full max-w-2xl space-y-12 px-4">
         {/* PURR NFT Holders Section */}
-        <section className="text-center">
-          <div className="flex flex-row items-center justify-center gap-4">
-            <h2 className="font-body mb-10 text-2xl font-semibold text-white">
-              Eligible PURR NFT holders, fill this form :)
+        <section className="w-full max-w-2xl rounded-lg border border-cyan-500/30 bg-cyan-900/20 p-8 text-center backdrop-blur-sm">
+          <div className="mb-10 flex flex-row items-center justify-center gap-4">
+            <Image
+              src="/purr-happy.png"
+              alt="Purr NFT"
+              width={150}
+              height={150}
+              className="mx-auto mb-4 rounded-2xl"
+            />
+            <h2 className="font-body mb-2 text-xl font-semibold text-white">
+              Eligible PURR NFT holders, fill this form.
             </h2>
             <Image
-              src="/purr-logo.jpg"
-              alt="Purr NFT"
-              width={100}
-              height={100}
-              className="mx-auto mb-4 rounded-full"
+              src="/purr-lying-happy.png"
+              alt="Purr Happy"
+              width={150}
+              height={150}
+              className="mx-auto mb-4 rounded-2xl"
             />
           </div>
-
           <PurrNftForm />
         </section>
 

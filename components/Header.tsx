@@ -158,7 +158,7 @@ const Header = () => {
                         " hover:bg-cream hover:text-accent-foreground"
                       }
                     >
-                      <Link href="/new-arrivals">
+                      <Link href="/">
                         <span className="relative">
                           New Arrivals
                           <Badge
