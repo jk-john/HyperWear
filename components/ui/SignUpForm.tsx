@@ -290,6 +290,31 @@ export const SignupForm = () => {
         Join us today and start your journey with HyperWear.
       </p>
 
+      <div className="mb-6 flex flex-col space-y-4">
+        <button
+          className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
+          type="button"
+          onClick={() => handleOAuthSignIn("github")}
+        >
+          <Github className="h-4 w-4 text-[var(--color-light)]" />
+          <span className="text-sm">GitHub</span>
+          <BottomGradient />
+        </button>
+        <button
+          className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
+          type="button"
+          onClick={() => handleOAuthSignIn("google")}
+        >
+          <GoogleIcon className="h-4 w-4" />
+          <span className="text-sm">Google</span>
+          <BottomGradient />
+        </button>
+      </div>
+
+      <p className="mb-6 flex items-center gap-x-3 text-sm text-[var(--color-accent)] before:h-px before:flex-1 before:bg-[var(--color-emerald)] after:h-px after:flex-1 after:bg-[var(--color-emerald)]">
+        or
+      </p>
+
       <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
         <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
           <LabelInputContainer>
@@ -387,29 +412,6 @@ export const SignupForm = () => {
           {isLoading ? "Signing up..." : "Sign up →"}
           <BottomGradient />
         </button>
-
-        <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-[var(--color-emerald)] to-transparent" />
-
-        <div className="flex flex-col space-y-4">
-          <button
-            className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
-            type="button"
-            onClick={() => handleOAuthSignIn("github")}
-          >
-            <Github className="h-4 w-4 text-[var(--color-light)]" />
-            <span className="text-sm">GitHub</span>
-            <BottomGradient />
-          </button>
-          <button
-            className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
-            type="button"
-            onClick={() => handleOAuthSignIn("google")}
-          >
-            <GoogleIcon className="h-4 w-4" />
-            <span className="text-sm">Google</span>
-            <BottomGradient />
-          </button>
-        </div>
       </form>
     </div>
   );
