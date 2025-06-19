@@ -43,22 +43,18 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.4, ease: "easeInOut" }}
           className="mt-10 flex items-center justify-center gap-x-6"
         >
-          <div className="shimmer rounded-full">
-            <Button
-              asChild
-              className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
-            >
-              <Link href="/products">Shop Now</Link>
-            </Button>
-          </div>
-          <div className="shimmer rounded-full">
-            <Button
-              asChild
-              className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
-            >
-              <Link href="/about">About Us</Link>
-            </Button>
-          </div>
+          <Button
+            asChild
+            className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
+          >
+            <Link href="/products">Shop Now</Link>
+          </Button>
+          <Button
+            asChild
+            className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
+          >
+            <Link href="/about">About Us</Link>
+          </Button>
         </motion.div>
       </div>
     </section>

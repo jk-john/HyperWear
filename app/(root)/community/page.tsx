@@ -1,6 +1,5 @@
 import { PurrNftForm } from "@/components/ui/PurrNftForm";
 
-import { BackgroundBeams } from "@/components/ui/background-beams";
 import { Separator } from "@/components/ui/separator";
 import { WorldMap } from "@/components/ui/world-map";
 import { Instagram, Twitter } from "lucide-react";
@@ -80,8 +79,6 @@ export default function CommunityPage() {
           </div>
         </section>
       </div>
-
-      <BackgroundBeams />
     </div>
   );
 }
