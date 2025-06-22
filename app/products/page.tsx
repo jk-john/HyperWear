@@ -1,5 +1,5 @@
-import { ProductFilters } from "@/components/ProductFilters";
 import ProductGrid from "@/components/ProductGrid";
+import ProductSidebar from "@/components/ProductSidebar";
 import StylishTitle from "@/components/ProductsTitle";
 import { getProducts } from "@/lib/supabase";
 
@@ -7,6 +7,8 @@ type ProductsPageProps = {
   searchParams: {
     gender?: string;
     category?: string;
+    sortBy?: string;
+    order?: string;
   };
 };
 
@@ -19,11 +21,15 @@ export default async function ProductsPage({
   return (
     <section className="bg-white py-20">
       <div className="container mx-auto">
-        <div className="mb-1text-center">
+        <div className="mb-12 text-center">
           <StylishTitle />
         </div>
-        <ProductFilters categories={categories} />
-        <ProductGrid products={products} />
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          <ProductSidebar categories={categories} />
+          <main className="md:col-span-3">
+            <ProductGrid products={products} />
+          </main>
+        </div>
       </div>
     </section>
   );

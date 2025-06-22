@@ -7,8 +7,15 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export async function getProducts(filters?: {
   gender?: string;
   category?: string;
+  sortBy?: string;
+  order?: string;
 }) {
-  let query = supabase.from("products").select("*").order("name");
+  let query = supabase.from("products").select("*");
+
+  const sortBy = filters?.sortBy || "name";
+  const ascending = filters?.order !== "desc";
+
+  query = query.order(sortBy, { ascending });
 
   if (filters?.gender) {
     query = query.eq("gender", filters.gender);

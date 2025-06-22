@@ -1,6 +1,5 @@
 // app/products/[slug]/page.tsx
 import AddToCartButton from "@/components/ui/AddToCartButton";
-// import { OrderLimitBanner } from "@/components/ui/OrderLimitBanner";
 import { getProductBySlug } from "@/lib/supabase";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -24,7 +23,6 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <main className="container mx-auto py-8">
-      {/* <OrderLimitBanner /> */}
       <div className="flex flex-col gap-8 lg:flex-row">
         <Image
           src={product.images[0]}

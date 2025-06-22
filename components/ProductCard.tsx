@@ -15,7 +15,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCartStore();
 
   return (
-    <CardContainer containerClassName="py-0 h-full">
+    <CardContainer containerClassName="py-0 h-full w-full">
       <CardBody className="font-body flex h-[450px] w-[350px] flex-col justify-between gap-4 rounded-2xl bg-[var(--color-deep)] p-4">
         <CardItem translateZ="50" className="h-[60%] w-full">
           <div className="group relative h-full">
