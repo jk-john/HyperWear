@@ -146,7 +146,7 @@ export function SignInForm() {
               type="email"
               placeholder="Enter your email"
               {...form.register("email")}
-              className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
+              className="mt-2 border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
             />
             {form.formState.errors.email && (
               <p className="pt-1 text-xs text-red-500">
@@ -165,7 +165,7 @@ export function SignInForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 {...form.register("password")}
-                className="border-[var(--color-mint)] bg-[var(--color-emerald)] pr-10 text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
+                className="mt-2 border-[var(--color-mint)] bg-[var(--color-emerald)] pr-10 text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
               />
               <button
                 type="button"

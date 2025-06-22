@@ -43,7 +43,8 @@ const Footer = () => {
             <p className="mb-8 pr-28 text-justify leading-relaxed text-white/70">
               We&apos;re designing premium merch to reflect and empower the
               unique spirit of the Hyperliquid community.
-              <p></p>HyperWear is an independent community project inspired by
+              <br />
+              HyperWear is an independent community project inspired by
               HyperLiquid. It is not affiliated with or endorsed by HyperLiquid.
             </p>
 

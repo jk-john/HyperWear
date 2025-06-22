@@ -1,62 +1,16 @@
 "use client";
 
 import { Cart } from "@/components/Cart";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-
-import { AnimatedText } from "@/components/ui/AnimatedText";
 import ShimmerButton from "@/components/ui/ShimmerButton";
-import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { Menu, Search, User } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          href={props.href || "/"}
-          ref={ref}
-          className={cn(
-            "hover:bg-cream hover:text-accent-foreground focus:bg-cream focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
-            className,
-          )}
-          {...props}
-        >
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
+import { DesktopNav } from "./header/DesktopNav";
+import { Logo } from "./header/Logo";
+import { MobileNav } from "./header/MobileNav";
+import { SearchBar } from "./header/SearchBar";
+import { UserAccountNav } from "./header/UserAccountNav";
 
 const Header = () => {
   const [user, setUser] = React.useState<SupabaseUser | null>(null);
@@ -85,242 +39,26 @@ const Header = () => {
 
   return (
     <header className="sticky top-4 z-50 px-4">
-      <div className="flexmax-w-7xl mx-auto rounded-full bg-white shadow-lg ring-1 ring-black/5 backdrop-blur-xl">
+      <div className="flexmax-w-7xl bg-primary mx-auto rounded-full border-2 border-white/10 shadow-lg ring-1 ring-white backdrop-blur-xl">
         <div className="px-4">
-          <div className="flex h-20 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/logo.png"
-                alt="HyperWear"
-                width={256}
-                height={256}
-                className="h-14 w-14 rounded-full"
-              />
-              <AnimatedText
-                text="HyperWear"
-                textClassName="text-jungle font-display text-4xl font-bold"
-                underlineClassName="text-mint"
-                underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
-                underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
-                underlineDuration={1.5}
-              />
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden items-center gap-10 space-x-2 md:flex">
-              <NavigationMenu className="rounded-lg border-none bg-white px-4 py-2 backdrop-blur-xl">
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger className="font-body hover:bg-cream hover:text-accent-foreground outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
-                      Products
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="font-body grid w-[400px] gap-3 rounded-lg border-none bg-white p-4 backdrop-blur-xl md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        <ListItem
-                          href="/products/tee-shirts"
-                          title="Tee-Shirts"
-                        >
-                          Re-discover the basics
-                        </ListItem>
-                        <ListItem href="/products/caps" title="Caps">
-                          The best caps for your style.
-                        </ListItem>
-                        <ListItem href="/products/plushies" title="Plushies">
-                          The best plushies for your home and office.
-                        </ListItem>
-                        <ListItem
-                          href="/products/accessories"
-                          title="Accessories"
-                        >
-                          Complete your look with our accessories
-                        </ListItem>
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      asChild
-                      className={
-                        navigationMenuTriggerStyle() +
-                        " hover:bg-cream hover:text-accent-foreground"
-                      }
-                    >
-                      <Link href="/collections">Collections</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      asChild
-                      className={
-                        navigationMenuTriggerStyle() +
-                        " hover:bg-cream hover:text-accent-foreground"
-                      }
-                    >
-                      <Link href="/">
-                        <span className="relative">
-                          New Arrivals
-                          <Badge
-                            variant="secondary"
-                            className="font-body absolute -top-5.5 -right-6 animate-pulse"
-                          >
-                            Coming Soon
-                          </Badge>
-                        </span>
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      asChild
-                      className={
-                        navigationMenuTriggerStyle() +
-                        " hover:bg-cream hover:text-accent-foreground"
-                      }
-                    >
-                      <Link href="/community">Community</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center space-x-8 rounded-lg border-none bg-white/90 px-2 py-1 backdrop-blur-xl">
-              <form
-                action={(formData) => {
-                  const query = formData.get("q");
-                  if (typeof query === "string" && query.trim() !== "") {
-                    window.location.href = `/search?q=${encodeURIComponent(
-                      query,
-                    )}`;
-                  }
-                }}
-                className="hidden items-center md:flex"
-              >
-                <div className="relative">
-                  <Input
-                    type="search"
-                    name="q"
-                    placeholder="Search..."
-                    className="h-11 rounded-full bg-gray-100 pr-4 pl-10"
-                  />
-                  <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
-              </form>
-
-              {user ? (
-                <Link href="/dashboard">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-primary/80 hover:text-primary hover:bg-primary/5 hidden h-11 w-11 rounded-full transition-all duration-300 md:flex"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
+          <div className="flex h-24 items-center">
+            {/* Left Section */}
+            <div className="flex flex-1 items-center justify-start">
+              <DesktopNav />
+            </div>
+            {/* Center Section (Logo) */}
+            <Logo />
+            {/* Right Section */}
+            <div className="flex flex-1 items-center justify-end">
+              <div className="flex items-center space-x-4">
+                <SearchBar />
+                <UserAccountNav user={user} />
+                <Cart />
+                <Link href="/products">
+                  <ShimmerButton className="hidden md:flex" />
                 </Link>
-              ) : (
-                <Link href="/sign-in">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-primary/80 hover:text-primary hover:bg-primary/5 hidden h-11 w-11 rounded-full transition-all duration-300 md:flex"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
-              )}
-
-              <Cart />
-
-              {/* Shop Now Button */}
-              <Link href="/products">
-                <ShimmerButton className="hidden md:flex" />
-              </Link>
-
-              {/* Mobile Menu */}
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-primary/80 hover:text-primary hover:bg-primary/5 h-11 w-11 rounded-full transition-all duration-300 md:hidden"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[300px] bg-white/95 backdrop-blur-xl"
-                >
-                  <SheetHeader>
-                    <SheetTitle className="sr-only">Menu</SheetTitle>
-                  </SheetHeader>
-                  <nav className="flex flex-col space-y-2">
-                    <Link
-                      href="/products/tee-shirts"
-                      className="text-primary/80 hover:text-primary font-body hover:bg-primary/5 rounded-lg px-4 py-3 font-medium transition-colors"
-                    >
-                      Tee-Shirts
-                    </Link>
-                    <Link
-                      href="/products/caps"
-                      className="text-primary/80 hover:text-primary font-body hover:bg-primary/5 rounded-lg px-4 py-3 font-medium transition-colors"
-                    >
-                      Caps
-                    </Link>
-                    <Link
-                      href="/products/accessories"
-                      className="text-primary/80 hover:text-primary font-body hover:bg-primary/5 rounded-lg px-4 py-3 font-medium transition-colors"
-                    >
-                      Accessories
-                    </Link>
-                    <Link
-                      href="/collections"
-                      className="text-primary/80 hover:text-primary font-body hover:bg-primary/5 rounded-lg px-4 py-3 font-medium transition-colors"
-                    >
-                      Collections
-                    </Link>
-
-                    <div className="space-y-2 border-t border-gray-200 pt-4">
-                      <Link href="/search">
-                        <Button
-                          variant="ghost"
-                          className="font-body text-primary/80 hover:text-primary hover:bg-primary/5 w-full justify-start rounded-lg"
-                        >
-                          <Search className="mr-3 h-5 w-5" />
-                          Search
-                        </Button>
-                      </Link>
-                      {user ? (
-                        <Link href="/dashboard">
-                          <Button
-                            variant="ghost"
-                            className="font-body text-primary/80 hover:text-primary hover:bg-primary/5 w-full justify-start rounded-lg"
-                          >
-                            <User className="mr-3 h-5 w-5" />
-                            Dashboard
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Link href="/sign-in">
-                          <Button
-                            variant="ghost"
-                            className="font-body text-primary/80 hover:text-primary hover:bg-primary/5 w-full justify-start rounded-lg"
-                          >
-                            <User className="mr-3 h-5 w-5" />
-                            Account
-                          </Button>
-                        </Link>
-                      )}
-                      <Link href="/products">
-                        <ShimmerButton className="mt-4 w-full" />
-                      </Link>
-                    </div>
-                  </nav>
-                </SheetContent>
-              </Sheet>
+                <MobileNav user={user} />
+              </div>
             </div>
           </div>
         </div>

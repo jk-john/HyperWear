@@ -19,7 +19,7 @@ export default async function ProductPage({ params }: Props) {
     id: product.id,
     name: product.name,
     price: product.price,
-    image: product.image_url,
+    image: product.images[0],
   };
 
   return (
@@ -27,7 +27,7 @@ export default async function ProductPage({ params }: Props) {
       {/* <OrderLimitBanner /> */}
       <div className="flex flex-col gap-8 lg:flex-row">
         <Image
-          src={product.image_url}
+          src={product.images[0]}
           alt={product.name}
           width={500}
           height={500}

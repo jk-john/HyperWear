@@ -23,7 +23,6 @@ interface Sparkle {
 
 interface StylishTitleProps {
   title?: string;
-  subtitle?: string;
   animatedWords?: string[];
   showSparkles?: boolean;
   sparklesCount?: number;
@@ -33,24 +32,21 @@ interface StylishTitleProps {
   };
   className?: string;
   titleClassName?: string;
-  subtitleClassName?: string;
   animatedTextClassName?: string;
   wordInterval?: number;
 }
 
 const StylishTitle: React.FC<StylishTitleProps> = ({
   title = "Stay Liquid, Wear Hyper.",
-  subtitle = "First Drop: Limited to 100 total orders!",
-  animatedWords = ["Community", "First", "HYPER", "LIQUID"],
+  animatedWords = ["Community", "First", "Hyper", "Liquid | Wear"],
   showSparkles = true,
   sparklesCount = 8,
   sparkleColors = {
-    first: "primary",
-    second: "secondary",
+    first: "jungle",
+    second: "mint",
   },
   className,
   titleClassName,
-  subtitleClassName,
   animatedTextClassName,
   wordInterval = 3000,
 }) => {
@@ -227,18 +223,6 @@ const StylishTitle: React.FC<StylishTitleProps> = ({
           )}
         </h1>
       </div>
-
-      {subtitle && (
-        <p
-          className={cn(
-            "font-body mt-10 max-w-xl text-2xl font-normal italic *:mx-auto md:text-2xl",
-            "text-primary",
-            subtitleClassName,
-          )}
-        >
-          {subtitle}
-        </p>
-      )}
     </div>
   );
 };

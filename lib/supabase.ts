@@ -4,11 +4,21 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function getProducts() {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("name");
+export async function getProducts(filters?: {
+  gender?: string;
+  category?: string;
+}) {
+  let query = supabase.from("products").select("*").order("name");
+
+  if (filters?.gender) {
+    query = query.eq("gender", filters.gender);
+  }
+
+  if (filters?.category) {
+    query = query.eq("category", filters.category);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data;
 }

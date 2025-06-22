@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { VelocityScroll } from "./magicui/scroll-based-velocity";
+import { VelocityScroll } from "./icons/magicui/scroll-based-velocity";
 
 export default function Hero() {
   return (
