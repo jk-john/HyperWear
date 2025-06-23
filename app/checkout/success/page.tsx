@@ -3,11 +3,18 @@
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
-import { Player } from "@lottiefiles/react-lottie-player";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createOrder } from "./actions";
+
+const Player = dynamic(
+  () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
+  {
+    ssr: false,
+  },
+);
 
 type Order = Tables<"orders">;
 
