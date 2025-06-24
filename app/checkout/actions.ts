@@ -3,7 +3,7 @@
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 
@@ -80,53 +80,119 @@ export async function createCheckoutSession(
   }
 }
 
-export async function createManualOrder(formData: FormData) {
-  "use server";
+export async function createHypeOrder(formData: FormData) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
 
-  const firstName = formData.get("firstName") as string;
-  const lastName = formData.get("lastName") as string;
-  const email = formData.get("email") as string;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const cartItems = JSON.parse(
+    (formData.get("cartItems") as string) || "[]",
+  ) as CartItem[];
+  const shippingAddress = {
+    firstName: formData.get("firstName") as string,
+    lastName: formData.get("lastName") as string,
+    email: formData.get("email") as string,
+    street: formData.get("street") as string,
+    city: formData.get("city") as string,
+    zip: formData.get("zip") as string,
+    country: formData.get("country") as string,
+  };
   const walletAddress = formData.get("walletAddress") as string;
-  const cartTotalUsd = parseFloat(formData.get("cartTotalUsd") as string);
+  const cartTotalUsd = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
 
+  // 1. Fetch HYPE price
+  let hypeToUsd;
   try {
-    // This fetch needs to be absolute URL for server-side fetching
+    const headerObj = await headers();
+    const host = headerObj.get("host");
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const hypePriceResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/hype-price`,
+      `${protocol}://${host}/api/hype-price`,
+      {
+        cache: "no-store",
+      },
     );
     if (!hypePriceResponse.ok) {
       throw new Error("Failed to fetch HYPE price");
     }
-    const { hypeToUsd } = await hypePriceResponse.json();
-    const amountHype = cartTotalUsd / hypeToUsd;
-
-    const supabase = createClient(cookies());
-
-    const { error } = await supabase
-      .from("manual_orders")
-      .insert([
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          wallet_address: walletAddress,
-          cart_total_usd: cartTotalUsd,
-          amount_hype: amountHype,
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.error("Error inserting manual order:", error);
-      throw new Error("Failed to save order.");
-    }
-
-    redirect(
-      `/checkout/hype-confirmation?amount=${amountHype}&cartTotal=${cartTotalUsd}`,
-    );
+    const priceData = await hypePriceResponse.json();
+    hypeToUsd = priceData.hypeToUsd;
   } catch (error) {
-    console.error("Error creating manual order:", error);
-    // Redirect to an error page or show an error message
-    redirect("/checkout/cancel");
+    console.error(error);
+    return { error: "Could not retrieve HYPE price." };
   }
+
+  const amountHype = (cartTotalUsd / hypeToUsd).toFixed(2);
+
+  // 2. Insert into orders table
+  const { data: order, error: orderError } = await supabase
+    .from("orders")
+    .insert({
+      user_id: user?.id,
+      status: "pending",
+      total: cartTotalUsd,
+      payment_method: "HYPE",
+      delivery_name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+      delivery_email: shippingAddress.email,
+      address_line1: shippingAddress.street,
+      city: shippingAddress.city,
+      postal_code: shippingAddress.zip,
+      country: shippingAddress.country,
+      wallet_address: walletAddress,
+    })
+    .select()
+    .single();
+
+  if (orderError) {
+    console.error("Error creating order:", orderError);
+    return { error: "Failed to create order." };
+  }
+
+  // 3. Insert into order_items table
+  const orderItems = cartItems.map((item) => ({
+    order_id: order.id,
+    product_id: item.id,
+    quantity: item.quantity,
+    price_at_purchase: item.price,
+  }));
+
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(orderItems);
+
+  if (itemsError) {
+    console.error("Error inserting order items:", itemsError);
+    // TODO: Maybe delete the order here if items fail to insert
+    return { error: "Failed to save order details." };
+  }
+
+  // 4. Optionally update user's wallet address
+  if (user && walletAddress) {
+    const { error: userUpdateError } = await supabase
+      .from("users")
+      .update({ wallet_address: walletAddress })
+      .eq("id", user.id);
+    if (userUpdateError) {
+      // Not a critical error, so just log it
+      console.warn("Could not update user wallet address:", userUpdateError);
+    }
+  }
+
+  // 5. Redirect to confirmation page
+  const params = new URLSearchParams({
+    amount: amountHype,
+    orderId: order.id,
+    cartTotal: cartTotalUsd.toString(),
+  });
+
+  return {
+    success: true,
+    url: `/checkout/hype-confirmation?${params.toString()}`,
+  };
 }

@@ -1,16 +1,18 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { Suspense, useEffect, useState } from "react";
 
 function HypeConfirmation() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialAmount = parseFloat(searchParams.get("amount") || "0");
   const cartTotalUsd = parseFloat(searchParams.get("cartTotal") || "0");
 
   const [hypeAmount, setHypeAmount] = useState(initialAmount);
-  const ledgerAddress = "0xYourLedgerAddressHere";
+  const ledgerAddress = "0xf5AA547485Bdb2b85492c58CfaDBffAab401185b";
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -38,7 +40,7 @@ function HypeConfirmation() {
           To finalize your order, please send exactly
           <br />
           <strong className="text-primary text-lg">
-            {hypeAmount.toFixed(6)} HYPE
+            {hypeAmount.toFixed(2)} HYPE
           </strong>
           <br />
           to the following address:
@@ -51,6 +53,12 @@ function HypeConfirmation() {
           The HYPE amount updates every 15 seconds based on the live market
           price.
         </p>
+        <Button
+          onClick={() => router.push("/checkout/success")}
+          className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-3 text-lg font-bold transition-colors hover:text-white"
+        >
+          I&apos;ve Paid
+        </Button>
       </div>
     </div>
   );

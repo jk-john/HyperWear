@@ -29,29 +29,48 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { createCheckoutSession } from "./actions";
+import { createCheckoutSession, createHypeOrder } from "./actions";
 
-const formSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, { message: "First name must be at least 2 characters." }),
-  lastName: z
-    .string()
-    .min(2, { message: "Last name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  street: z.string().min(1, { message: "Street is required." }),
-  city: z.string().min(1, { message: "City is required." }),
-  zip: z.string().min(1, { message: "ZIP code is required." }),
-  country: z.string().min(1, { message: "Country is required." }),
-  paymentMethod: z.enum(["stripe", "nowpayments", "hype", "usdhl"], {
-    required_error: "You need to select a payment method.",
-  }),
-});
+const formSchema = z
+  .object({
+    firstName: z
+      .string()
+      .min(2, { message: "First name must be at least 2 characters." }),
+    lastName: z
+      .string()
+      .min(2, { message: "Last name must be at least 2 characters." }),
+    email: z.string().email({ message: "Invalid email address." }),
+    street: z.string().min(1, { message: "Street is required." }),
+    city: z.string().min(1, { message: "City is required." }),
+    zip: z.string().min(1, { message: "ZIP code is required." }),
+    country: z.string().min(1, { message: "Country is required." }),
+    paymentMethod: z.enum(["stripe", "nowpayments", "hype", "usdhl"], {
+      required_error: "You need to select a payment method.",
+    }),
+    evmAddress: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        (data.paymentMethod === "hype" || data.paymentMethod === "usdhl") &&
+        (!data.evmAddress ||
+          !data.evmAddress.startsWith("0x") ||
+          data.evmAddress.length !== 42)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "A valid EVM address (0x...) is required for this payment method.",
+      path: ["evmAddress"],
+    },
+  );
 
 export default function CheckoutPage() {
   const { cartItems, totalPrice } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,8 +82,12 @@ export default function CheckoutPage() {
       zip: "",
       country: "",
       paymentMethod: "stripe",
+      evmAddress: "",
     },
   });
+
+  const paymentMethod = form.watch("paymentMethod");
+  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -107,21 +130,26 @@ export default function CheckoutPage() {
           toast.error(result.error);
         }
       } else if (values.paymentMethod === "hype") {
-        const result = await form.trigger(["firstName", "lastName", "email"]);
-        if (!result) {
-          toast.error("Please fill in your name and email before proceeding.");
-          return;
+        const formData = new FormData();
+        formData.append("cartItems", JSON.stringify(cartItems));
+        formData.append("firstName", values.firstName);
+        formData.append("lastName", values.lastName);
+        formData.append("email", values.email);
+        formData.append("street", values.street);
+        formData.append("city", values.city);
+        formData.append("zip", values.zip);
+        formData.append("country", values.country);
+        formData.append("walletAddress", values.evmAddress || "");
+
+        const result = await createHypeOrder(formData);
+
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.success && result.url) {
+          router.push(result.url);
+        } else {
+          toast.error("Could not initiate HYPE payment. Please try again.");
         }
-        // Save user info to local storage before redirecting
-        localStorage.setItem(
-          "hypeUserData",
-          JSON.stringify({
-            firstName: values.firstName,
-            lastName: values.lastName,
-            email: values.email,
-          }),
-        );
-        router.push("/checkout/hype-form");
       } else if (values.paymentMethod === "nowpayments") {
         toast.error("NowPayments is not yet implemented.");
         console.log("Redirecting to NowPayments...");
@@ -138,7 +166,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-jungle min-h-screen text-white">
+    <div className="bg-jungle mt-10 min-h-screen text-white">
       <div className="container mx-auto px-4 py-12">
         <h1 className="font-display mb-12 text-center text-5xl font-bold text-[--color-secondary]">
           Checkout
@@ -363,6 +391,27 @@ export default function CheckoutPage() {
                       </FormItem>
                     )}
                   />
+                  {(paymentMethod === "hype" || paymentMethod === "usdhl") && (
+                    <FormField
+                      control={form.control}
+                      name="evmAddress"
+                      render={({ field }) => (
+                        <FormItem className="mt-4">
+                          <FormLabel className="text-white/80">
+                            EVM Address
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="0x..."
+                              {...field}
+                              className="border-[--color-deep] bg-[--color-jungle] text-white focus:border-[--color-mint]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
               </div>
             </div>

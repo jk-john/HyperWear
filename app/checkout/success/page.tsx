@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createOrder } from "./actions";
 
 const Player = dynamic(
   () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
@@ -19,45 +18,20 @@ const Player = dynamic(
 type Order = Tables<"orders">;
 
 export default function SuccessPage() {
-  const { cartItems, totalPrice, clearCart } = useCartStore();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { cartItems, clearCart } = useCartStore();
+  const [order] = useState<Order | null>(null);
+  const [error] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const saveOrder = async () => {
-      const shippingAddressString = localStorage.getItem("shippingAddress");
-      if (cartItems.length > 0 && shippingAddressString) {
-        try {
-          const shippingAddress = JSON.parse(shippingAddressString);
-          const result = await createOrder(
-            cartItems,
-            totalPrice(),
-            shippingAddress,
-          );
-          if (result.error) {
-            setError(result.error.message);
-          } else if (result.order) {
-            setOrder(result.order);
-            clearCart();
-            localStorage.removeItem("shippingAddress");
-          }
-        } catch (err) {
-          if (err instanceof Error) {
-            setError(err.message);
-          } else {
-            setError("An unknown error occurred.");
-          }
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    saveOrder();
+    // The order is already created by the server action for HYPE payments.
+    // We just need to clear the cart and local storage.
+    if (cartItems.length > 0) {
+      clearCart();
+      localStorage.removeItem("shippingAddress");
+    }
+    setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
