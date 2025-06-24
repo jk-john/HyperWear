@@ -54,7 +54,7 @@ export default async function DashboardPage() {
   const shippingAddress = latestOrder?.shipping_address as ShippingAddress;
 
   const totalSpent =
-    orders?.reduce((acc, order) => acc + order.total_price, 0) ?? 0;
+    orders?.reduce((acc, order) => acc + order.total_amount, 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
   const userName = user.user_metadata?.full_name || "User";
   const userEmail = user.email;
@@ -80,9 +80,6 @@ export default async function DashboardPage() {
                 <div className="text-2xl font-bold">
                   ${totalSpent.toFixed(2)}
                 </div>
-                <p className="text-xs text-[var(--color-accent)]">
-                  +20.1% from last month
-                </p>
               </CardContent>
             </Card>
             <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
@@ -94,9 +91,6 @@ export default async function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">+{totalOrders}</div>
-                <p className="text-xs text-[var(--color-accent)]">
-                  +180.1% from last month
-                </p>
               </CardContent>
             </Card>
             <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
@@ -152,9 +146,9 @@ export default async function DashboardPage() {
                                   <TableCell>
                                     <span
                                       className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                                        order.status === "Processing"
+                                        order.status === "processing"
                                           ? "bg-yellow-900/50 text-yellow-300"
-                                          : order.status === "Shipped"
+                                          : order.status === "shipped"
                                             ? "bg-blue-900/50 text-blue-300"
                                             : "bg-green-900/50 text-green-300"
                                       }`}
@@ -163,7 +157,10 @@ export default async function DashboardPage() {
                                     </span>
                                   </TableCell>
                                   <TableCell className="text-right">
-                                    ${order.total_price.toFixed(2)}
+                                    $
+                                    {(
+                                      item.price_at_purchase * item.quantity
+                                    ).toFixed(2)}
                                   </TableCell>
                                 </TableRow>
                               ),
