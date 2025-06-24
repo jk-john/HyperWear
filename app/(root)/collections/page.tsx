@@ -1,7 +1,7 @@
 "use client";
 
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -46,13 +46,13 @@ const CollectionsPage = () => {
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
-          <h1 className="text-5xl font-extrabold text-gray-900 font-display tracking-tight">
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mb-20 text-center">
+          <h1 className="font-display text-5xl font-extrabold tracking-tight text-gray-900">
             Our Collections
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500 font-body">
+          <p className="font-body mx-auto mt-4 max-w-2xl text-xl text-gray-500">
             Discover our carefully curated collections, each with a unique style
             and story.
           </p>
@@ -63,7 +63,7 @@ const CollectionsPage = () => {
           {collections.map((collection) => (
             <div
               key={collection.title}
-              className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300"
+              className="transform overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-2"
             >
               <Image
                 src={collection.image}
@@ -73,13 +73,13 @@ const CollectionsPage = () => {
                 alt={collection.title}
               />
               <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 font-display">
+                <h3 className="font-display text-xl font-bold text-gray-900">
                   {collection.title}
                 </h3>
-                <p className="mt-2 text-gray-600 font-body">
+                <p className="font-body mt-2 text-gray-600">
                   {collection.description}
                 </p>
-                <div className="mt-6 flex justify-between items-center">
+                <div className="mt-6 flex items-center justify-between">
                   <Link href={collection.link}>
                     <Button
                       variant="outline"
@@ -89,7 +89,7 @@ const CollectionsPage = () => {
                     </Button>
                   </Link>
                   <Link href="/products">
-                    <Button className="rounded-full bg-primary text-white hover:bg-secondary hover:text-black font-semibold">
+                    <Button className="bg-primary hover:bg-secondary rounded-full font-semibold text-white hover:text-black">
                       Shop Now
                     </Button>
                   </Link>

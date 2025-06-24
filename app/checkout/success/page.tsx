@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
 import dynamic from "next/dynamic";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ const Player = dynamic(
 
 export default function CancelPage() {
   return (
-    <div className="container mx-auto px-4 py-8 text-center">
+    <div className="container mx-auto mt-20 px-4 py-8 text-center text-white">
       <Player
         autoplay
         loop
@@ -24,7 +24,9 @@ export default function CancelPage() {
       <p className="mt-4">Your payment was not processed. You can try again.</p>
       <div className="mt-8">
         <Link href="/checkout">
-          <Button>Back to Checkout</Button>
+          <Button className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-80 rounded-full py-6 text-lg font-bold transition-colors hover:text-white">
+            Back to Checkout
+          </Button>
         </Link>
       </div>
     </div>

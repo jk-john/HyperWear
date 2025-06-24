@@ -3,7 +3,7 @@
 import { products } from "@/constants";
 import ProductGrid from "./ProductGrid";
 
-const VISIBLE_PRODUCTS = 9;
+const VISIBLE_PRODUCTS = 3;
 
 export default function FeaturedProducts() {
   return (
@@ -13,6 +13,10 @@ export default function FeaturedProducts() {
           <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
             Featured Products
           </h2>
+          <p>
+            These are the products coming from /constants folder. This is a
+            placeholder for the actual products.
+          </p>
         </div>
         <div className="overflow-hidden">
           <ProductGrid products={products.slice(0, VISIBLE_PRODUCTS)} />

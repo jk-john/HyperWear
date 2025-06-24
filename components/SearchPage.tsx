@@ -32,21 +32,25 @@ export default function SearchPage({
 
   return (
     <div>
-      <h1 className="font-display mb-6 text-3xl">Search Products</h1>
+      <h1 className="font-display mb-6 text-3xl text-white">Search Products</h1>
       <div className="mb-6">
         <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for products..."
-          className="w-full text-lg"
+          className="w-full text-lg text-white"
         />
       </div>
       <div className="mt-6">
         {products.length > 0 ? (
           <ProductGrid products={products} />
         ) : (
-          query && <p>No products found for &quot;{query}&quot;.</p>
+          query && (
+            <p className="text-white">
+              No products found for &quot;{query}&quot;.
+            </p>
+          )
         )}
       </div>
     </div>

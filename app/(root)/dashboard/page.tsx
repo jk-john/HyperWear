@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -13,6 +14,7 @@ import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 import { CreditCard, DollarSign, Home, ShoppingBag } from "lucide-react";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 type Product = Tables<"products">;
@@ -39,6 +41,7 @@ export default async function DashboardPage() {
   }
 
   const { data, error } = await supabase
+    // to test the error state in the UI, change the table name to "orderss"
     .from("orders")
     .select("*, order_items(*, products(*))")
     .eq("user_id", user.id)
@@ -46,7 +49,27 @@ export default async function DashboardPage() {
 
   if (error) {
     console.error("Error fetching orders:", error);
-    // TODO: Handle error state in the UI
+    return (
+      <div className="mt-10 flex min-h-screen w-full flex-col items-center justify-center text-white">
+        <div className="rounded-lg border border-red-500 bg-red-900/20 p-8 text-center">
+          <h2 className="text-2xl font-bold text-red-400">
+            Oops! Something went wrong.
+          </h2>
+          <p className="mt-4 text-red-300">
+            We couldn&apos;t load your dashboard data. Please try again later.
+          </p>
+        </div>
+        <div className="mt-4">
+          <Button
+            variant="link"
+            className="border-secondary border-3 text-white"
+            asChild
+          >
+            <Link href="/">Go to Home</Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const orders: OrderWithItems[] = data || [];

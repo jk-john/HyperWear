@@ -1,8 +1,8 @@
 const StripeIcon: React.FC = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="76.57"
-    height="32"
+    width="25"
+    height="25"
     viewBox="0 0 512 214"
   >
     <path

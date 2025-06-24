@@ -12,7 +12,7 @@ export default async function AllProducts() {
   if (error) {
     console.error("Error fetching products:", error);
     // You might want to render an error message here
-    return <p>Error loading products.</p>;
+    return <p className="text-white">Error loading products.</p>;
   }
 
   return (
@@ -22,6 +22,10 @@ export default async function AllProducts() {
           <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
             All Products
           </h2>
+          <p>
+            These are the products coming from the database. This is a
+            placeholder for the actual products.
+          </p>
         </div>
         <div className="overflow-hidden">
           <ProductGrid products={products as Product[]} />

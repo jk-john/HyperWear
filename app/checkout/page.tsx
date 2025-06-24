@@ -3,7 +3,7 @@
 import StripeIcon from "@/components/icons/StripeIcon";
 import UsdcIcon from "@/components/icons/UsdcIcon";
 import UsdtIcon from "@/components/icons/UsdtIcon";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Form,
   FormControl,
@@ -13,11 +13,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -36,7 +43,7 @@ const formSchema = z.object({
   city: z.string().min(1, { message: "City is required." }),
   zip: z.string().min(1, { message: "ZIP code is required." }),
   country: z.string().min(1, { message: "Country is required." }),
-  paymentMethod: z.enum(["stripe", "nowpayments"], {
+  paymentMethod: z.enum(["stripe", "nowpayments", "hype", "usdhl"], {
     required_error: "You need to select a payment method.",
   }),
 });
@@ -44,6 +51,7 @@ const formSchema = z.object({
 export default function CheckoutPage() {
   const { cartItems, totalPrice } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -98,9 +106,28 @@ export default function CheckoutPage() {
         if (result?.error) {
           toast.error(result.error);
         }
-      } else {
+      } else if (values.paymentMethod === "hype") {
+        const result = await form.trigger(["firstName", "lastName", "email"]);
+        if (!result) {
+          toast.error("Please fill in your name and email before proceeding.");
+          return;
+        }
+        // Save user info to local storage before redirecting
+        localStorage.setItem(
+          "hypeUserData",
+          JSON.stringify({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+          }),
+        );
+        router.push("/checkout/hype-form");
+      } else if (values.paymentMethod === "nowpayments") {
         toast.error("NowPayments is not yet implemented.");
         console.log("Redirecting to NowPayments...");
+      } else if (values.paymentMethod === "usdhl") {
+        toast.error("Pay with USDT0 or USDHL is not yet implemented.");
+        console.log("Redirecting to Pay with USDT0 or USDHL...");
       }
     } catch (error) {
       console.error("Submission error:", error);
@@ -268,41 +295,70 @@ export default function CheckoutPage() {
                     name="paymentMethod"
                     render={({ field }) => (
                       <FormItem>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="space-y-4"
-                          >
-                            <FormLabel className="flex cursor-pointer items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
-                              <FormControl>
-                                <RadioGroupItem
-                                  value="stripe"
-                                  className="text-[--color-mint]"
-                                />
-                              </FormControl>
-                              <span className="flex items-center gap-4 font-medium text-white">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="border-[--color-deep] bg-[--color-jungle] text-white focus:border-[--color-mint]">
+                              <SelectValue placeholder="Select a payment method" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="border-[--color-deep] bg-white text-black">
+                            <SelectItem value="stripe">
+                              <div className="flex items-center">
                                 Credit Card (Stripe)
-                                <StripeIcon />
-                              </span>
-                            </FormLabel>
-                            <FormLabel className="flex cursor-pointer items-center space-x-3 rounded-md border border-[--color-deep] bg-[--color-jungle] p-4 has-[:checked]:border-[--color-mint]">
-                              <FormControl>
-                                <RadioGroupItem
-                                  value="nowpayments"
-                                  className="text-[--color-mint]"
-                                />
-                              </FormControl>
-                              <span className="flex items-center gap-2 font-medium text-white">
-                                Cryptocurrency (NowPayments)
-                                <div className="flex items-center">
+                                <span className="ml-2 inline-block">
+                                  <StripeIcon />
+                                </span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="nowpayments">
+                              <div className="flex items-center">
+                                Cryptocurrency Stablecoins USDC/USDT with
+                                NowPayments
+                                <span className="ml-2 inline-block">
                                   <UsdcIcon />
+                                </span>
+                                <span className="ml-2 inline-block">
                                   <UsdtIcon />
-                                </div>
+                                </span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="usdhl">
+                              Pay with USDT0 or USDHL on HyperEVM{" "}
+                              <span className="inline-block">
+                                <Image
+                                  src="/USDT0.svg"
+                                  alt="Hyperliquid"
+                                  width={20}
+                                  height={20}
+                                />
                               </span>
-                            </FormLabel>
-                          </RadioGroup>
-                        </FormControl>
+                              <span className="inline-block">
+                                <Image
+                                  src="/USDHL.svg"
+                                  alt="Hyperliquid"
+                                  width={20}
+                                  height={20}
+                                  className="ml-2 rounded-full"
+                                />
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="hype">
+                              Pay with $HYPE on HyperEVM{" "}
+                              <span className="inline-block">
+                                <Image
+                                  src="/HYPE.svg"
+                                  alt="Hyperliquid"
+                                  width={22}
+                                  height={22}
+                                  className="ml-2 rounded-full"
+                                />
+                              </span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}

@@ -6,7 +6,7 @@ interface ProductSidebarProps {
 
 export default function ProductSidebar({ categories }: ProductSidebarProps) {
   return (
-    <aside className="md:col-span-1">
+    <aside className="mr-25 md:col-span-1">
       <div className="sticky top-36">
         <ProductFilters categories={categories} />
       </div>

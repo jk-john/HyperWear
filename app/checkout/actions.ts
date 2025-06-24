@@ -79,3 +79,54 @@ export async function createCheckoutSession(
     redirect(session.url);
   }
 }
+
+export async function createManualOrder(formData: FormData) {
+  "use server";
+
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const email = formData.get("email") as string;
+  const walletAddress = formData.get("walletAddress") as string;
+  const cartTotalUsd = parseFloat(formData.get("cartTotalUsd") as string);
+
+  try {
+    // This fetch needs to be absolute URL for server-side fetching
+    const hypePriceResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/hype-price`,
+    );
+    if (!hypePriceResponse.ok) {
+      throw new Error("Failed to fetch HYPE price");
+    }
+    const { hypeToUsd } = await hypePriceResponse.json();
+    const amountHype = cartTotalUsd / hypeToUsd;
+
+    const supabase = createClient(cookies());
+
+    const { error } = await supabase
+      .from("manual_orders")
+      .insert([
+        {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          wallet_address: walletAddress,
+          cart_total_usd: cartTotalUsd,
+          amount_hype: amountHype,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error inserting manual order:", error);
+      throw new Error("Failed to save order.");
+    }
+
+    redirect(
+      `/checkout/hype-confirmation?amount=${amountHype}&cartTotal=${cartTotalUsd}`,
+    );
+  } catch (error) {
+    console.error("Error creating manual order:", error);
+    // Redirect to an error page or show an error message
+    redirect("/checkout/cancel");
+  }
+}
