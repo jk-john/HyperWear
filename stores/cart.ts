@@ -1,3 +1,4 @@
+import { getPublicImageUrl } from "@/lib/utils";
 import { Product } from "@/types";
 import { toast } from "sonner";
 import { create } from "zustand";
@@ -25,11 +26,7 @@ export const useCartStore = create<CartState>()(
       cartItems: [],
       addToCart: (product, size) => {
         const cartItemId = size ? `${product.id}-${size}` : product.id;
-        const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/`;
-        const imageUrl =
-          product.images && product.images.length > 0
-            ? `${supabaseUrl}${product.images[0]}`
-            : "/products-img/tee-shirt.webp"; // Fallback image
+        const imageUrl = getPublicImageUrl(product.images?.[0]);
 
         set((state) => {
           const itemInCart = state.cartItems.find(

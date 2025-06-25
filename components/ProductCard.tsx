@@ -1,6 +1,7 @@
 "use client";
 
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
 import Autoplay from "embla-carousel-autoplay";
@@ -18,12 +19,10 @@ interface ProductCardProps {
 const ProductImageCarousel = ({
   images,
   productName,
-  supabaseUrl,
   onImageClick,
 }: {
   images: string[];
   productName: string;
-  supabaseUrl: string;
   onImageClick: (index: number) => void;
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
@@ -75,7 +74,7 @@ const ProductImageCarousel = ({
                   className="embla__slide relative h-full w-full flex-[0_0_100%]"
                 >
                   <Image
-                    src={`${supabaseUrl}${image}`}
+                    src={getPublicImageUrl(image)}
                     alt={`${productName} image ${index + 1}`}
                     fill
                     className="object-cover"
@@ -122,11 +121,7 @@ const ProductImageCarousel = ({
           onClick={() => onImageClick(0)}
         >
           <Image
-            src={
-              hasImages
-                ? `${supabaseUrl}${images[0]}`
-                : "/products-img/tee-shirt.webp"
-            }
+            src={getPublicImageUrl(images?.[0])}
             alt={hasImages ? `${productName} image 1` : "Placeholder image"}
             fill
             className="object-cover"
@@ -140,7 +135,6 @@ const ProductImageCarousel = ({
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCartStore();
-  const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/`;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
@@ -159,7 +153,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         product={product}
-        supabaseUrl={supabaseUrl}
         initialSlide={initialSlide}
       />
       <CardContainer className="w-full max-w-[350px] min-w-[300px]">
@@ -168,7 +161,6 @@ export default function ProductCard({ product }: ProductCardProps) {
             <ProductImageCarousel
               images={product.images}
               productName={product.name}
-              supabaseUrl={supabaseUrl}
               onImageClick={handleImageClick}
             />
           </CardItem>
@@ -185,7 +177,10 @@ export default function ProductCard({ product }: ProductCardProps) {
               </p>
             </CardItem>
             <CardItem translateZ="20" className="w-full">
-              <Button className="w-full" onClick={() => addToCart(product)}>
+              <Button
+                className="bg-secondary hover:bg-jungle hover:shadow-mint/40 w-full text-black hover:text-white"
+                onClick={() => addToCart(product)}
+              >
                 Add to Cart
               </Button>
             </CardItem>

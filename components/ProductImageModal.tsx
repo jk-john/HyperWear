@@ -1,5 +1,6 @@
 "use client";
 
+import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
 import useEmblaCarousel from "embla-carousel-react";
@@ -24,7 +25,6 @@ import {
 
 interface ProductImageModalProps {
   product: Product;
-  supabaseUrl: string;
   isOpen: boolean;
   onClose: () => void;
   initialSlide: number;
@@ -32,7 +32,6 @@ interface ProductImageModalProps {
 
 export const ProductImageModal = ({
   product,
-  supabaseUrl,
   isOpen,
   onClose,
   initialSlide,
@@ -86,7 +85,7 @@ export const ProductImageModal = ({
                     className="embla__slide relative h-[60vh] min-w-full"
                   >
                     <Image
-                      src={`${supabaseUrl}${image}`}
+                      src={getPublicImageUrl(image)}
                       alt={`${product.name} image ${index + 1}`}
                       fill
                       className="object-contain"
