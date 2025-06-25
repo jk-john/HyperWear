@@ -61,3 +61,35 @@ export async function createOrder(
 
   return { order };
 }
+
+export async function getOrderDetails(orderId: string) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      order_items (
+        quantity,
+        price_at_purchase,
+        products (
+          name,
+          image_url
+        )
+      )
+    `,
+    )
+    .eq("id", orderId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching order details:", error);
+    return {
+      error: "Order not found or you do not have permission to view it.",
+    };
+  }
+
+  return { order };
+}

@@ -143,7 +143,7 @@ export default function CheckoutPage() {
           const amountHype = (cartTotal / hypeToUsd).toFixed(2);
 
           router.push(
-            `/checkout/hype-confirmation?cartTotal=${cartTotal}&amount=${amountHype}`,
+            `/checkout/hype-confirmation?cartTotal=${cartTotal}&amount=${amountHype}&evmAddress=${values.evmAddress}`,
           );
         } catch (error) {
           console.error("Could not fetch HYPE price:", error);
