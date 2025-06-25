@@ -12,6 +12,15 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 // TODO: Add your Resend API key to your environment variables.
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size?: string;
+  variant_id: string | null;
+};
+
 export async function POST(req: Request) {
   const body = await req.text();
   const signature = (await headers()).get("stripe-signature") as string;
@@ -34,16 +43,26 @@ export async function POST(req: Request) {
     try {
       const cookieStore = cookies();
       const supabase = createClient(cookieStore);
+      const shippingDetails = session.metadata?.shipping
+        ? JSON.parse(session.metadata.shipping)
+        : {};
+      const cartItems: CartItem[] = session.metadata?.cartItems
+        ? JSON.parse(session.metadata.cartItems)
+        : [];
 
       const { data: order, error } = await supabase
         .from("orders")
         .insert({
           user_id: session.client_reference_id ?? undefined,
-          total_price: (session.amount_total ?? 0) / 100,
-          shipping_address: session.metadata
-            ? JSON.parse(session.metadata.shipping)
-            : null,
-          status: "Paid",
+          total: (session.amount_total ?? 0) / 100,
+          delivery_name: shippingDetails.name,
+          delivery_email: shippingDetails.email,
+          address_line1: shippingDetails.street,
+          city: shippingDetails.city,
+          postal_code: shippingDetails.zip,
+          country: shippingDetails.country,
+          status: "paid",
+          payment_method: "Stripe",
         })
         .select()
         .single();
@@ -51,15 +70,33 @@ export async function POST(req: Request) {
       if (error) {
         throw new Error(`Supabase order creation failed: ${error.message}`);
       }
+
+      if (order && cartItems.length > 0) {
+        const orderItems = cartItems.map((item) => ({
+          order_id: order.id,
+          product_id: item.id,
+          variant_id: item.variant_id,
+          quantity: item.quantity,
+          price_at_purchase: item.price,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from("order_items")
+          .insert(orderItems);
+
+        if (itemsError) {
+          throw new Error(
+            `Supabase order items creation failed: ${itemsError.message}`,
+          );
+        }
+      }
+
       const customerEmail = session.customer_details?.email;
       if (customerEmail) {
-        const lineItems = await stripe.checkout.sessions.listLineItems(
-          session.id,
-        );
-        const items = lineItems.data.map((item) => ({
-          name: item.description ?? "Unknown Item",
+        const items = cartItems.map((item) => ({
+          name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
           quantity: item.quantity ?? 0,
-          price: (item.price?.unit_amount ?? 0) / 100,
+          price: item.price ?? 0,
         }));
 
         await resend.emails.send({
@@ -71,7 +108,7 @@ export async function POST(req: Request) {
             orderId: order.id.toString(),
             orderDate: new Date(order.created_at).toLocaleDateString(),
             items,
-            total: order.total_price,
+            total: (session.amount_total ?? 0) / 100,
           }),
         });
       }

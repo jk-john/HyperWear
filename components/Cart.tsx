@@ -74,6 +74,11 @@ export const Cart = () => {
                     <h3 className="font-body text-primary font-semibold">
                       {item.name}
                     </h3>
+                    {item.size && (
+                      <p className="text-primary/80 text-sm font-medium">
+                        Size: {item.size}
+                      </p>
+                    )}
                     <p className="text-primary/80 text-sm">
                       ${item.price.toFixed(2)}
                     </p>

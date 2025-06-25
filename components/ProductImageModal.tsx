@@ -3,6 +3,7 @@
 import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
+import { createClient } from "@/utils/supabase/client";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -41,9 +42,8 @@ export const ProductImageModal = ({
     loop: true,
     startIndex: initialSlide,
   });
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [variants, setVariants] = useState<{ size: string }[]>([]);
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -53,19 +53,47 @@ export const ProductImageModal = ({
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
+  const showSizeSelector =
+    product.category && ["t-shirt", "shorts"].includes(product.category);
+
   useEffect(() => {
     if (emblaApi) {
+      emblaApi.reInit();
       emblaApi.scrollTo(initialSlide, true);
     }
-  }, [initialSlide, emblaApi]);
+
+    const fetchVariants = async () => {
+      if (showSizeSelector) {
+        // Reset state when modal opens or product changes
+        setSelectedSize(undefined);
+        setVariants([]);
+
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("variants")
+          .select("size")
+          .eq("product_id", product.id);
+
+        if (error) {
+          console.error("Error fetching variants:", error);
+        } else if (data) {
+          setVariants(data);
+        }
+      }
+    };
+
+    if (isOpen) {
+      fetchVariants();
+    }
+  }, [emblaApi, initialSlide, isOpen, product.id, showSizeSelector]);
 
   const handleAddToCart = () => {
+    if (showSizeSelector && !selectedSize) {
+      return; // Don't add to cart if size is required but not selected
+    }
     addToCart(product, selectedSize);
     onClose();
   };
-
-  const showSizeSelector =
-    product.category && ["tee-shirt", "shorts"].includes(product.category);
 
   if (!isOpen) return null;
 
@@ -118,14 +146,14 @@ export const ProductImageModal = ({
               <p className="text-muted-foreground">{product.description}</p>
               {showSizeSelector && (
                 <div className="mt-4">
-                  <Select onValueChange={setSelectedSize}>
+                  <Select onValueChange={setSelectedSize} value={selectedSize}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a size" />
                     </SelectTrigger>
                     <SelectContent>
-                      {["XS", "S", "M", "L", "XL"].map((size) => (
-                        <SelectItem key={size} value={size}>
-                          {size}
+                      {variants.map((variant) => (
+                        <SelectItem key={variant.size} value={variant.size}>
+                          {variant.size}
                         </SelectItem>
                       ))}
                     </SelectContent>

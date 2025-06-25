@@ -89,16 +89,21 @@ export type Database = {
       };
       orders: {
         Row: {
-          address_line1: string | null;
-          address_line2: string | null;
-          city: string | null;
-          country: string | null;
           created_at: string;
-          delivery_email: string | null;
-          delivery_name: string | null;
           id: string;
           payment_method: string | null;
-          postal_code: string | null;
+          shipping_address_complement: string | null;
+          shipping_address_complement_from_line2: string | null;
+          shipping_city: string | null;
+          shipping_company_name: string | null;
+          shipping_country: string | null;
+          shipping_delivery_instructions: string | null;
+          shipping_email: string | null;
+          shipping_first_name: string | null;
+          shipping_last_name: string | null;
+          shipping_phone_number: string | null;
+          shipping_postal_code: string | null;
+          shipping_street: string | null;
           status: string | null;
           total: number;
           tx_hash: string | null;
@@ -106,16 +111,21 @@ export type Database = {
           wallet_address: string | null;
         };
         Insert: {
-          address_line1?: string | null;
-          address_line2?: string | null;
-          city?: string | null;
-          country?: string | null;
           created_at?: string;
-          delivery_email?: string | null;
-          delivery_name?: string | null;
           id?: string;
           payment_method?: string | null;
-          postal_code?: string | null;
+          shipping_address_complement?: string | null;
+          shipping_address_complement_from_line2?: string | null;
+          shipping_city?: string | null;
+          shipping_company_name?: string | null;
+          shipping_country?: string | null;
+          shipping_delivery_instructions?: string | null;
+          shipping_email?: string | null;
+          shipping_first_name?: string | null;
+          shipping_last_name?: string | null;
+          shipping_phone_number?: string | null;
+          shipping_postal_code?: string | null;
+          shipping_street?: string | null;
           status?: string | null;
           total: number;
           tx_hash?: string | null;
@@ -123,16 +133,21 @@ export type Database = {
           wallet_address?: string | null;
         };
         Update: {
-          address_line1?: string | null;
-          address_line2?: string | null;
-          city?: string | null;
-          country?: string | null;
           created_at?: string;
-          delivery_email?: string | null;
-          delivery_name?: string | null;
           id?: string;
           payment_method?: string | null;
-          postal_code?: string | null;
+          shipping_address_complement?: string | null;
+          shipping_address_complement_from_line2?: string | null;
+          shipping_city?: string | null;
+          shipping_company_name?: string | null;
+          shipping_country?: string | null;
+          shipping_delivery_instructions?: string | null;
+          shipping_email?: string | null;
+          shipping_first_name?: string | null;
+          shipping_last_name?: string | null;
+          shipping_phone_number?: string | null;
+          shipping_postal_code?: string | null;
+          shipping_street?: string | null;
           status?: string | null;
           total?: number;
           tx_hash?: string | null;
@@ -192,6 +207,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_addresses: {
+        Row: {
+          address_complement: string | null;
+          city: string | null;
+          company_name: string | null;
+          country: string | null;
+          created_at: string | null;
+          delivery_instructions: string | null;
+          first_name: string;
+          id: string;
+          is_default: boolean | null;
+          last_name: string;
+          phone_number: string;
+          postal_code: string | null;
+          street: string | null;
+          type: Database["public"]["Enums"]["address_type"];
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          address_complement?: string | null;
+          city?: string | null;
+          company_name?: string | null;
+          country?: string | null;
+          created_at?: string | null;
+          delivery_instructions?: string | null;
+          first_name: string;
+          id?: string;
+          is_default?: boolean | null;
+          last_name: string;
+          phone_number: string;
+          postal_code?: string | null;
+          street?: string | null;
+          type: Database["public"]["Enums"]["address_type"];
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          address_complement?: string | null;
+          city?: string | null;
+          company_name?: string | null;
+          country?: string | null;
+          created_at?: string | null;
+          delivery_instructions?: string | null;
+          first_name?: string;
+          id?: string;
+          is_default?: boolean | null;
+          last_name?: string;
+          phone_number?: string;
+          postal_code?: string | null;
+          street?: string | null;
+          type?: Database["public"]["Enums"]["address_type"];
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      user_profiles: {
+        Row: {
+          birthday: string | null;
+          phone_number: string | null;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          birthday?: string | null;
+          phone_number?: string | null;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          birthday?: string | null;
+          phone_number?: string | null;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       users: {
         Row: {
           avatar_url: string | null;
@@ -219,6 +312,32 @@ export type Database = {
         };
         Relationships: [];
       };
+      variants: {
+        Row: {
+          id: string;
+          product_id: string | null;
+          size: string;
+        };
+        Insert: {
+          id?: string;
+          product_id?: string | null;
+          size: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string | null;
+          size?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "variants_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -227,6 +346,7 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      address_type: "shipping" | "billing";
       product_category: "T-shirts" | "Caps" | "Accessories" | "Plush";
     };
     CompositeTypes: {
@@ -343,6 +463,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      address_type: ["shipping", "billing"],
       product_category: ["T-shirts", "Caps", "Accessories", "Plush"],
     },
   },

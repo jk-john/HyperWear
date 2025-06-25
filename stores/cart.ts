@@ -25,7 +25,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       cartItems: [],
       addToCart: (product, size) => {
-        const cartItemId = size ? `${product.id}-${size}` : product.id;
+        const cartItemId = `${product.id}-${size || "nosize"}`;
         const imageUrl = getPublicImageUrl(product.images?.[0]);
 
         set((state) => {
