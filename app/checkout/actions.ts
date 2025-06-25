@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 
@@ -26,6 +26,19 @@ type ShippingAddress = {
   city: string;
   zip: string;
   country: string;
+};
+
+// Form values from the checkout page
+type FormValues = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  paymentMethod: "stripe" | "nowpayments" | "hype" | "usdhl";
+  evmAddress?: string;
 };
 
 export async function createCheckoutSession(
@@ -88,7 +101,11 @@ export async function createCheckoutSession(
   }
 }
 
-export async function createHypeOrder(formData: FormData) {
+export async function finalizeHypeOrder(
+  cartItems: CartItem[],
+  txHash: string,
+  formValues: FormValues,
+) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
@@ -96,73 +113,41 @@ export async function createHypeOrder(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const cartItems = JSON.parse(
-    (formData.get("cartItems") as string) || "[]",
-  ) as CartItem[];
-  const shippingAddress = {
-    firstName: formData.get("firstName") as string,
-    lastName: formData.get("lastName") as string,
-    email: formData.get("email") as string,
-    street: formData.get("street") as string,
-    city: formData.get("city") as string,
-    zip: formData.get("zip") as string,
-    country: formData.get("country") as string,
-  };
-  const walletAddress = formData.get("walletAddress") as string;
+  if (!user) {
+    return { success: false, error: "User not authenticated." };
+  }
+
   const cartTotalUsd = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
 
-  // 1. Fetch HYPE price
-  let hypeToUsd;
-  try {
-    const headerObj = await headers();
-    const host = headerObj.get("host");
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const hypePriceResponse = await fetch(
-      `${protocol}://${host}/api/hype-price`,
-      {
-        cache: "no-store",
-      },
-    );
-    if (!hypePriceResponse.ok) {
-      throw new Error("Failed to fetch HYPE price");
-    }
-    const priceData = await hypePriceResponse.json();
-    hypeToUsd = priceData.hypeToUsd;
-  } catch (error) {
-    console.error(error);
-    return { error: "Could not retrieve HYPE price." };
-  }
-
-  const amountHype = (cartTotalUsd / hypeToUsd).toFixed(2);
-
-  // 2. Insert into orders table
+  // 1. Insert into orders table with 'paid' status
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .insert({
-      user_id: user?.id,
-      status: "pending",
+      user_id: user.id,
+      status: "paid", // Set status directly to paid
       total: cartTotalUsd,
       payment_method: "HYPE",
-      delivery_name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
-      delivery_email: shippingAddress.email,
-      address_line1: shippingAddress.street,
-      city: shippingAddress.city,
-      postal_code: shippingAddress.zip,
-      country: shippingAddress.country,
-      wallet_address: walletAddress,
+      delivery_name: `${formValues.firstName} ${formValues.lastName}`,
+      delivery_email: formValues.email,
+      address_line1: formValues.street,
+      city: formValues.city,
+      postal_code: formValues.zip,
+      country: formValues.country,
+      wallet_address: formValues.evmAddress,
+      tx_hash: txHash, // Store the transaction hash
     })
     .select()
     .single();
 
   if (orderError) {
-    console.error("Error creating order:", orderError);
-    return { error: "Failed to create order." };
+    console.error("Error creating final order:", orderError);
+    return { success: false, error: "Failed to save the order." };
   }
 
-  // 3. Insert into order_items table
+  // 2. Insert into order_items table
   const orderItems = cartItems.map((item) => ({
     order_id: order.id,
     product_id: item.id,
@@ -175,46 +160,17 @@ export async function createHypeOrder(formData: FormData) {
     .insert(orderItems);
 
   if (itemsError) {
-    console.error("Error inserting order items:", itemsError);
-    // TODO: Maybe delete the order here if items fail to insert
-    return { error: "Failed to save order details." };
+    console.error("Error inserting final order items:", itemsError);
+    // This is a critical error. The order is created but has no items.
+    // In a production scenario, you'd want to handle this more gracefully.
+    // (e.g., delete the order, or queue a job for manual review).
+    return {
+      success: false,
+      error: "Failed to save order details. Please contact support.",
+    };
   }
 
-  // 4. Optionally update user's wallet address
-  if (user && walletAddress) {
-    const { error: userUpdateError } = await supabase
-      .from("users")
-      .update({ wallet_address: walletAddress })
-      .eq("id", user.id);
-    if (userUpdateError) {
-      // Not a critical error, so just log it
-      console.warn("Could not update user wallet address:", userUpdateError);
-    }
-  }
+  // Optionally: Trigger a confirmation email here
 
-  // 5. Return order details for the frontend to handle
-  return {
-    success: true,
-    orderId: order.id,
-    amountHype: amountHype,
-    cartTotal: cartTotalUsd.toString(),
-    receivingAddress: process.env.RECEIVING_WALLET_ADDRESS,
-  };
-}
-
-export async function cancelHypeOrder(orderId: string) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-  const { error } = await supabase
-    .from("orders")
-    .update({ status: "cancelled" })
-    .eq("id", orderId);
-
-  if (error) {
-    console.error("Error cancelling order:", error);
-    return { success: false, error: "Failed to cancel order." };
-  }
-
-  return { success: true };
+  return { success: true, orderId: order.id };
 }

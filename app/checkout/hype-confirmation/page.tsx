@@ -1,18 +1,28 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { LEDGER_RECEIVING_ADDRESS } from "@/constants/wallet";
+import { useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { Suspense, useEffect, useState } from "react";
 
 function HypeConfirmation() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialAmount = parseFloat(searchParams.get("amount") || "0");
   const cartTotalUsd = parseFloat(searchParams.get("cartTotal") || "0");
 
   const [hypeAmount, setHypeAmount] = useState(initialAmount);
-  const ledgerAddress = "0xf5AA547485Bdb2b85492c58CfaDBffAab401185b";
+  const [copied, setCopied] = useState(false);
+
+  const receivingAddress = LEDGER_RECEIVING_ADDRESS;
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(receivingAddress);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -46,19 +56,22 @@ function HypeConfirmation() {
           to the following address:
         </p>
         <div className="my-6 flex justify-center">
-          <QRCodeSVG value={ledgerAddress} size={128} />
+          <QRCodeSVG value={receivingAddress} size={128} />
         </div>
-        <p className="font-mono text-sm break-words">{ledgerAddress}</p>
+        <div className="flex flex-col items-center space-y-2">
+          <div className="font-mono text-sm break-all">{receivingAddress}</div>
+          <Button onClick={handleCopyAddress} size="sm" variant="ghost">
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+        </div>
         <p className="mt-4 text-xs text-gray-500">
           The HYPE amount updates every 15 seconds based on the live market
           price.
         </p>
-        <Button
-          onClick={() => router.push("/checkout/success")}
-          className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-3 text-lg font-bold transition-colors hover:text-white"
-        >
-          I&apos;ve Paid
-        </Button>
+        <p className="mt-8 text-sm text-gray-600 dark:text-gray-400">
+          We will scan the blockchain for your payment and confirm your order
+          automatically.
+        </p>
       </div>
     </div>
   );
