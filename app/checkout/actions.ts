@@ -1,6 +1,5 @@
 "use server";
 
-import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
@@ -20,9 +19,18 @@ type CartItem = {
   image_url: string;
 };
 
+type ShippingAddress = {
+  name: string;
+  email: string;
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+};
+
 export async function createCheckoutSession(
   cartItems: CartItem[],
-  shippingAddress: Tables<"orders">["shipping_address"],
+  shippingAddress: ShippingAddress,
   email: string,
 ) {
   const cookieStore = cookies();
@@ -184,15 +192,29 @@ export async function createHypeOrder(formData: FormData) {
     }
   }
 
-  // 5. Redirect to confirmation page
-  const params = new URLSearchParams({
-    amount: amountHype,
-    orderId: order.id,
-    cartTotal: cartTotalUsd.toString(),
-  });
-
+  // 5. Return order details for the frontend to handle
   return {
     success: true,
-    url: `/checkout/hype-confirmation?${params.toString()}`,
+    orderId: order.id,
+    amountHype: amountHype,
+    cartTotal: cartTotalUsd.toString(),
+    receivingAddress: process.env.RECEIVING_WALLET_ADDRESS,
   };
+}
+
+export async function cancelHypeOrder(orderId: string) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { error } = await supabase
+    .from("orders")
+    .update({ status: "cancelled" })
+    .eq("id", orderId);
+
+  if (error) {
+    console.error("Error cancelling order:", error);
+    return { success: false, error: "Failed to cancel order." };
+  }
+
+  return { success: true };
 }
