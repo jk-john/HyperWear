@@ -46,16 +46,29 @@ export default function SuccessPage() {
     }
 
     const fetchOrder = async () => {
-      const { order: fetchedOrder, error: fetchError } =
-        await getOrderDetails(orderId);
+      // Retry logic to handle potential DB replication delay
+      for (let i = 0; i < 3; i++) {
+        const { order: fetchedOrder, error: fetchError } =
+          await getOrderDetails(orderId);
 
-      if (fetchError) {
-        setError(fetchError);
-      } else if (fetchedOrder) {
-        setOrder(fetchedOrder as OrderWithItems);
-        // Clear cart only after successfully fetching the order
-        clearCart();
-        localStorage.removeItem("shippingAddress");
+        if (fetchedOrder) {
+          setOrder(fetchedOrder as OrderWithItems);
+          clearCart();
+          localStorage.removeItem("shippingAddress");
+          setLoading(false);
+          return; // Exit loop on success
+        }
+
+        if (i < 2) {
+          // Wait 1 second before retrying
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } else {
+          // Set error after final attempt fails
+          setError(
+            fetchError ||
+              "Failed to fetch order details after multiple attempts.",
+          );
+        }
       }
       setLoading(false);
     };

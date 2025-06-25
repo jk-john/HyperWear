@@ -59,9 +59,12 @@ export const Cart = () => {
           {cartItems.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 py-6">
+                <div
+                  key={item.cartItemId}
+                  className="flex items-center gap-4 py-6"
+                >
                   <Image
-                    src={item.image_url}
+                    src={item.imageUrl}
                     alt={item.name}
                     width={80}
                     height={80}
@@ -80,7 +83,7 @@ export const Cart = () => {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
+                          updateQuantity(item.cartItemId, item.quantity - 1)
                         }
                       >
                         <Minus className="h-4 w-4" />
@@ -93,7 +96,7 @@ export const Cart = () => {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantity(item.cartItemId, item.quantity + 1)
                         }
                       >
                         <Plus className="h-4 w-4" />
@@ -108,7 +111,7 @@ export const Cart = () => {
                       variant="ghost"
                       size="icon"
                       className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.cartItemId)}
                     >
                       <X className="h-5 w-5" />
                     </Button>

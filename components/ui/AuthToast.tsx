@@ -36,7 +36,7 @@ export function AuthToast() {
 
       if (signedUp) {
         toast.success(
-          "Signed up successfully! Please check your email to verify your account."
+          "Signed up successfully! Please check your email to verify your account.",
         );
         newSearchParams.delete("signed_up");
       }

@@ -17,7 +17,7 @@ const shortenHash = (hash: string, start = 6, end = 4) => {
 function HypeConfirmation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { cartItems, clearCart } = useCartStore();
+  const { cartItems } = useCartStore();
 
   const initialAmount = parseFloat(searchParams.get("amount") || "0");
   const cartTotalUsd = parseFloat(searchParams.get("cartTotal") || "0");
@@ -101,7 +101,6 @@ function HypeConfirmation() {
             );
 
             if (result.success) {
-              clearCart();
               router.push(`/checkout/success?orderId=${result.orderId}`);
             } else {
               toast.error(result.error || "Failed to finalize your order.");
@@ -116,7 +115,7 @@ function HypeConfirmation() {
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(verificationInterval);
-  }, [evmAddress, hypeAmount, isVerifying, cartItems, clearCart, router]);
+  }, [evmAddress, hypeAmount, isVerifying, cartItems, router]);
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4 text-center">

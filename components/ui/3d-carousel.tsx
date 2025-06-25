@@ -24,7 +24,7 @@ export function useMediaQuery(
   {
     defaultValue = false,
     initializeWithValue = true,
-  }: UseMediaQueryOptions = {}
+  }: UseMediaQueryOptions = {},
 ): boolean {
   const getMatches = (query: string): boolean => {
     if (IS_SERVER) {
@@ -83,7 +83,7 @@ const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
 
   const transform = useTransform(
     rotation,
-    (value) => `rotate3d(0, 1, 0, ${value}deg)`
+    (value) => `rotate3d(0, 1, 0, ${value}deg)`,
   );
 
   return (
@@ -119,7 +119,7 @@ const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
               src={imgUrl}
               alt={`collection_image_${i}`}
               layoutId={`img-${imgUrl}`}
-              className="pointer-events-none w-full rounded-xl object-cover aspect-square"
+              className="pointer-events-none aspect-square w-full rounded-xl object-cover"
               initial={{ filter: "blur(4px)" }}
               layout="position"
               animate={{ filter: "blur(0px)" }}

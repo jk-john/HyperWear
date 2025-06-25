@@ -64,3 +64,14 @@ body {
     transform: translateX(100%);
   }
 }
+
+.embla {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+}
+.embla__slide {
+  position: relative;
+  min-width: 100%;
+}

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write .",
     "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -28,6 +29,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotted-map": "^2.2.3",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.18.1",
     "geist": "^1.4.2",
     "lucide-react": "^0.515.0",
@@ -58,7 +61,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.1",
     "prettier-plugin-tailwindcss": "^0.6.12",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
