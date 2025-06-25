@@ -400,7 +400,7 @@ export function CheckoutClient({
               <h2 className="font-display mb-6 text-3xl font-semibold text-white">
                 Payment Method
               </h2>
-              <div className="pt-6">
+              <div className="pt-2">
                 <FormField
                   control={form.control}
                   name="paymentMethod"
@@ -415,18 +415,68 @@ export function CheckoutClient({
                             <SelectValue placeholder="Select a payment method" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-white text-black">
                           <SelectItem value="stripe">
-                            Credit Card (Stripe)
+                            <div className="flex w-full items-center justify-between">
+                              <span>Credit Card (Stripe)</span>
+                              <Image
+                                src="/stripe.png"
+                                alt="Stripe"
+                                width={24}
+                                height={24}
+                                className="ml-2"
+                              />
+                            </div>
                           </SelectItem>
                           <SelectItem value="nowpayments">
-                            Crypto (NowPayments)
+                            <div className="flex w-full items-center justify-between">
+                              <span>Crypto (NowPayments)</span>
+                              <div className="ml-2 flex items-center gap-2">
+                                <Image
+                                  src="/usdc.png"
+                                  alt="USDC"
+                                  width={24}
+                                  height={24}
+                                />
+                                <Image
+                                  src="/usdt.svg"
+                                  alt="USDT"
+                                  width={24}
+                                  height={24}
+                                />
+                              </div>
+                            </div>
                           </SelectItem>
                           <SelectItem value="usdhl">
-                            Pay with USDT0 or USDHL on HyperEVM
+                            <div className="flex w-full items-center justify-between">
+                              <span>Pay with USDT0 or USDHL on HyperEVM</span>
+                              <div className="ml-2 flex items-center gap-2">
+                                <Image
+                                  src="/USDT0.svg"
+                                  alt="USDT0"
+                                  width={24}
+                                  height={24}
+                                />
+                                <Image
+                                  src="/USDHL.svg"
+                                  alt="USDHL"
+                                  width={24}
+                                  height={24}
+                                />
+                              </div>
+                            </div>
                           </SelectItem>
                           <SelectItem value="hype">
-                            Pay with $HYPE on HyperEVM
+                            <div className="flex w-full items-center justify-between">
+                              <span>Pay with $HYPE on HyperEVM</span>
+                              <Image
+                                src="/hype.svg"
+                                alt="HYPE"
+                                width={24}
+                                height={24}
+                                className="ml-2"
+                              />
+                            </div>
                           </SelectItem>
                         </SelectContent>
                       </Select>

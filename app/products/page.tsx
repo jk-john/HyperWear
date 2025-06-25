@@ -27,7 +27,10 @@ export default async function ProductsPage({
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <ProductSidebar categories={categories} />
           <main className="md:col-span-3">
-            <ProductGrid products={products} />
+            <ProductGrid
+              products={products}
+              className="md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
+            />
           </main>
         </div>
       </div>
