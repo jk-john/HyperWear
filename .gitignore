@@ -63,3 +63,6 @@ public/.cache/
 *.map
 *.dmp
 .vercel
+
+# Sentry Config File
+.env.sentry-build-plugin

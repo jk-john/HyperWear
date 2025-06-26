@@ -8,6 +8,9 @@
         "--access-token",
         "sbp_bc3316e944f0f532f6f1fd67f969775dd8d69014"
       ]
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp"
     }
   }
 }
