@@ -168,7 +168,7 @@ export const ProductImageModal = ({
               <Button
                 onClick={handleAddToCart}
                 disabled={Boolean(showSizeSelector && !selectedSize)}
-                className="flex-1"
+                className="bg-secondary hover:bg-deep flex-1 text-black hover:text-white"
               >
                 Add to Cart
               </Button>

@@ -15,7 +15,7 @@ type Order = Database["public"]["Tables"]["orders"]["Row"];
 
 // Viem public client for HyperEVM
 const viemClient = createPublicClient({
-  chain: hyperliquid,
+  chain: hyperliquid,g
   transport: http(),
 });
 
