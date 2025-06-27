@@ -1,21 +1,20 @@
 "use client";
 
 import { Cart } from "@/components/Cart";
-import { DesktopNav } from "@/components/header/DesktopNav";
 import { Logo } from "@/components/header/Logo";
-import { MobileNav } from "@/components/header/MobileNav";
+import { Navigation } from "@/components/header/Navigation";
 import { SearchBar } from "@/components/header/SearchBar";
 import { UserAccountNav } from "@/components/header/UserAccountNav";
 import ShimmerButton from "@/components/ui/ShimmerButton";
 import { createClient } from "@/utils/supabase/client";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
-import * as React from "react";
+import { useEffect, useState } from "react";
 
-const Header = () => {
-  const [user, setUser] = React.useState<SupabaseUser | null>(null);
+export const Header = () => {
+  const [user, setUser] = useState<User | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const supabase = createClient();
     const checkUser = async () => {
       const {
@@ -46,8 +45,8 @@ const Header = () => {
         </div>
 
         {/* Center Section - Navigation */}
-        <div className="hidden md:flex">
-          <DesktopNav />
+        <div className="hidden items-center md:flex">
+          <Navigation />
         </div>
 
         {/* Right Section - Actions */}
@@ -58,9 +57,6 @@ const Header = () => {
           <Link href="/products">
             <ShimmerButton>Shop Now</ShimmerButton>
           </Link>
-          <div className="md:hidden">
-            <MobileNav user={user} />
-          </div>
         </div>
       </div>
     </header>

@@ -6,6 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 const CollectionsPage = () => {
+  const carouselImages = [
+    "/persons/girl-front.png",
+    "/persons/men-front.png",
+    "/persons/men-caps-front.png",
+    "/persons/mugs-front.png",
+  ];
+
   const collections = [
     {
       title: "Cool Caps",
@@ -57,7 +64,7 @@ const CollectionsPage = () => {
             and story.
           </p>
         </div>
-        <ThreeDPhotoCarousel images={collections.map((c) => c.image)} />
+        <ThreeDPhotoCarousel images={carouselImages} />
 
         <div className="mt-20 grid gap-16 lg:grid-cols-3 lg:gap-x-12">
           {collections.map((collection) => (
