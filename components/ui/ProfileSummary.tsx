@@ -27,21 +27,21 @@ export function ProfileSummary({ defaultAddress, user }: ProfileSummaryProps) {
   } = defaultAddress || {};
 
   return (
-    <div className="bg-primary rounded-lg p-8 shadow-lg">
+    <div className="bg-primary flex flex-col rounded-lg p-8 shadow-lg">
       <h2 className="font-display mb-6 text-3xl font-semibold text-white">
         Profile Summary
       </h2>
-      <div className="flex flex-col gap-8 md:flex-row">
-        <div className="flex-shrink-0 text-center md:text-left">
+      <div className="flex flex-col items-center gap-8 md:flex-row">
+        <div className="flex flex-col items-center text-center md:text-left">
           <Image
             src="/purr-lying-happy.png"
             alt="User Avatar"
             width={128}
             height={128}
-            className="border-secondary mx-auto rounded-xl border-4 object-cover"
+            className="border-secondary mx-auto mr-15 rounded-full border-4 object-cover"
           />
         </div>
-        <div className="grid flex-grow grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+        <div className="grid flex-grow grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
           <InfoItem label="First Name" value={first_name} />
           <InfoItem label="Last Name" value={last_name} />
           <InfoItem label="Email Address" value={userEmail} />
@@ -77,7 +77,7 @@ interface InfoItemProps {
 
 function InfoItem({ label, value, fullWidth = false }: InfoItemProps) {
   return (
-    <div className={fullWidth ? "sm:col-span-2" : ""}>
+    <div className={fullWidth ? "sm:col-span-2 lg:col-span-3" : ""}>
       <p className="text-sm font-semibold text-gray-400">{label}</p>
       <p className="text-lg text-white">{value || "–"}</p>
     </div>
