@@ -81,21 +81,21 @@ export function Navigation() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/collections" legacyBehavior passHref>
+          <Link href="/collections" passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Collections
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/new-arrivals" legacyBehavior passHref>
+          <Link href="/new-arrivals" passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               New Arrivals
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/community" legacyBehavior passHref>
+          <Link href="/community" passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Community
             </NavigationMenuLink>
@@ -109,12 +109,13 @@ export function Navigation() {
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { src: string; liClassName?: string }
->(({ className, title, children, src, liClassName, ...props }, ref) => {
+>(({ className, title, children, src, liClassName, href, ...props }, ref) => {
   return (
     <li className={liClassName}>
       <NavigationMenuLink asChild>
-        <a
+        <Link
           ref={ref}
+          href={href ?? ""}
           className={cn(
             "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
             className,
@@ -136,7 +137,7 @@ const ListItem = React.forwardRef<
               </p>
             </div>
           </div>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   );

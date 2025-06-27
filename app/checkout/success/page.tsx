@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
+import { CheckCircle, Home, Package, ShoppingCart, Truck } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { getOrderDetails } from "./actions";
 
 const Player = dynamic(
@@ -28,7 +29,7 @@ type OrderWithItems = Tables<"orders"> & {
   }>;
 };
 
-export default function SuccessPage() {
+function SuccessContent() {
   const { clearCart } = useCartStore();
   const [order, setOrder] = useState<OrderWithItems | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,24 +79,33 @@ export default function SuccessPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-3xl font-bold">Processing your order...</h1>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+          Processing your order...
+        </h1>
         <Player
           autoplay
           loop
           src="https://lottie.host/e24f7e4a-a82f-4749-a359-5f187a077473/3L7JzJc8bA.json"
           style={{ height: "300px", width: "300px" }}
         />
+        <p className="text-muted-foreground mt-4">
+          Please wait while we confirm your order details.
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
         <h1 className="text-3xl font-bold text-red-500">Error</h1>
-        <p className="mt-4">{error}</p>
-        <Button onClick={() => router.push("/")} className="mt-8">
+        <p className="text-muted-foreground mt-4 text-white">{error}</p>
+        <Button
+          onClick={() => router.push("/")}
+          className="hover:bg-secondary/90 mt-8 bg-white text-black hover:text-white"
+        >
+          <Home className="mr-2 h-4 w-4" />
           Go back to Home
         </Button>
       </div>
@@ -105,75 +115,155 @@ export default function SuccessPage() {
   if (!order) {
     // This state should ideally not be reached if an orderId is present
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
         <h1 className="text-3xl font-bold">Could not load your order.</h1>
-        <p className="mt-4">Please check your dashboard for order status.</p>
+        <p className="text-muted-foreground mt-4">
+          Please check your dashboard for order status.
+        </p>
         <Button
           onClick={() => router.push("/dashboard/orders")}
           className="mt-8"
         >
-          Go to Dashboard
+          <Package className="mr-2 h-4 w-4 text-white" /> Go to Dashboard
         </Button>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="text-center">
-        <div className="mx-auto w-48">
-          <Player
-            autoplay
-            loop={false}
-            src="https://lottie.host/9f7b2d5a-6b8a-4d7a-8f8b-9e8c3b5a7b8c/t2kR3bY5qE.json"
-            style={{ height: "200px", width: "200px" }}
-          />
-        </div>
-        <h1 className="text-3xl font-bold">Thank you for your order!</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Your order has been placed successfully. Order ID:{" "}
-          <span className="font-semibold text-gray-800 dark:text-gray-200">
-            {order.id}
-          </span>
-        </p>
-      </div>
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
-      <div className="mt-8 rounded-lg border bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-xl font-semibold">Order Summary</h2>
-        <div className="mt-4 space-y-4">
-          {order.order_items.map((item, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Image
-                  src={item.products.image_url}
-                  alt={item.products.name}
-                  width={64}
-                  height={64}
-                  className="rounded-md"
-                />
-                <div>
-                  <p className="font-semibold">{item.products.name}</p>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+  return (
+    <div className="bg-background text-foreground min-h-screen">
+      <main className="container mx-auto px-4 py-12 md:px-6 lg:py-16">
+        <div className="grid gap-12 md:grid-cols-2 lg:gap-16">
+          <div className="flex flex-col items-center justify-center text-center md:items-start md:text-left">
+            <Player
+              autoplay
+              loop={false}
+              src="https://lottie.host/9f7b2d5a-6b8a-4d7a-8f8b-9e8c3b5a7b8c/t2kR3bY5qE.json"
+              style={{ height: "180px", width: "180px", marginBottom: "1rem" }}
+            />
+            <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl">
+              Thank you for your order!
+            </h1>
+            <p className="text-muted-foreground mt-4 max-w-md">
+              Your order{" "}
+              <span className="text-primary font-semibold">#{order.id}</span>{" "}
+              has been placed successfully. You will receive an email
+              confirmation shortly.
+            </p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <Link href="/collections" passHref>
+                <Button size="lg" className="w-full sm:w-auto">
+                  <ShoppingCart className="mr-2 h-5 w-5" /> Continue Shopping
+                </Button>
+              </Link>
+              <Link href="/dashboard/orders" passHref>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  <Truck className="mr-2 h-5 w-5" />
+                  Track Your Order
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-card rounded-2xl border p-6 shadow-lg lg:p-8">
+            <h2 className="mb-6 text-2xl font-bold">Order Summary</h2>
+            <div className="space-y-5">
+              {order.order_items.map((item, index) => (
+                <div key={index} className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="aspect-square w-20 overflow-hidden rounded-lg border">
+                      <Image
+                        src={item.products.image_url}
+                        alt={item.products.name}
+                        width={80}
+                        height={80}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-semibold">{item.products.name}</p>
+                      <p className="text-muted-foreground text-sm">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="font-semibold">
+                    ${(item.price_at_purchase * item.quantity).toFixed(2)}
+                  </p>
                 </div>
+              ))}
+            </div>
+
+            <div className="my-6 border-t" />
+
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>${order.total?.toFixed(2)}</span>
               </div>
-              <p className="font-semibold">
-                ${(item.price_at_purchase * item.quantity).toFixed(2)}
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Taxes</span>
+                <span>Calculated at next step</span>
+              </div>
+            </div>
+
+            <div className="my-6 border-t" />
+
+            <div className="flex justify-between text-lg font-bold">
+              <span>Total</span>
+              <span>${order.total?.toFixed(2)}</span>
+            </div>
+
+            <div className="mt-8">
+              <h3 className="mb-4 text-lg font-semibold">
+                Shipping Information
+              </h3>
+              <div className="text-muted-foreground text-sm">
+                <p>
+                  {order.shipping_first_name} {order.shipping_last_name}
+                </p>
+                <p>{order.shipping_street}</p>
+                <p>
+                  {order.shipping_city}, {order.shipping_postal_code}
+                </p>
+                <p>{order.shipping_country}</p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center gap-3 rounded-lg bg-green-50 p-4 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+              <CheckCircle className="h-5 w-5" />
+              <p className="text-sm font-medium">
+                Estimated Delivery: {deliveryDate.toLocaleDateString()}
               </p>
             </div>
-          ))}
+          </div>
         </div>
-        <div className="my-6 h-px bg-gray-200 dark:bg-gray-700" />
-        <div className="flex items-center justify-between text-xl font-bold">
-          <p>Total</p>
-          <p>${order.total?.toFixed(2)}</p>
-        </div>
-      </div>
-
-      <div className="mt-8 text-center">
-        <Link href="/dashboard/orders">
-          <Button>View your orders</Button>
-        </Link>
-      </div>
+      </main>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SuccessContent />
+    </Suspense>
   );
 }

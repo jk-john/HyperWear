@@ -17,7 +17,7 @@ type OrderItem = Tables<"order_items"> & { products: Product | null };
 type OrderWithItems = Tables<"orders"> & { order_items: OrderItem[] };
 
 export default async function OrderDetailsPage({
-  params,
+  params: { orderId },
 }: {
   params: { orderId: string };
 }) {
@@ -26,7 +26,7 @@ export default async function OrderDetailsPage({
   const { data, error } = await supabase
     .from("orders")
     .select("*, order_items(*, products(*))")
-    .eq("id", params.orderId)
+    .eq("id", orderId)
     .single();
 
   const order: OrderWithItems | null = data;

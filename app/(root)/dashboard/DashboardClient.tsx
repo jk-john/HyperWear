@@ -65,6 +65,7 @@ export default function DashboardClient({
   const [addresses, setAddresses] = useState<UserAddress[]>(
     defaultAddress ? [defaultAddress] : [],
   );
+  const [visibleOrdersCount, setVisibleOrdersCount] = useState(5);
   const supabase = createClient();
 
   const totalSpent = orders?.reduce((acc, order) => acc + order.total, 0) ?? 0;
@@ -154,7 +155,7 @@ export default function DashboardClient({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orders.slice(0, 5).map((order) => (
+                      {orders.slice(0, visibleOrdersCount).map((order) => (
                         <TableRow key={order.id}>
                           <TableCell className="font-mono text-xs">
                             {order.id.substring(0, 8)}...
@@ -170,21 +171,34 @@ export default function DashboardClient({
                                 View Details
                               </Link>
                             </Button>
-                            <Button variant="link" size="sm" asChild>
-                              <a
-                                href={`mailto:support@hyperwear.xyz?subject=Return Request - Order #${order.id.substring(
-                                  0,
-                                  8,
-                                )}`}
-                              >
-                                Start a Return
-                              </a>
-                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                  {(visibleOrdersCount > 5 ||
+                    visibleOrdersCount < orders.length) && (
+                    <div className="mt-4 flex justify-center gap-4">
+                      {visibleOrdersCount > 5 && (
+                        <Button
+                          variant="outline"
+                          onClick={() => setVisibleOrdersCount(5)}
+                        >
+                          See Less
+                        </Button>
+                      )}
+                      {visibleOrdersCount < orders.length && (
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            setVisibleOrdersCount((prevCount) => prevCount + 5)
+                          }
+                        >
+                          Load More
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

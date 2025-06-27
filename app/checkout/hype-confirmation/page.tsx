@@ -25,6 +25,7 @@ function HypeConfirmation() {
 
   const [hypeAmount, setHypeAmount] = useState(initialAmount);
   const [copied, setCopied] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
 
@@ -35,6 +36,14 @@ function HypeConfirmation() {
     setCopied(true);
     setTimeout(() => {
       setCopied(false);
+    }, 2000);
+  };
+
+  const handleCopyAmount = () => {
+    navigator.clipboard.writeText(hypeAmount.toFixed(2));
+    setCopiedAmount(true);
+    setTimeout(() => {
+      setCopiedAmount(false);
     }, 2000);
   };
 
@@ -77,14 +86,10 @@ function HypeConfirmation() {
             const shippingInfo = JSON.parse(
               localStorage.getItem("shippingAddress") || "{}",
             );
-            const [firstName, ...lastNameParts] = shippingInfo.name?.split(
-              " ",
-            ) || ["", ""];
-            const lastName = lastNameParts.join(" ");
 
             const formValues = {
-              firstName,
-              lastName,
+              firstName: shippingInfo.firstName,
+              lastName: shippingInfo.lastName,
               email: shippingInfo.email,
               street: shippingInfo.street,
               city: shippingInfo.city,
@@ -152,13 +157,20 @@ function HypeConfirmation() {
           <>
             <h1 className="mb-4 text-2xl font-bold">Complete Your Payment</h1>
             <p className="mb-6">
-              To finalize your order, please send exactly
-              <br />
-              <strong className="text-primary text-lg">
-                {hypeAmount.toFixed(2)} HYPE
-              </strong>
-              <br />
-              to the following address:
+              To finalize your order, please send exactly on{" "}
+              <span className="text-primary font-bold">HyperEVM</span> :{" "}
+              <div className="text-primary my-2 mt-6 mb-6 flex items-center justify-center space-x-2 text-lg font-bold">
+                <span>{hypeAmount.toFixed(2)} $HYPE</span>
+                <Button
+                  onClick={handleCopyAmount}
+                  size="sm"
+                  variant="ghost"
+                  className="bg-primary hover:bg-secondary/80 ml-9 px-6 py-3 text-xs text-white hover:text-black"
+                >
+                  {copiedAmount ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+              <div className="text-primary mt-4">to the following address:</div>
             </p>
             <div className="my-6 flex justify-center">
               <QRCodeSVG value={receivingAddress} size={128} />
@@ -167,7 +179,12 @@ function HypeConfirmation() {
               <div className="font-mono text-sm break-all">
                 {receivingAddress}
               </div>
-              <Button onClick={handleCopyAddress} size="sm" variant="ghost">
+              <Button
+                onClick={handleCopyAddress}
+                size="sm"
+                variant="ghost"
+                className="bg-primary hover:bg-secondary/80 mt-4 px-10 text-white hover:text-black"
+              >
                 {copied ? "Copied!" : "Copy"}
               </Button>
             </div>
@@ -183,7 +200,7 @@ function HypeConfirmation() {
               <Button
                 onClick={() => router.push("/checkout")}
                 variant="secondary"
-                className="w-full"
+                className="bg-primary hover:bg-secondary/80 w-full px-8 text-white hover:text-black"
                 disabled={isVerifying}
               >
                 {isVerifying ? "Processing..." : "Cancel Payment"}

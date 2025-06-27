@@ -1,14 +1,18 @@
 "use server";
 
+import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Resend } from "resend";
 import Stripe from "stripe";
 
 // TODO: Add your Stripe secret key to your environment variables.
 // You can find your secret key in the Stripe dashboard.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const ORDER_LIMIT = 100;
+
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 type CartItem = {
   id: string;
@@ -152,12 +156,13 @@ export async function finalizeHypeOrder(
       status: "paid", // Set status directly to paid
       total: cartTotalUsd,
       payment_method: "HYPE",
-      delivery_name: `${formValues.firstName} ${formValues.lastName}`,
-      delivery_email: formValues.email,
-      address_line1: formValues.street,
-      city: formValues.city,
-      postal_code: formValues.zip,
-      country: formValues.country,
+      shipping_first_name: formValues.firstName,
+      shipping_last_name: formValues.lastName,
+      shipping_email: formValues.email,
+      shipping_street: formValues.street,
+      shipping_city: formValues.city,
+      shipping_postal_code: formValues.zip,
+      shipping_country: formValues.country,
       wallet_address: formValues.evmAddress,
       tx_hash: txHash, // Store the transaction hash
     })
@@ -234,6 +239,27 @@ export async function finalizeHypeOrder(
   }
 
   // Optionally: Trigger a confirmation email here
+  const customerEmail = formValues.email;
+  if (customerEmail) {
+    const items = cartItems.map((item) => ({
+      name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
+      quantity: item.quantity ?? 0,
+      price: item.price ?? 0,
+    }));
+
+    await resend.emails.send({
+      from: "Hyperwear <noreply@hyperwear.com>",
+      to: customerEmail,
+      subject: "Your Hyperwear Order Confirmation",
+      react: OrderConfirmationEmail({
+        customerName: `${formValues.firstName} ${formValues.lastName}`,
+        orderId: order.id.toString(),
+        orderDate: new Date(order.created_at).toLocaleDateString(),
+        items,
+        total: order.total ?? 0,
+      }),
+    });
+  }
 
   return { success: true, orderId: order.id };
 }
