@@ -3,11 +3,11 @@
 import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
-import { createClient } from "@/utils/supabase/client";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "./ui/Button";
 import {
   Dialog,
@@ -43,7 +43,6 @@ export const ProductImageModal = ({
     startIndex: initialSlide,
   });
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
-  const [variants, setVariants] = useState<{ size: string }[]>([]);
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -53,43 +52,26 @@ export const ProductImageModal = ({
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  const showSizeSelector =
-    product.category && ["t-shirt", "shorts"].includes(product.category);
+  const needsSizeSelection =
+    (product.category === "T-shirts" || product.category === "Shorts") &&
+    product.available_sizes &&
+    product.available_sizes.length > 0;
 
   useEffect(() => {
     if (emblaApi) {
       emblaApi.reInit();
       emblaApi.scrollTo(initialSlide, true);
     }
-
-    const fetchVariants = async () => {
-      if (showSizeSelector) {
-        // Reset state when modal opens or product changes
-        setSelectedSize(undefined);
-        setVariants([]);
-
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("variants")
-          .select("size")
-          .eq("product_id", product.id);
-
-        if (error) {
-          console.error("Error fetching variants:", error);
-        } else if (data) {
-          setVariants(data);
-        }
-      }
-    };
-
+    // Reset selected size when the modal is opened or the product changes
     if (isOpen) {
-      fetchVariants();
+      setSelectedSize(undefined);
     }
-  }, [emblaApi, initialSlide, isOpen, product.id, showSizeSelector]);
+  }, [emblaApi, initialSlide, isOpen]);
 
   const handleAddToCart = () => {
-    if (showSizeSelector && !selectedSize) {
-      return; // Don't add to cart if size is required but not selected
+    if (needsSizeSelection && !selectedSize) {
+      toast.error("Please select a size before adding to cart.");
+      return;
     }
     addToCart(product, selectedSize);
     onClose();
@@ -104,14 +86,11 @@ export const ProductImageModal = ({
           <DialogTitle>{product.name}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="relative">
-            <div className="embla overflow-hidden" ref={emblaRef}>
-              <div className="embla__container flex">
-                {product.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="embla__slide relative h-[60vh] min-w-full"
-                  >
+          <div className="relative h-[60vh]">
+            <div className="embla h-full overflow-hidden" ref={emblaRef}>
+              <div className="embla__container flex h-full">
+                {(product.images || []).map((image, index) => (
+                  <div key={index} className="embla__slide relative min-w-full">
                     <Image
                       src={getPublicImageUrl(image)}
                       alt={`${product.name} image ${index + 1}`}
@@ -144,16 +123,16 @@ export const ProductImageModal = ({
             <div>
               <p className="mb-4 text-lg font-semibold">${product.price}</p>
               <p className="text-muted-foreground">{product.description}</p>
-              {showSizeSelector && (
+              {needsSizeSelection && (
                 <div className="mt-4">
                   <Select onValueChange={setSelectedSize} value={selectedSize}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a size" />
                     </SelectTrigger>
                     <SelectContent>
-                      {variants.map((variant) => (
-                        <SelectItem key={variant.size} value={variant.size}>
-                          {variant.size}
+                      {product.available_sizes?.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -167,7 +146,7 @@ export const ProductImageModal = ({
               </DialogClose>
               <Button
                 onClick={handleAddToCart}
-                disabled={Boolean(showSizeSelector && !selectedSize)}
+                disabled={!!(needsSizeSelection && !selectedSize)}
                 className="bg-secondary hover:bg-deep flex-1 text-black hover:text-white"
               >
                 Add to Cart

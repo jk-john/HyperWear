@@ -3,11 +3,11 @@
 import { products } from "@/constants";
 import ProductGrid from "./ProductGrid";
 
-const VISIBLE_PRODUCTS = 3;
+const VISIBLE_PRODUCTS = 4;
 
 export default function FeaturedProducts() {
   return (
-    <section className="bg-white py-20">
+    <section className="bg-white pt-10">
       <div className="container mx-auto">
         <div className="mb-12 text-center">
           <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">

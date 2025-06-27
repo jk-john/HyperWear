@@ -42,9 +42,10 @@ type FormValues = {
   firstName: string;
   lastName: string;
   email: string;
+  phone_number: string;
   street: string;
   city: string;
-  zip: string;
+  postal_code: string;
   country: string;
   paymentMethod: "stripe" | "nowpayments" | "hype" | "usdhl";
   evmAddress?: string;
@@ -74,25 +75,7 @@ export async function createCheckoutSession(
     };
   }
 
-  const cartItemsWithVariantId = await Promise.all(
-    cartItems.map(async (item) => {
-      let variant_id = null;
-      if (item.size) {
-        const { data: variant } = await supabase
-          .from("variants")
-          .select("id")
-          .eq("product_id", item.id)
-          .eq("size", item.size)
-          .single();
-        if (variant) {
-          variant_id = variant.id;
-        }
-      }
-      return { ...item, variant_id };
-    }),
-  );
-
-  const lineItems = cartItemsWithVariantId.map((item) => ({
+  const lineItems = cartItems.map((item) => ({
     price_data: {
       currency: "usd",
       product_data: {
@@ -116,7 +99,7 @@ export async function createCheckoutSession(
     client_reference_id: user?.id,
     metadata: {
       shipping: JSON.stringify(shippingAddress),
-      cartItems: JSON.stringify(cartItemsWithVariantId),
+      cartItems: JSON.stringify(cartItems),
     },
     success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout/cancel`,
@@ -148,95 +131,56 @@ export async function finalizeHypeOrder(
     0,
   );
 
-  // 1. Insert into orders table with 'paid' status
+  // 1. Insert into orders table
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .insert({
       user_id: user.id,
-      status: "paid", // Set status directly to paid
       total: cartTotalUsd,
-      payment_method: "HYPE",
+      status: "pending", // You might want to update this based on payment verification
+      payment_method: "hype",
+      tx_hash: txHash,
+      wallet_address: formValues.evmAddress,
+      // Shipping details
+      shipping_email: formValues.email,
       shipping_first_name: formValues.firstName,
       shipping_last_name: formValues.lastName,
-      shipping_email: formValues.email,
       shipping_street: formValues.street,
       shipping_city: formValues.city,
-      shipping_postal_code: formValues.zip,
+      shipping_postal_code: formValues.postal_code,
       shipping_country: formValues.country,
-      wallet_address: formValues.evmAddress,
-      tx_hash: txHash, // Store the transaction hash
+      shipping_phone_number: formValues.phone_number,
     })
     .select()
     .single();
 
   if (orderError) {
-    console.error("Error creating final order:", orderError);
-    return { success: false, error: "Failed to save the order." };
+    console.error("Error creating order:", orderError);
+    return { success: false, error: "Failed to create order." };
   }
 
   // 2. Insert into order_items table
-  const orderItemsData = await Promise.all(
-    cartItems.map(async (item) => {
-      let variantId = null;
-      if (item.size) {
-        const { data: variant, error: variantError } = await supabase
-          .from("variants")
-          .select("id")
-          .eq("product_id", item.id)
-          .eq("size", item.size)
-          .single();
-
-        if (variantError || !variant) {
-          console.error(
-            `Error fetching variant for product ${item.id} and size ${item.size}`,
-            variantError,
-          );
-        } else {
-          variantId = variant.id;
-        }
-      }
-      return {
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price_at_purchase: item.price,
-        variant_id: variantId,
-        size: item.size,
-      };
-    }),
-  );
-
-  const validOrderItems = orderItemsData.filter(
-    (item) => !item.size || (item.size && item.variant_id),
-  );
-
-  if (validOrderItems.length !== cartItems.length) {
-    // This is a critical error. The order is created but some items are missing variants.
-    // In a production scenario, you'd want to handle this more gracefully.
-    return {
-      success: false,
-      error:
-        "Could not find a matching variant for an item in your cart. Please contact support.",
-    };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const validOrderItemsForDb = validOrderItems.map(({ size, ...rest }) => rest);
+  const orderItemsData = cartItems.map((item) => ({
+    order_id: order.id,
+    product_id: item.id,
+    quantity: item.quantity,
+    price_at_purchase: item.price,
+    size: item.size,
+  }));
 
   const { error: itemsError } = await supabase
     .from("order_items")
-    .insert(validOrderItemsForDb);
+    .insert(orderItemsData);
 
   if (itemsError) {
-    console.error("Error inserting final order items:", itemsError);
-    // This is a critical error. The order is created but has no items.
-    // In a production scenario, you'd want to handle this more gracefully.
-    // (e.g., delete the order, or queue a job for manual review).
-    return {
-      success: false,
-      error: "Failed to save order details. Please contact support.",
-    };
+    console.error("Error creating order items:", itemsError);
+    // You might want to handle this case, e.g., by deleting the created order
+    return { success: false, error: "Failed to save order items." };
   }
+
+  // Clear the cart after successful order
+  // This should be done on the client-side, but this is an example
+  // useCartStore.getState().clearCart();
 
   // Optionally: Trigger a confirmation email here
   const customerEmail = formValues.email;

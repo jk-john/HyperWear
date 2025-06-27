@@ -1,7 +1,7 @@
 import ProductGrid from "@/components/ProductGrid";
 import ProductSidebar from "@/components/ProductSidebar";
 import StylishTitle from "@/components/ProductsTitle";
-import { getProducts } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/server";
 
 type ProductsPageProps = {
   searchParams: {
@@ -15,7 +15,28 @@ type ProductsPageProps = {
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
-  const products = await getProducts(searchParams);
+  const supabase = createClient();
+  const { gender, category, sortBy, order } = searchParams;
+
+  let query = supabase.from("products").select("*");
+
+  if (gender) {
+    query = query.eq("gender", gender);
+  }
+  if (category) {
+    query = query.eq("category", category);
+  }
+  if (sortBy) {
+    query = query.order(sortBy, { ascending: order !== "desc" });
+  }
+
+  const { data: products, error } = await query;
+
+  if (error) {
+    // Handle error appropriately
+    console.error(error);
+    return <div>Error loading products.</div>;
+  }
 
   const categories = ["T-shirts", "Cups", "Caps", "Phone Cases", "Plushes"];
   return (

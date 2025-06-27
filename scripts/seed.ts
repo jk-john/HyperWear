@@ -27,6 +27,7 @@ const products = [
     image: "/products-img/tee-shirt.webp",
     tags: ["New", "-25%"],
     gender: "men",
+    available_sizes: ["S", "M", "L", "XL"],
   },
   {
     id: "2",
@@ -39,6 +40,7 @@ const products = [
     image: "/products-img/hoddie-2.webp",
     tags: ["New"],
     gender: "men",
+    available_sizes: ["S", "M", "L", "XL"],
   },
   {
     id: "3",
@@ -51,6 +53,7 @@ const products = [
     image: "/products-img/hoodie.webp",
     tags: ["-20%"],
     gender: "men",
+    available_sizes: ["S", "M", "L", "XL"],
   },
   {
     id: "4",
@@ -111,6 +114,7 @@ const products = [
     image: "/products-img/plush-2.jpeg",
     tags: [],
     gender: "women",
+    available_sizes: ["S", "M", "L", "XL"],
   },
   {
     id: "9",
@@ -123,6 +127,7 @@ const products = [
     image: "/products-img/tee-shirt.webp",
     tags: ["New", "-25%"],
     gender: "women",
+    available_sizes: ["S", "M", "L", "XL"],
   },
   {
     id: "10",
@@ -204,6 +209,7 @@ async function seedDatabase() {
       original_price: product.originalPrice,
       tags: product.tags,
       colors: product.colors,
+      available_sizes: product.available_sizes,
     });
 
     if (insertError) {

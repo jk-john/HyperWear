@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import PhoneInput from "@/components/ui/phone-input";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,13 @@ const addressFormSchema = z.object({
   last_name: z
     .string()
     .min(2, { message: "Last name must be at least 2 characters." }),
-  phone_number: z.string().min(1, { message: "Phone number is required." }),
+  phone_number: z
+    .string()
+    .min(1, { message: "Phone number is required." })
+    .regex(
+      /^\+\d{6,15}$/,
+      "Invalid phone number format. Please use E.164 format (e.g., +15555555555).",
+    ),
   street: z.string().min(1, { message: "Street is required." }),
   address_complement: z.string().optional(),
   city: z.string().min(1, { message: "City is required." }),
@@ -163,11 +170,10 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
             <FormItem>
               <FormLabel className="text-sm text-white">Phone Number</FormLabel>
               <FormControl>
-                <Input
-                  type="tel"
+                <PhoneInput
                   {...field}
+                  defaultCountry="US"
                   placeholder="+1 (555) 555-5555"
-                  className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
                 />
               </FormControl>
               <FormMessage />

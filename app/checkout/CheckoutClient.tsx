@@ -30,6 +30,12 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { createCheckoutSession } from "./actions";
 
+const isValidE164 = (phoneNumber: string | undefined | null): boolean => {
+  if (!phoneNumber) return false;
+  const e164Regex = /^\+\d{6,15}$/;
+  return e164Regex.test(phoneNumber);
+};
+
 const formSchema = z
   .object({
     firstName: z
@@ -97,7 +103,9 @@ export function CheckoutClient({
       firstName: defaultAddress?.first_name || "",
       lastName: defaultAddress?.last_name || "",
       email: user?.email || "",
-      phoneNumber: defaultAddress?.phone_number || "",
+      phoneNumber: isValidE164(defaultAddress?.phone_number)
+        ? defaultAddress?.phone_number
+        : "",
       street: defaultAddress?.street || "",
       addressComplement: defaultAddress?.address_complement || "",
       city: defaultAddress?.city || "",

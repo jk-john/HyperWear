@@ -13,12 +13,14 @@ export default function ProductGrid({ products, className }: ProductGridProps) {
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-6 pt-10 sm:grid-cols-2 sm:gap-8 md:grid-cols-3 xl:grid-cols-4",
+        "grid grid-cols-1 gap-x-8 gap-y-4 pt-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
         className,
       )}
     >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <div key={product.id} className="flex">
+          <ProductCard product={product} />
+        </div>
       ))}
     </div>
   );
