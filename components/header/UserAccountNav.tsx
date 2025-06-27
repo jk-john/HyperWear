@@ -17,7 +17,7 @@ export const UserAccountNav = ({ user }: UserAccountNavProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden h-11 w-11 rounded-full text-white/80 transition-all duration-300 hover:bg-white/10 hover:text-white md:flex"
+            className="text-primary/80 hover:text-primary hidden h-11 w-11 cursor-pointer rounded-full transition-all duration-300 hover:bg-gray-100 md:flex"
           >
             <User className="h-5 w-5" />
           </Button>
@@ -27,7 +27,7 @@ export const UserAccountNav = ({ user }: UserAccountNavProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden h-11 w-11 rounded-full text-white/80 transition-all duration-300 hover:bg-white/10 hover:text-white md:flex"
+            className="text-primary/80 hover:text-primary hidden h-11 w-11 rounded-full transition-all duration-300 hover:bg-gray-100 md:flex"
           >
             <User className="h-5 w-5" />
           </Button>

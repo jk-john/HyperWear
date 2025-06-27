@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -22,8 +21,7 @@ export default async function OrderDetailsPage({
 }: {
   params: { orderId: string };
 }) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("orders")

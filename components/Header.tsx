@@ -1,16 +1,16 @@
 "use client";
 
 import { Cart } from "@/components/Cart";
+import { DesktopNav } from "@/components/header/DesktopNav";
+import { Logo } from "@/components/header/Logo";
+import { MobileNav } from "@/components/header/MobileNav";
+import { SearchBar } from "@/components/header/SearchBar";
+import { UserAccountNav } from "@/components/header/UserAccountNav";
 import ShimmerButton from "@/components/ui/ShimmerButton";
 import { createClient } from "@/utils/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import Link from "next/link";
 import * as React from "react";
-import { DesktopNav } from "./header/DesktopNav";
-import { Logo } from "./header/Logo";
-import { MobileNav } from "./header/MobileNav";
-import { SearchBar } from "./header/SearchBar";
-import { UserAccountNav } from "./header/UserAccountNav";
 
 const Header = () => {
   const [user, setUser] = React.useState<SupabaseUser | null>(null);
@@ -38,28 +38,28 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="sticky top-4 z-50 px-4">
-      <div className="flexmax-w-7xl bg-primary mx-auto rounded-full border-2 border-white/10 shadow-lg ring-1 ring-white backdrop-blur-xl">
-        <div className="px-4">
-          <div className="flex h-24 items-center">
-            {/* Left Section */}
-            <div className="flex flex-1 items-center justify-start">
-              <DesktopNav />
-            </div>
-            {/* Center Section (Logo) */}
-            <Logo />
-            {/* Right Section */}
-            <div className="flex flex-1 items-center justify-end">
-              <div className="flex items-center space-x-4">
-                <SearchBar />
-                <UserAccountNav user={user} />
-                <Cart />
-                <Link href="/products">
-                  <ShimmerButton className="hidden md:flex" />
-                </Link>
-                <MobileNav user={user} />
-              </div>
-            </div>
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        {/* Left Section - Logo */}
+        <div className="flex items-center">
+          <Logo />
+        </div>
+
+        {/* Center Section - Navigation */}
+        <div className="hidden md:flex">
+          <DesktopNav />
+        </div>
+
+        {/* Right Section - Actions */}
+        <div className="flex items-center space-x-4">
+          <SearchBar />
+          <UserAccountNav user={user} />
+          <Cart />
+          <Link href="/products">
+            <ShimmerButton>Shop Now</ShimmerButton>
+          </Link>
+          <div className="md:hidden">
+            <MobileNav user={user} />
           </div>
         </div>
       </div>

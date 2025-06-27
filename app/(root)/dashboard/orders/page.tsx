@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/table";
 import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
@@ -30,8 +29,7 @@ interface OrderWithItems extends Order {
 }
 
 export default async function OrdersPage() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const {
     data: { session },
@@ -100,16 +98,21 @@ export default async function OrdersPage() {
                     <TableRow key={item.id}>
                       <TableCell>{item.products?.name}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
                       <TableCell>
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${item.price_at_purchase?.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        $
+                        {(
+                          (item.price_at_purchase ?? 0) * (item.quantity ?? 0)
+                        ).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <div className="mt-4 text-right font-bold">
-                Total: ${order.total_price.toFixed(2)}
+                Total: ${order.total?.toFixed(2)}
               </div>
             </CardContent>
           </Card>

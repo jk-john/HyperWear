@@ -80,6 +80,9 @@ importers:
       geist:
         specifier: ^1.4.2
         version: 1.4.2(next@15.3.3(@babel/core@7.27.7)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      import-in-the-middle:
+        specifier: ^1.14.2
+        version: 1.14.2
       lucide-react:
         specifier: ^0.515.0
         version: 0.515.0(react@19.1.0)
@@ -110,6 +113,9 @@ importers:
       react-qr-code:
         specifier: ^2.0.16
         version: 2.0.16(react@19.1.0)
+      require-in-the-middle:
+        specifier: ^7.5.2
+        version: 7.5.2
       resend:
         specifier: ^4.6.0
         version: 4.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

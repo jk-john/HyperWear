@@ -8,9 +8,9 @@ export const Logo = () => {
         <Image
           src="/logo.svg"
           alt="HyperWear"
-          width={200}
-          height={120}
-          className="rounded-md"
+          width={180}
+          height={180}
+          className="bg-primary cursor-pointer rounded-4xl p-3"
         />
       </Link>
     </div>

@@ -1,11 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const {
     data: { user },

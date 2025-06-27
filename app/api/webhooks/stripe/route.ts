@@ -1,6 +1,6 @@
 import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import { createClient } from "@/utils/supabase/server";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import Stripe from "stripe";
@@ -41,8 +41,7 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     try {
-      const cookieStore = cookies();
-      const supabase = createClient(cookieStore);
+      const supabase = createClient();
       const shippingDetails = session.metadata?.shipping
         ? JSON.parse(session.metadata.shipping)
         : {};

@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -13,17 +13,15 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  full_name: z.string().min(3, "Full name must be at least 3 characters"),
   email: z.string().email(),
 });
 
-type Profile = Tables<"profiles">;
-
 interface ProfileFormProps {
-  profile: Profile;
+  user: User;
 }
 
-export function ProfileForm({ profile }: ProfileFormProps) {
+export function ProfileForm({ user }: ProfileFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -31,40 +29,18 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: profile.username || "",
-      email: "", // Will be fetched
+      full_name: user.user_metadata.full_name || "",
+      email: user.email || "",
     },
   });
-
-  // Fetch user's email
-  React.useEffect(() => {
-    const fetchUserEmail = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        form.setValue("email", user.email || "");
-      }
-    };
-    fetchUserEmail();
-  }, [form, supabase.auth]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("You must be logged in to update your profile.");
-      setIsLoading(false);
-      return;
-    }
-
     const { error } = await supabase
-      .from("profiles")
+      .from("user_profiles")
       .update({
-        username: values.username,
+        full_name: values.full_name,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
@@ -95,19 +71,19 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="username" className="text-[var(--color-light)]">
-          Username
+        <Label htmlFor="full_name" className="text-[var(--color-light)]">
+          Full Name
         </Label>
         <Input
-          id="username"
+          id="full_name"
           type="text"
-          placeholder="Enter your username"
-          {...form.register("username")}
+          placeholder="Enter your full name"
+          {...form.register("full_name")}
           className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
         />
-        {form.formState.errors.username && (
+        {form.formState.errors.full_name && (
           <p className="pt-1 text-xs text-red-500">
-            {form.formState.errors.username.message}
+            {form.formState.errors.full_name.message}
           </p>
         )}
       </div>

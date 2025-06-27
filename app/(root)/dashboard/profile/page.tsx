@@ -7,12 +7,10 @@ import {
 } from "@/components/ui/card";
 import { ProfileForm } from "@/components/ui/ProfileForm";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const {
     data: { user },
@@ -23,7 +21,7 @@ export default async function ProfilePage() {
   }
 
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("user_profiles")
     .select("*")
     .eq("id", user.id)
     .single();
@@ -45,7 +43,7 @@ export default async function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProfileForm profile={profile} />
+          <ProfileForm user={user} />
         </CardContent>
       </Card>
     </div>

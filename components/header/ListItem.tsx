@@ -2,29 +2,41 @@
 
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
 const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+  React.ElementRef<typeof Link>,
+  React.ComponentPropsWithoutRef<typeof Link> & {
+    title: string;
+    img?: string;
+  }
+>(({ className, title, children, href, img, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
         <Link
-          href={props.href || "/"}
           ref={ref}
+          href={href}
           className={cn(
-            "hover:bg-cream hover:text-accent-foreground focus:bg-cream focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
+            "group hover:bg-light block rounded-lg p-4 text-center transition-all",
             className,
           )}
           {...props}
         >
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
+          {img && (
+            <div className="relative mb-3 h-32 w-full overflow-hidden rounded">
+              <Image
+                src={img}
+                alt={title}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+            </div>
+          )}
+          <h4 className="text-primary mb-1 text-sm font-semibold">{title}</h4>
+          <p className="text-secondary text-xs">{children}</p>
         </Link>
       </NavigationMenuLink>
     </li>

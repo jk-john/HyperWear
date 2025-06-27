@@ -19,9 +19,9 @@ export const SearchBar = () => {
           type="search"
           name="q"
           placeholder="Search..."
-          className="h-11 rounded-full bg-white/20 pr-4 pl-10 text-white placeholder:text-gray-300"
+          className="text-primary placeholder:text-primary/60 h-11 rounded-full bg-gray-100 pr-4 pl-10"
         />
-        <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-300" />
+        <Search className="text-primary/80 absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
       </div>
     </form>
   );

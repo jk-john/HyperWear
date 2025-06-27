@@ -39,7 +39,7 @@ export const Cart = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative h-11 w-11 rounded-full text-white/80 hover:bg-white/10 hover:text-white"
+          className="text-primary/80 hover:text-primary relative h-11 w-11 rounded-full hover:bg-gray-100"
         >
           <ShoppingBag className="h-5 w-5" />
           {totalCartItems > 0 && (

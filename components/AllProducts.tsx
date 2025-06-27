@@ -1,11 +1,9 @@
 import { Product } from "@/types";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import ProductGrid from "./ProductGrid";
 
 export default async function AllProducts() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { data: products, error } = await supabase
     .from("products")

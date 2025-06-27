@@ -1,6 +1,5 @@
 import SearchPage from "@/components/SearchPage";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 
 export const metadata = {
   title: "Search • HyperWear",
@@ -11,8 +10,7 @@ export default async function Search({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const query = searchParams?.q as string;
 
   let products = [];
