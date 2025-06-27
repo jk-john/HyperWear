@@ -111,13 +111,18 @@ const ListItem = React.forwardRef<
   React.ComponentPropsWithoutRef<"a"> & { src: string; liClassName?: string }
 >(({ className, title, children, src, liClassName, href, ...props }, ref) => {
   return (
-    <li className={liClassName}>
+    <li
+      className={cn(
+        "group hover:bg-secondary transform-gpu rounded-md transition-all duration-300 ease-in-out hover:scale-[1.02]",
+        liClassName,
+      )}
+    >
       <NavigationMenuLink asChild>
         <Link
           ref={ref}
           href={href ?? ""}
           className={cn(
-            "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
+            "focus:bg-primary focus:text-accent-foreground group-hover:text-primary block space-y-1 rounded-md p-3 leading-none no-underline outline-none select-none",
             className,
           )}
           {...props}
