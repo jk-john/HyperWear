@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import PhoneInput from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,10 @@ const formSchema = z
       .string()
       .min(2, { message: "Last name must be at least 2 characters." }),
     email: z.string().email({ message: "Invalid email address." }),
-    phoneNumber: z.string().min(1, { message: "Phone number is required." }),
+    phoneNumber: z
+      .string()
+      .min(4, { message: "Phone number is too short" })
+      .regex(/^\+\d{6,15}$/, "Invalid phone number format"),
     street: z.string().min(1, { message: "Street is required." }),
     addressComplement: z.string().optional(),
     city: z.string().min(1, { message: "City is required." }),
@@ -216,7 +220,9 @@ export function CheckoutClient({
                     render={({ field }) => (
                       <FormItem>
                         {" "}
-                        <FormLabel>First Name</FormLabel>{" "}
+                        <FormLabel>
+                          <p className="mb-2 text-white">First Name</p>
+                        </FormLabel>{" "}
                         <FormControl>
                           {" "}
                           <Input {...field} placeholder="John" />{" "}
@@ -231,7 +237,9 @@ export function CheckoutClient({
                     render={({ field }) => (
                       <FormItem>
                         {" "}
-                        <FormLabel>Last Name</FormLabel>{" "}
+                        <FormLabel>
+                          <p className="mb-2 text-white">Last Name</p>
+                        </FormLabel>{" "}
                         <FormControl>
                           {" "}
                           <Input {...field} placeholder="Doe" />{" "}
@@ -247,7 +255,9 @@ export function CheckoutClient({
                   render={({ field }) => (
                     <FormItem>
                       {" "}
-                      <FormLabel>Email Address</FormLabel>{" "}
+                      <FormLabel>
+                        <p className="mb-2 text-white">Email Address</p>
+                      </FormLabel>{" "}
                       <FormControl>
                         {" "}
                         <Input
@@ -265,17 +275,13 @@ export function CheckoutClient({
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      {" "}
-                      <FormLabel>Phone Number</FormLabel>{" "}
+                      <FormLabel>
+                        <p className="mb-4 ml-4 text-white">Phone Number</p>
+                      </FormLabel>
                       <FormControl>
-                        {" "}
-                        <Input
-                          type="tel"
-                          {...field}
-                          placeholder="+1 (555) 555-5555"
-                        />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
+                        <PhoneInput {...field} defaultCountry="US" />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -285,7 +291,9 @@ export function CheckoutClient({
                   render={({ field }) => (
                     <FormItem>
                       {" "}
-                      <FormLabel>Company (Optional)</FormLabel>{" "}
+                      <FormLabel>
+                        <p className="mb-2 text-white">Company (Optional)</p>
+                      </FormLabel>{" "}
                       <FormControl>
                         {" "}
                         <Input {...field} placeholder="ACME Inc." />{" "}
@@ -300,7 +308,9 @@ export function CheckoutClient({
                   render={({ field }) => (
                     <FormItem>
                       {" "}
-                      <FormLabel>Street Address</FormLabel>{" "}
+                      <FormLabel>
+                        <p className="mb-2 text-white">Street Address</p>
+                      </FormLabel>{" "}
                       <FormControl>
                         {" "}
                         <Input {...field} placeholder="123 Main St" />{" "}
@@ -316,7 +326,9 @@ export function CheckoutClient({
                     <FormItem>
                       {" "}
                       <FormLabel>
-                        Apartment, suite, etc. (Optional)
+                        <p className="mb-2 text-white">
+                          Apartment, suite, etc. (Optional)
+                        </p>
                       </FormLabel>{" "}
                       <FormControl>
                         {" "}
@@ -333,7 +345,9 @@ export function CheckoutClient({
                     render={({ field }) => (
                       <FormItem>
                         {" "}
-                        <FormLabel>City</FormLabel>{" "}
+                        <FormLabel>
+                          <p className="mb-2 text-white">City</p>
+                        </FormLabel>{" "}
                         <FormControl>
                           {" "}
                           <Input {...field} placeholder="New York" />{" "}
@@ -348,7 +362,9 @@ export function CheckoutClient({
                     render={({ field }) => (
                       <FormItem>
                         {" "}
-                        <FormLabel>ZIP Code</FormLabel>{" "}
+                        <FormLabel>
+                          <p className="mb-2 text-white">ZIP Code</p>
+                        </FormLabel>{" "}
                         <FormControl>
                           {" "}
                           <Input {...field} placeholder="10001" />{" "}
@@ -363,7 +379,9 @@ export function CheckoutClient({
                     render={({ field }) => (
                       <FormItem>
                         {" "}
-                        <FormLabel>Country</FormLabel>{" "}
+                        <FormLabel>
+                          <p className="mb-2 text-white">Country</p>
+                        </FormLabel>{" "}
                         <FormControl>
                           {" "}
                           <Input {...field} placeholder="USA" />{" "}
@@ -380,7 +398,9 @@ export function CheckoutClient({
                     <FormItem>
                       {" "}
                       <FormLabel>
-                        Delivery Instructions (Optional)
+                        <p className="mb-2 text-white">
+                          Delivery Instructions (Optional)
+                        </p>
                       </FormLabel>{" "}
                       <FormControl>
                         {" "}
