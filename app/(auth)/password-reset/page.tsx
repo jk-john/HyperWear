@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -10,7 +11,7 @@ import Link from "next/link";
 
 export default function PasswordResetPage() {
   return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
+    <div className="mt-10 flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <Card className="w-full border-[var(--color-emerald)] bg-[var(--color-deep)] sm:w-96">
         <CardHeader>
           <CardTitle className="text-[var(--color-light)]">
@@ -28,7 +29,9 @@ export default function PasswordResetPage() {
         href="/sign-in"
         className="self-center pt-4 text-sm text-white hover:text-[var(--color-secondary)]"
       >
-        Remembered your password? Sign In
+        <Button className="bg-mint hover:bg-secondary/80 rounded-full text-white hover:text-black">
+          Remembered your password? Sign In
+        </Button>
       </Link>
     </div>
   );

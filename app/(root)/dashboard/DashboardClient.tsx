@@ -47,30 +47,34 @@ interface DashboardClientProps {
   user: User;
   orders: OrderWithItems[];
   profile: UserProfile | null;
-  defaultAddress: UserAddress | null;
+  addresses: UserAddress[];
 }
 
 export default function DashboardClient({
   user,
   orders,
   profile: initialProfile,
-  defaultAddress,
+  addresses: initialAddresses,
 }: DashboardClientProps) {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(
     null,
   );
-  const [profile] = useState<UserProfile | null>(initialProfile);
-  const [addresses, setAddresses] = useState<UserAddress[]>(
-    defaultAddress ? [defaultAddress] : [],
+  const [addressToDelete, setAddressToDelete] = useState<UserAddress | null>(
+    null,
   );
+  const [profile] = useState<UserProfile | null>(initialProfile);
+  const [addresses, setAddresses] = useState<UserAddress[]>(initialAddresses);
   const [visibleOrdersCount, setVisibleOrdersCount] = useState(5);
   const supabase = createClient();
 
   const totalSpent = orders?.reduce((acc, order) => acc + order.total, 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
   const userName = user.user_metadata?.full_name || "User";
+  const defaultAddress =
+    initialAddresses.find((address) => address.is_default) || null;
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -255,27 +259,9 @@ export default function DashboardClient({
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={async () => {
-                                if (
-                                  window.confirm(
-                                    "Are you sure you want to delete this address?",
-                                  )
-                                ) {
-                                  const { error } = await supabase
-                                    .from("user_addresses")
-                                    .delete()
-                                    .eq("id", address.id);
-                                  if (error) {
-                                    toast.error(error.message);
-                                  } else {
-                                    toast.success("Address deleted.");
-                                    setAddresses(
-                                      addresses.filter(
-                                        (a) => a.id !== address.id,
-                                      ),
-                                    );
-                                  }
-                                }
+                              onClick={() => {
+                                setAddressToDelete(address);
+                                setIsDeleteModalOpen(true);
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -374,6 +360,50 @@ export default function DashboardClient({
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogClose>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="rounded-2xl border-[var(--color-secondary)] bg-[var(--color-jungle)] text-[var(--color-light)] shadow-2xl">
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              address.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-4 pt-4">
+            <Button
+              variant="ghost"
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="cursor-pointer hover:bg-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="cursor-pointer hover:bg-red-700"
+              onClick={async () => {
+                if (!addressToDelete) return;
+                const { error } = await supabase
+                  .from("user_addresses")
+                  .delete()
+                  .eq("id", addressToDelete.id);
+
+                if (error) {
+                  toast.error(error.message);
+                } else {
+                  toast.success("Address deleted successfully");
+                  setAddresses(
+                    addresses.filter((a) => a.id !== addressToDelete.id),
+                  );
+                }
+                setIsDeleteModalOpen(false);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

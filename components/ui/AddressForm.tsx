@@ -20,6 +20,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+const E164_PHONE_REGEX = /^\+\d{6,15}$/;
+
 const addressFormSchema = z.object({
   first_name: z
     .string()
@@ -31,7 +33,7 @@ const addressFormSchema = z.object({
     .string()
     .min(1, { message: "Phone number is required." })
     .regex(
-      /^\+\d{6,15}$/,
+      E164_PHONE_REGEX,
       "Invalid phone number format. Please use E.164 format (e.g., +15555555555).",
     ),
   street: z.string().min(1, { message: "Street is required." }),
@@ -54,12 +56,17 @@ interface AddressFormProps {
 
 export function AddressForm({ address, onSuccess }: AddressFormProps) {
   const router = useRouter();
+
+  const isValidE164 = address?.phone_number
+    ? E164_PHONE_REGEX.test(address.phone_number)
+    : false;
+
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
       first_name: address?.first_name || "",
       last_name: address?.last_name || "",
-      phone_number: address?.phone_number || "",
+      phone_number: address && isValidE164 ? address.phone_number || "" : "",
       street: address?.street || "",
       address_complement: address?.address_complement || "",
       city: address?.city || "",
@@ -105,17 +112,13 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
     } else {
       toast.success(`Address ${address ? "updated" : "added"} successfully!`);
 
-      // Check for an existing profile and create one if it doesn't exist.
-      const { data: existingProfile } = await supabase
+      // Upsert the phone number into the user's profile
+      const { error: profileError } = await supabase
         .from("user_profiles")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .upsert({ user_id: user.id, phone_number: data.phone_number });
 
-      if (!existingProfile) {
-        await supabase
-          .from("user_profiles")
-          .insert({ user_id: user.id, phone_number: data.phone_number });
+      if (profileError) {
+        toast.error(`Failed to save phone number: ${profileError.message}`);
       }
 
       onSuccess();

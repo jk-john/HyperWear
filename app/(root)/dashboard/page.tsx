@@ -21,12 +21,10 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const { data: defaultAddress, error: addressError } = await supabase
+  const { data: addresses, error: addressError } = await supabase
     .from("user_addresses")
     .select("*")
-    .eq("user_id", user.id)
-    .eq("is_default", true)
-    .single();
+    .eq("user_id", user.id);
 
   if (ordersError || addressError) {
     console.error(
@@ -47,7 +45,7 @@ export default async function DashboardPage() {
       user={user}
       orders={orders ?? []}
       profile={profile}
-      defaultAddress={defaultAddress}
+      addresses={addresses ?? []}
     />
   );
 }

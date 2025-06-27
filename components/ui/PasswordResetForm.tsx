@@ -65,7 +65,7 @@ export function PasswordResetForm() {
       </div>
       <Button
         type="submit"
-        className="w-full bg-[var(--color-mint)] text-[var(--color-dark)] hover:bg-[var(--color-secondary)]"
+        className="w-full rounded-full bg-[var(--color-mint)] text-[var(--color-dark)] hover:bg-[var(--color-secondary)]"
         disabled={isLoading}
       >
         {isLoading ? "Sending..." : "Send Reset Link"}
