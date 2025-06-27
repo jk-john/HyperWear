@@ -81,21 +81,21 @@ export function Navigation() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/collections" passHref>
+          <Link href="/collections" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Collections
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/new-arrivals" passHref>
+          <Link href="/new-arrivals" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               New Arrivals
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/community" passHref>
+          <Link href="/community" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Community
             </NavigationMenuLink>

@@ -86,12 +86,13 @@ export default function CommunityPageClient() {
           <p className="font-body mx-auto max-w-lg text-lg text-cyan-200">
             Reductions for $HYPE stakers will be coming for the next drop. Stay
             tuned for more details!
-            <br />
-            <br />
-            <p className="text-cyan-200">
-              Join us on our socials for more updates!
-            </p>
           </p>
+          <br />
+          <br />
+          <p className="text-cyan-200">
+            Join us on our socials for more updates!
+          </p>
+
           <div className="mt-4 flex flex-row items-center justify-center gap-12">
             <Instagram className="h-6 w-6 text-cyan-200" />
             <Twitter className="h-6 w-6 text-cyan-200" />
