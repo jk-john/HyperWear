@@ -1,11 +1,11 @@
+import { sendOrderConfirmationEmail } from "@/app/actions/send-order-confirmation";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import {
   createPublicClient,
   defineChain,
   formatEther,
-  Hex,
-  http,
+  http
 } from "viem";
 
 export const hyperliquid = defineChain({
@@ -34,37 +34,89 @@ type Order = {
   payment_method: "HYPE" | "USDT0" | "USDHL";
   created_at: string;
   expires_at: string;
+  tx_hashes: string[];
+  user_id: string;
+  shipping_email: string;
+  shipping_first_name: string;
+  shipping_last_name: string;
 };
 
-async function processPayment(
+type OrderItem = {
+  order_id: string;
+  // ... existing code ...
+};
+
+async function processPaymentsForOrder(
   supabase: SupabaseClient,
   order: Order,
-  paidAmountBigInt: bigint,
-  txHash: Hex,
+  transactions: { tx: any }[],
 ) {
-  const paidAmount = parseFloat(formatEther(paidAmountBigInt));
-  console.log(`Received HYPE payment of ${paidAmount} for order ${order.id}`);
+  const processedHashes = new Set(order.tx_hashes || []);
+  const newTransactions = transactions.filter((t) => !processedHashes.has(t.tx.hash));
 
-  const newPaidAmount = order.paid_amount + paidAmount;
-  const newRemainingAmount = order.total - newPaidAmount;
-  const remainingWithTolerance = order.remaining_amount * 0.99;
-  const newStatus =
-    paidAmount >= remainingWithTolerance ? "completed" : "underpaid";
+  if (newTransactions.length === 0) {
+    return;
+  }
+
+  let currentPaidAmount = order.paid_amount;
+  const hashesToAdd = [];
+
+  for (const { tx } of newTransactions) {
+    const paidAmount = parseFloat(formatEther(tx.value));
+    currentPaidAmount += paidAmount;
+    hashesToAdd.push(tx.hash);
+    console.log(`Processing tx ${tx.hash} with amount ${paidAmount} for order ${order.id}`);
+  }
+
+  const newRemainingAmount = order.total - currentPaidAmount;
+  const totalWithTolerance = order.total * 0.99;
+  const newStatus = currentPaidAmount >= totalWithTolerance ? "completed" : "underpaid";
 
   const { error } = await supabase
     .from("orders")
     .update({
       status: newStatus,
-      paid_amount: newPaidAmount,
+      paid_amount: currentPaidAmount,
       remaining_amount: newRemainingAmount > 0 ? newRemainingAmount : 0,
-      tx_hash: txHash,
+      tx_hashes: [...processedHashes, ...hashesToAdd],
     })
     .eq("id", order.id);
 
   if (error) {
     console.error(`Failed to update order ${order.id}:`, error);
   } else {
-    console.log(`Order ${order.id} updated to status: ${newStatus}`);
+    console.log(`Order ${order.id} updated to status: ${newStatus}, Total Paid: ${currentPaidAmount}`);
+
+    if (newStatus === "completed") {
+      const { data: orderItems, error: itemsError } = await supabase
+        .from("order_items")
+        .select("*, products(*)")
+        .eq("order_id", order.id);
+
+      if (itemsError) {
+        console.error("Error fetching order items for email:", itemsError);
+        return;
+      }
+
+      const customerEmail = order.shipping_email;
+      if (customerEmail) {
+        await sendOrderConfirmationEmail({
+          to: customerEmail,
+          customerName: `${order.shipping_first_name} ${order.shipping_last_name}`,
+          orderId: order.id.toString(),
+          orderDate: new Date(order.created_at).toLocaleDateString(),
+          items: orderItems.map((item) => ({
+            name: item.size
+              ? `${item.products.name} (Size: ${item.size})`
+              : item.products.name,
+            quantity: item.quantity ?? 0,
+            price: item.price_at_purchase ?? 0,
+          })),
+          total: order.total ?? 0,
+          userId: order.user_id,
+        });
+      }
+    }
   }
 }
 
@@ -94,7 +146,7 @@ export async function POST(request: Request) {
 
     const latestBlock = await viemClient.getBlock();
     // Scan last 500 blocks for manual verification
-    const fromBlock = latestBlock.number - 500n;
+    const fromBlock = latestBlock.number > 500n ? latestBlock.number - 500n : 1n;
     const toBlock = latestBlock.number;
 
     console.log(`Scanning from block ${fromBlock} to ${toBlock}`);
@@ -102,6 +154,7 @@ export async function POST(request: Request) {
     const ordersByWallet = new Map(
       orders.map((o) => [o.wallet_address!.toLowerCase(), o as Order]),
     );
+    const transactionsByUser = new Map<string, { tx: any }[]>();
 
     if (orders.some((o) => o.payment_method === "HYPE")) {
       const blockNumbersToScan = Array.from(
@@ -128,12 +181,20 @@ export async function POST(request: Request) {
               tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase() &&
               ordersByWallet.has(fromAddress)
             ) {
-              const order = ordersByWallet.get(fromAddress)!;
-              await processPayment(supabase, order, tx.value, tx.hash);
-              ordersByWallet.delete(fromAddress);
+              if (!transactionsByUser.has(fromAddress)) {
+                transactionsByUser.set(fromAddress, []);
+              }
+              transactionsByUser.get(fromAddress)!.push({ tx });
             }
           }
         }
+      }
+    }
+
+    for (const [walletAddress, order] of ordersByWallet.entries()) {
+      const userTransactions = transactionsByUser.get(walletAddress);
+      if (userTransactions && userTransactions.length > 0) {
+        await processPaymentsForOrder(supabase, order, userTransactions);
       }
     }
 

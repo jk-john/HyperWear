@@ -1,6 +1,5 @@
 "use server";
 
-import { sendOrderConfirmationEmail } from "@/app/actions/send-order-confirmation";
 import { getServerSupabase } from "@/lib/mcp/supabase";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -131,10 +130,10 @@ export async function finalizeHypeOrder(
     .insert({
       user_id: user.id,
       total: totalAmount,
-      status: txHash ? "completed" : "pending",
+      status: "pending",
       payment_method: formValues.paymentMethod.toUpperCase(),
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      tx_hash: txHash,
+      tx_hashes: txHash ? [txHash] : [],
       wallet_address: walletAddress,
       paid_amount: 0,
       remaining_amount: totalAmount,
@@ -171,32 +170,7 @@ export async function finalizeHypeOrder(
 
   if (itemsError) {
     console.error("Error creating order items:", itemsError);
-    // You might want to handle this case, e.g., by deleting the created order
     return { success: false, error: "Failed to save order items." };
-  }
-
-  // Clear the cart after successful order
-  // This should be done on the client-side, but this is an example
-  // useCartStore.getState().clearCart();
-
-  // Optionally: Trigger a confirmation email here
-  const customerEmail = formValues.email;
-  if (customerEmail) {
-    const items = cartItems.map((item) => ({
-      name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
-      quantity: item.quantity ?? 0,
-      price: item.price ?? 0,
-    }));
-
-    await sendOrderConfirmationEmail({
-      to: customerEmail,
-      customerName: `${formValues.firstName} ${formValues.lastName}`,
-      orderId: order.id.toString(),
-      orderDate: new Date(order.created_at).toLocaleDateString(),
-      items,
-      total: order.total ?? 0,
-      userId: user.id,
-    });
   }
 
   return { success: true, orderId: order.id };

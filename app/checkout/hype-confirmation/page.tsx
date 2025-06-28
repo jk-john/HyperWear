@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { LEDGER_RECEIVING_ADDRESS } from "@/constants/wallet";
 import { useCartStore } from "@/stores/cart";
 import { createClient } from "@/utils/supabase/client";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { Suspense, useCallback, useEffect, useState } from "react";
@@ -33,6 +34,12 @@ function HypeConfirmation() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   const receivingAddress = LEDGER_RECEIVING_ADDRESS;
+
+  const tokenImages: { [key: string]: string } = {
+    hype: "/hyperliquid-logo.png",
+  };
+  const normalizedPaymentMethod = paymentMethod?.toLowerCase() || "hype";
+  const tokenImage = tokenImages[normalizedPaymentMethod];
 
   const isExpired = timeLeft !== null && timeLeft <= 0;
 
@@ -185,13 +192,6 @@ function HypeConfirmation() {
           setOrderStatus(updatedOrder.status);
           setAmountToPay(updatedOrder.remaining_amount);
           setPaidAmount(updatedOrder.paid_amount);
-
-          if (updatedOrder.status === "completed") {
-            toast.success("Payment complete! Finalizing your order...");
-            clearCart();
-            localStorage.removeItem("shippingAddress");
-            router.push(`/checkout/success?orderId=${orderId}`);
-          }
         },
       )
       .subscribe();
@@ -218,6 +218,33 @@ function HypeConfirmation() {
     return () => clearInterval(timerInterval);
   }, [expiresAt]);
 
+  useEffect(() => {
+    if (orderStatus === "completed") return;
+
+    const interval = setInterval(() => {
+      if (orderId && evmAddress) {
+        fetch(`/api/verify-payment?evmAddress=${evmAddress}`)
+          .then((res) => res.json())
+          .then((order) => {
+            if (order && order.status === "completed") {
+              setOrderStatus("completed");
+            }
+          });
+      }
+    }, 15000); // Poll every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [orderId, evmAddress, orderStatus]);
+
+  useEffect(() => {
+    if (orderStatus === "completed") {
+      toast.success("Payment complete! Finalizing your order...");
+      clearCart();
+      localStorage.removeItem("shippingAddress");
+      router.push(`/checkout/success?orderId=${orderId}`);
+    }
+  }, [orderStatus, orderId, router, clearCart]);
+
   const getPaymentMessage = () => {
     if (orderStatus === "underpaid") {
       return (
@@ -226,27 +253,19 @@ function HypeConfirmation() {
             Partial Payment Received!
           </p>
           <p>
-            You have paid {paidAmount.toFixed(5)} / {orderTotal.toFixed(5)} $
-            {paymentMethod?.toUpperCase() || "HYPE"}.
+            You have paid {paidAmount.toFixed(5)} / {orderTotal.toFixed(5)}.
             <br />
-            Please send the remaining{" "}
-            <strong>
-              {amountToPay.toFixed(5)} ${paymentMethod?.toUpperCase() || "HYPE"}
-            </strong>
-            .
+            Please send the remaining <strong>{amountToPay.toFixed(5)}</strong>.
           </p>
         </div>
       );
     }
     if (orderStatus === "pending") {
       return (
-        <div className="mb-4 text-center">
-          <p className="font-semibold">
+        <div className="mt-4 text-center">
+          <p className="font-normal">
             To complete your order, please send exactly:
           </p>
-          <h2 className="text-primary my-2 text-2xl font-bold">
-            {amountToPay.toFixed(5)} ${paymentMethod?.toUpperCase() || "HYPE"}
-          </h2>
         </div>
       );
     }
@@ -270,7 +289,7 @@ function HypeConfirmation() {
             <h1 className="mb-4 text-2xl font-bold text-red-500 dark:text-red-400">
               Payment Window Expired
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-primary">
               Your 15-minute payment window has closed. Please place a new order
               to try again.
             </p>
@@ -295,9 +314,16 @@ function HypeConfirmation() {
             </div>
             {getPaymentMessage()}
             <div className="text-primary my-2 mt-6 mb-6 flex items-center justify-center space-x-2 text-lg font-bold">
-              <span>
-                {amountToPay.toFixed(4)} $
-                {paymentMethod?.toUpperCase() || "HYPE"}
+              <span className="flex items-center gap-2">
+                {amountToPay.toFixed(4)}{" "}
+                {tokenImage && (
+                  <Image
+                    src={tokenImage}
+                    alt={normalizedPaymentMethod.toUpperCase()}
+                    width={24}
+                    height={24}
+                  />
+                )}
               </span>
               <Button
                 onClick={handleCopyAmount}
@@ -308,8 +334,8 @@ function HypeConfirmation() {
                 {copiedAmount ? "Copied!" : "Copy"}
               </Button>
             </div>
-            <p className="text-primary mt-4">to the following address:</p>
-            <div className="my-6 flex justify-center">
+            <p className="text-primary">to the following address:</p>
+            <div className="my-4 flex justify-center">
               <QRCodeSVG value={receivingAddress} size={128} />
             </div>
             <div className="flex flex-col items-center space-y-2">
@@ -320,16 +346,15 @@ function HypeConfirmation() {
                 onClick={handleCopyAddress}
                 size="sm"
                 variant="ghost"
-                className="bg-primary hover:bg-secondary/80 mt-4 px-10 text-white hover:text-black"
+                className="bg-primary hover:bg-secondary/80 px-10 text-white hover:text-black"
               >
                 {copiedAddress ? "Copied!" : "Copy"}
               </Button>
             </div>
             <p className="mt-4 text-xs text-gray-500">
-              The {paymentMethod?.toUpperCase() || "HYPE"} amount may update
-              periodically based on the live market price.
+              The amount may update periodically based on the live market price.
             </p>
-            <p className="mt-8 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               We will scan the blockchain for your payment and confirm your
               order automatically. This page will update upon confirmation.
             </p>
@@ -346,7 +371,7 @@ function HypeConfirmation() {
               <Button
                 onClick={() => router.push("/checkout")}
                 variant="secondary"
-                className="w-full bg-gray-500 px-8 text-white hover:bg-gray-600"
+                className="w-full bg-red-500/80 text-white hover:bg-red-600"
               >
                 Cancel Payment
               </Button>

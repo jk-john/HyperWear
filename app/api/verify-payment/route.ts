@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const { data: order, error } = await supabase
       .from("orders")
       .select(
-        "id, status, total, paid_amount, remaining_amount, tx_hash, expires_at",
+        "id, status, total, paid_amount, remaining_amount, tx_hashes, expires_at",
       )
       .eq("wallet_address", evmAddress)
       .in("status", ["pending", "underpaid", "completed"])

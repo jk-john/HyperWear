@@ -144,14 +144,14 @@ function SuccessContent() {
               src="https://lottie.host/9f7b2d5a-6b8a-4d7a-8f8b-9e8c3b5a7b8c/t2kR3bY5qE.json"
               style={{ height: "180px", width: "180px", marginBottom: "1rem" }}
             />
-            <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl">
+            <h1 className="text-4xl font-extrabold tracking-tighter text-white sm:text-5xl">
               Thank you for your order!
             </h1>
-            <p className="text-muted-foreground mt-4 max-w-md">
+            <p className="text-muted-foreground mt-4 max-w-md text-white">
               Your order{" "}
-              <span className="text-primary font-semibold">#{order.id}</span>{" "}
-              has been placed successfully. You will receive an email
-              confirmation shortly.
+              <span className="font-semibold text-white">#{order.id}</span> has
+              been placed successfully. You will receive an email confirmation
+              shortly.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link href="/collections" passHref>
