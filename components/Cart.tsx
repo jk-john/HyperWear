@@ -134,7 +134,7 @@ export const Cart = () => {
                 Looks like you haven&apos;t added anything to your cart yet.
               </p>
               <SheetClose asChild>
-                <Link href="/products" legacyBehavior>
+                <Link href="/products">
                   <Button className="bg-primary hover:bg-secondary font-body mt-6 h-11 rounded-full px-6 font-semibold text-white transition-all duration-300 hover:text-black">
                     Start Shopping
                   </Button>
