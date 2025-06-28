@@ -112,7 +112,8 @@ export async function finalizeHypeOrder(
   cartItems: CartItem[],
   txHash: string | null,
   formValues: FormValues,
-  totalPrice: number,
+  totalAmount: number,
+  walletAddress?: string,
 ) {
   const supabase = getServerSupabase();
 
@@ -129,14 +130,14 @@ export async function finalizeHypeOrder(
     .from("orders")
     .insert({
       user_id: user.id,
-      total: totalPrice,
+      total: totalAmount,
       status: txHash ? "completed" : "pending",
       payment_method: formValues.paymentMethod.toUpperCase(),
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       tx_hash: txHash,
-      wallet_address: formValues.evmAddress,
+      wallet_address: walletAddress,
       paid_amount: 0,
-      remaining_amount: totalPrice,
+      remaining_amount: totalAmount,
       // Shipping details
       shipping_email: formValues.email,
       shipping_first_name: formValues.firstName,

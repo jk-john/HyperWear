@@ -24,11 +24,13 @@ function HypeConfirmation() {
   const [amountToPay, setAmountToPay] = useState<number>(initialAmount);
   const [orderStatus, setOrderStatus] = useState<string>("pending");
   const [paidAmount, setPaidAmount] = useState<number>(0);
+  const [orderTotal, setOrderTotal] = useState<number>(initialAmount);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [copiedAmount, setCopiedAmount] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const receivingAddress = LEDGER_RECEIVING_ADDRESS;
 
@@ -44,6 +46,31 @@ function HypeConfirmation() {
     navigator.clipboard.writeText(amountToPay.toFixed(2));
     setCopiedAmount(true);
     setTimeout(() => setCopiedAmount(false), 2000);
+  };
+
+  const handleManualVerify = async () => {
+    setIsVerifying(true);
+    toast.info("Verifying your payment on the blockchain...");
+    try {
+      const response = await fetch("/api/verify-payment-manual", {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Verification failed.");
+      }
+      toast.success(
+        "Verification scan complete. Fetching latest order status...",
+      );
+      // Manually re-fetch the order data to update the UI
+      await createOrFetchOrder();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred.";
+      toast.error(`Verification failed: ${message}`);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const createOrFetchOrder = useCallback(async () => {
@@ -66,6 +93,7 @@ function HypeConfirmation() {
         setPaidAmount(order.paid_amount ?? 0);
         setExpiresAt(order.expires_at);
         setAmountToPay(order.remaining_amount ?? order.total ?? 0);
+        setOrderTotal(order.total ?? 0);
       } else if (cartItems.length > 0) {
         // Create a new order if no ID is present
         const shippingInfo = JSON.parse(
@@ -111,6 +139,7 @@ function HypeConfirmation() {
           null,
           { ...shippingInfo, paymentMethod, evmAddress },
           finalAmount, // Pass the token amount (HYPE amount for HYPE payments, USD for others)
+          evmAddress ?? undefined,
         );
 
         if (result.success && result.orderId) {
@@ -197,7 +226,7 @@ function HypeConfirmation() {
             Partial Payment Received!
           </p>
           <p>
-            You have paid {paidAmount.toFixed(2)} / {initialAmount.toFixed(2)} $
+            You have paid {paidAmount.toFixed(5)} / {orderTotal.toFixed(5)} $
             {paymentMethod?.toUpperCase() || "HYPE"}.
             <br />
             Please send the remaining{" "}
@@ -304,11 +333,20 @@ function HypeConfirmation() {
               We will scan the blockchain for your payment and confirm your
               order automatically. This page will update upon confirmation.
             </p>
-            <div className="mt-6 w-full border-t pt-6">
+            <div className="mt-6 w-full space-y-4 border-t pt-6">
+              <Button
+                onClick={handleManualVerify}
+                disabled={isVerifying}
+                className="bg-primary hover:bg-secondary/80 w-full px-8 text-white hover:text-black"
+              >
+                {isVerifying
+                  ? "Verifying..."
+                  : "I've Sent the Payment - Verify Now"}
+              </Button>
               <Button
                 onClick={() => router.push("/checkout")}
                 variant="secondary"
-                className="bg-primary hover:bg-secondary/80 w-full px-8 text-white hover:text-black"
+                className="w-full bg-gray-500 px-8 text-white hover:bg-gray-600"
               >
                 Cancel Payment
               </Button>
