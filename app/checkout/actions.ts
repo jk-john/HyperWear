@@ -1,18 +1,15 @@
 "use server";
 
-import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
-import { createClient } from "@/utils/supabase/server";
+import { sendOrderConfirmationEmail } from "@/app/actions/send-order-confirmation";
+import { getServerSupabase } from "@/lib/mcp/supabase";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Resend } from "resend";
 import Stripe from "stripe";
 
 // TODO: Add your Stripe secret key to your environment variables.
 // You can find your secret key in the Stripe dashboard.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const ORDER_LIMIT = 100;
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 type CartItem = {
   id: string;
@@ -56,7 +53,7 @@ export async function createCheckoutSession(
   shippingAddress: ShippingAddress,
   email: string,
 ) {
-  const supabase = createClient();
+  const supabase = getServerSupabase();
 
   // Check order count
   const { count, error: countError } = await supabase
@@ -113,10 +110,11 @@ export async function createCheckoutSession(
 
 export async function finalizeHypeOrder(
   cartItems: CartItem[],
-  txHash: string,
+  txHash: string | null,
   formValues: FormValues,
+  totalPrice: number,
 ) {
-  const supabase = createClient();
+  const supabase = getServerSupabase();
 
   const {
     data: { user },
@@ -126,19 +124,15 @@ export async function finalizeHypeOrder(
     return { success: false, error: "User not authenticated." };
   }
 
-  const cartTotalUsd = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
-
   // 1. Insert into orders table
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .insert({
       user_id: user.id,
-      total: cartTotalUsd,
-      status: "pending", // You might want to update this based on payment verification
-      payment_method: "hype",
+      total: totalPrice,
+      status: txHash ? "completed" : "pending",
+      payment_method: formValues.paymentMethod,
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       tx_hash: txHash,
       wallet_address: formValues.evmAddress,
       // Shipping details
@@ -191,17 +185,14 @@ export async function finalizeHypeOrder(
       price: item.price ?? 0,
     }));
 
-    await resend.emails.send({
-      from: "Hyperwear <noreply@hyperwear.com>",
+    await sendOrderConfirmationEmail({
       to: customerEmail,
-      subject: "Your Hyperwear Order Confirmation",
-      react: OrderConfirmationEmail({
-        customerName: `${formValues.firstName} ${formValues.lastName}`,
-        orderId: order.id.toString(),
-        orderDate: new Date(order.created_at).toLocaleDateString(),
-        items,
-        total: order.total ?? 0,
-      }),
+      customerName: `${formValues.firstName} ${formValues.lastName}`,
+      orderId: order.id.toString(),
+      orderDate: new Date(order.created_at).toLocaleDateString(),
+      items,
+      total: order.total ?? 0,
+      userId: user.id,
     });
   }
 

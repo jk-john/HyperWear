@@ -83,9 +83,31 @@ export default async function OrderDetailsPage({
                   <span>Payment Method:</span>
                   <span>{order.payment_method || "N/A"}</span>
                 </div>
+                {order.status === "underpaid" && (
+                  <>
+                    <div className="flex justify-between text-yellow-400">
+                      <span>Amount Paid:</span>
+                      <span>
+                        $
+                        {typeof order.paid_amount === "number"
+                          ? order.paid_amount.toFixed(2)
+                          : "0.00"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-red-400">
+                      <span>Amount Remaining:</span>
+                      <span>
+                        $
+                        {typeof order.remaining_amount === "number"
+                          ? order.remaining_amount.toFixed(2)
+                          : "0.00"}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between font-bold">
                   <span>Total Amount:</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>${order.total?.toFixed(2) || "0.00"}</span>
                 </div>
               </div>
             </div>

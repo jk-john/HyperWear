@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cron_logs: {
+        Row: {
+          details: Json | null;
+          id: string;
+          message: string | null;
+          status: string;
+          timestamp: string;
+        };
+        Insert: {
+          details?: Json | null;
+          id?: string;
+          message?: string | null;
+          status: string;
+          timestamp?: string;
+        };
+        Update: {
+          details?: Json | null;
+          id?: string;
+          message?: string | null;
+          status?: string;
+          timestamp?: string;
+        };
+        Relationships: [];
+      };
+      email_logs: {
+        Row: {
+          email_type: string | null;
+          error: string | null;
+          id: string;
+          sent_at: string | null;
+          status: string | null;
+          to_email: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          email_type?: string | null;
+          error?: string | null;
+          id?: string;
+          sent_at?: string | null;
+          status?: string | null;
+          to_email?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          email_type?: string | null;
+          error?: string | null;
+          id?: string;
+          sent_at?: string | null;
+          status?: string | null;
+          to_email?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       manual_orders: {
         Row: {
           amount_hype: number;
@@ -53,6 +107,7 @@ export type Database = {
           price_at_purchase: number;
           product_id: string;
           quantity: number;
+          size: string | null;
         };
         Insert: {
           created_at?: string;
@@ -61,6 +116,7 @@ export type Database = {
           price_at_purchase: number;
           product_id: string;
           quantity: number;
+          size?: string | null;
         };
         Update: {
           created_at?: string;
@@ -69,6 +125,7 @@ export type Database = {
           price_at_purchase?: number;
           product_id?: string;
           quantity?: number;
+          size?: string | null;
         };
         Relationships: [
           {
@@ -90,8 +147,11 @@ export type Database = {
       orders: {
         Row: {
           created_at: string;
+          expires_at: string | null;
           id: string;
+          paid_amount: number | null;
           payment_method: string | null;
+          remaining_amount: number | null;
           shipping_address_complement: string | null;
           shipping_address_complement_from_line2: string | null;
           shipping_city: string | null;
@@ -112,8 +172,11 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          expires_at?: string | null;
           id?: string;
+          paid_amount?: number | null;
           payment_method?: string | null;
+          remaining_amount?: number | null;
           shipping_address_complement?: string | null;
           shipping_address_complement_from_line2?: string | null;
           shipping_city?: string | null;
@@ -134,8 +197,11 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          expires_at?: string | null;
           id?: string;
+          paid_amount?: number | null;
           payment_method?: string | null;
+          remaining_amount?: number | null;
           shipping_address_complement?: string | null;
           shipping_address_complement_from_line2?: string | null;
           shipping_city?: string | null;

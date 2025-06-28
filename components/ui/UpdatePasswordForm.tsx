@@ -1,5 +1,6 @@
 "use client";
 
+import { sendPasswordChangeConfirmation } from "@/app/actions/send-password-confirmation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,8 @@ export function UpdatePasswordForm() {
       setIsLoading(false);
       return;
     }
+
+    await sendPasswordChangeConfirmation();
 
     toast.success("Password updated successfully! You can now sign in.");
     router.push("/sign-in");

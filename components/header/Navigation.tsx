@@ -81,21 +81,21 @@ export function Navigation() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/collections" legacyBehavior>
+          <Link href="/collections">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Collections
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/new-arrivals" legacyBehavior>
+          <Link href="/new-arrivals">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               New Arrivals
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/community" legacyBehavior>
+          <Link href="/community">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Community
             </NavigationMenuLink>
@@ -117,34 +117,31 @@ const ListItem = React.forwardRef<
         liClassName,
       )}
     >
-      <NavigationMenuLink asChild>
-        <Link
-          ref={ref}
-          href={href ?? ""}
-          className={cn(
-            "focus:bg-primary focus:text-accent-foreground group-hover:text-primary block space-y-1 rounded-md p-3 leading-none no-underline outline-none select-none",
-            className,
-          )}
-          {...props}
-          legacyBehavior
-        >
-          <div className="flex items-center space-x-4">
-            <Image
-              src={src}
-              alt={title ?? ""}
-              width={80}
-              height={80}
-              className="rounded-md"
-            />
-            <div>
-              <div className="text-base leading-none font-medium">{title}</div>
-              <p className="text-muted-foreground line-clamp-2 text-base leading-snug">
-                {children}
-              </p>
-            </div>
+      <Link
+        ref={ref}
+        href={href ?? ""}
+        className={cn(
+          "focus:bg-primary focus:text-accent-foreground group-hover:text-primary block space-y-1 rounded-md p-3 leading-none no-underline outline-none select-none",
+          className,
+        )}
+        {...props}
+      >
+        <div className="flex items-center space-x-4">
+          <Image
+            src={src}
+            alt={title ?? ""}
+            width={80}
+            height={80}
+            className="rounded-md"
+          />
+          <div>
+            <div className="text-base leading-none font-medium">{title}</div>
+            <p className="text-muted-foreground line-clamp-2 text-base leading-snug">
+              {children}
+            </p>
           </div>
-        </Link>
-      </NavigationMenuLink>
+        </div>
+      </Link>
     </li>
   );
 });

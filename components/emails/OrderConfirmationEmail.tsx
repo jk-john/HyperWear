@@ -2,6 +2,7 @@ import {
   Body,
   Column,
   Container,
+  Font,
   Head,
   Heading,
   Html,
@@ -32,17 +33,33 @@ export const OrderConfirmationEmail = ({
   total,
 }: OrderConfirmationEmailProps) => (
   <Html>
-    <Head />
+    <Head>
+      <Font
+        fontFamily="Inter"
+        fallbackFontFamily="Arial"
+        webFont={{
+          url: "https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2",
+          format: "woff2",
+        }}
+        fontWeight={400}
+        fontStyle="normal"
+      />
+      <Font
+        fontFamily="Teodor"
+        fallbackFontFamily="Arial"
+        webFont={{
+          url: "https://db.onlinewebfonts.com/t/35a513c38156d430e56e7085731c054c.woff2",
+          format: "woff2",
+        }}
+        fontWeight={400}
+        fontStyle="normal"
+      />
+    </Head>
     <Preview>Hyperwear Order Confirmation</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoContainer}>
-          <Img
-            src={`${baseUrl}/logo.png`}
-            width="120"
-            height="auto"
-            alt="Hyperwear"
-          />
+          <Img src={`${baseUrl}/logo.svg`} width="180" alt="Hyperwear" />
         </Section>
         <Heading style={h1}>Thanks for your order!</Heading>
         <Text style={text}>
@@ -80,7 +97,8 @@ export const OrderConfirmationEmail = ({
           </Row>
         </Section>
         <Text style={footer}>
-          Hyperwear, The Place To House All HyperLiquid Fans.
+          You&apos;re receiving this email because you interacted with
+          HyperWear.io. For support, contact support@hyperwear.io.
         </Text>
       </Container>
     </Body>
@@ -90,18 +108,20 @@ export const OrderConfirmationEmail = ({
 export default OrderConfirmationEmail;
 
 const main = {
-  backgroundColor: "#f6f9fc",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  backgroundColor: "#0f3933",
+  fontFamily: '"Inter", "Arial", sans-serif',
+  color: "#edfffc",
 };
 
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#0f3933",
+  border: "1px solid #97fce4",
   margin: "0 auto",
-  padding: "20px 0 48px",
+  padding: "20px 48px 48px 48px",
   marginBottom: "64px",
   borderRadius: "8px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  boxShadow: "0 4px 12px rgba(151, 252, 228, 0.1)",
+  maxWidth: "480px",
 };
 
 const logoContainer = {
@@ -110,7 +130,8 @@ const logoContainer = {
 };
 
 const h1 = {
-  color: "#1d1c2d",
+  color: "#edfffc",
+  fontFamily: '"Teodor", "Arial", sans-serif',
   fontSize: "32px",
   fontWeight: "bold",
   textAlign: "center" as const,
@@ -118,65 +139,67 @@ const h1 = {
 };
 
 const text = {
-  color: "#444",
+  color: "#edfffc",
   fontSize: "16px",
   lineHeight: "24px",
   textAlign: "left" as const,
-  padding: "0 20px",
+  padding: "0",
 };
 
 const box = {
   padding: "20px",
-  margin: "0 20px",
-  border: "1px solid #e5e5e5",
+  margin: "2rem 0",
+  border: "1px solid #97fce4",
   borderRadius: "5px",
+  backgroundColor: "#1A4A44",
 };
 
 const paragraph = {
-  color: "#444",
-  fontSize: "14px",
+  color: "#edfffc",
+  fontSize: "16px",
   lineHeight: "22px",
 };
 
 const hr = {
-  borderColor: "#e5e5e5",
+  borderColor: "#97fce4",
   margin: "20px 0",
 };
 
 const itemTitle = {
   fontSize: "16px",
   fontWeight: "bold",
-  color: "#333",
+  color: "#edfffc",
 };
 
 const itemDetails = {
   fontSize: "14px",
-  color: "#666",
+  color: "#bbf5e8",
 };
 
 const itemPrice = {
   fontSize: "16px",
   fontWeight: "bold",
-  color: "#333",
+  color: "#edfffc",
   textAlign: "right" as const,
 };
 
 const totalText = {
   fontSize: "16px",
   fontWeight: "bold",
-  color: "#333",
+  color: "#edfffc",
 };
 
 const totalPrice = {
   fontSize: "20px",
   fontWeight: "bold",
-  color: "#1d1c2d",
+  color: "#97fce4",
   textAlign: "right" as const,
 };
 
 const footer = {
-  color: "#8898aa",
+  color: "#bbf5e8",
   fontSize: "12px",
   lineHeight: "16px",
   textAlign: "center" as const,
+  marginTop: "2rem",
 };
