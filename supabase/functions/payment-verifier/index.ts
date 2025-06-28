@@ -1,22 +1,32 @@
-/// <reference types="https://esm.sh/v135/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
+/// <reference types="npm:@supabase/functions-js/src/edge-runtime.d.ts" />
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
-import {
-  createPublicClient,
-  formatEther,
-  getBlock,
-  getLogs,
-  Hex,
-  http,
-} from "viem";
+import { createPublicClient, defineChain, formatEther, Hex, http } from "viem";
 import { hyperliquid } from "viem/chains";
+
+// Define the Hyperliquid chain
+export const hyperliquid = defineChain({
+  id: 999,
+  name: "Hyperliquid",
+  nativeCurrency: { name: "HYPE", symbol: "HYPE", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.hyperliquid.xyz/evm"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Hyperliquid Scan",
+      url: "https://explorer.hyperliquid.xyz",
+    },
+  },
+});
 
 // Constants from user request
 const RECEIVING_WALLET = "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
-const CHAIN_RPC_URL = "https://api.hyperliquid.xyz/evm";
+const CHAIN_RPC_URL = "https://rpc.hyperliquid.xyz/evm";
 const USDT0_ADDRESS = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
 const USDHL_ADDRESS = "0xb50A96253aBDF803D85efcDce07Ad8becBc52BD5";
+const HYPE_ADDRESS = "0x8a15b2028a35366c91c3a6164e8155e8e4a9e5c4";
 const RESEND_FROM_EMAIL = "HyperWear <noreply@hyperwear.io>";
 
 // Initialize viem client
@@ -63,6 +73,13 @@ type Order = {
   } | null;
 };
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
 // Simplified HTML email templates
 const completionEmailHtml = (
   customerName: string,
@@ -80,7 +97,9 @@ const completionEmailHtml = (
       (item) => `
     <div>
       <p><strong>${item.name}</strong></p>
-      <p>Quantity: ${item.quantity} | Price: $${(item.price * item.quantity).toFixed(2)}</p>
+      <p>Quantity: ${item.quantity} | Price: $${(
+        item.price * item.quantity
+      ).toFixed(2)}</p>
     </div>
   `,
     )
@@ -101,6 +120,76 @@ const sendResponse = (data: unknown, status = 200) => {
   });
 };
 
+async function getHypeToUsdRate() {
+  try {
+    const response = await fetch("https://api.hyperliquid.xyz/info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "spotMetaAndAssetCtxs" }),
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch from Hyperliquid API: ${response.statusText}`,
+      );
+    }
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length < 2) {
+      throw new Error("Unexpected data format from Hyperliquid API");
+    }
+    const [meta, spotAssetCtxs] = data;
+
+    // Find HYPE token
+    const hypeToken = meta.tokens.find(
+      (t: { name: string; index: number }) =>
+        t.name?.trim().toUpperCase() === "HYPE",
+    );
+    if (!hypeToken) {
+      throw new Error("HYPE token not found in metadata");
+    }
+
+    // Find USDC token
+    const usdcToken = meta.tokens.find(
+      (t: { name: string; index: number }) =>
+        t.name?.trim().toUpperCase() === "USDC",
+    );
+    if (!usdcToken) {
+      throw new Error("USDC token not found in metadata");
+    }
+
+    // Find the universe pair that contains both HYPE and USDC
+    const hypeUsdcUniverse = meta.universe.find(
+      (u: { tokens: number[]; index: number }) => {
+        return (
+          u.tokens?.includes(hypeToken.index) &&
+          u.tokens?.includes(usdcToken.index)
+        );
+      },
+    );
+
+    if (!hypeUsdcUniverse) {
+      throw new Error("HYPE/USDC trading pair not found in universe");
+    }
+
+    // Get the asset context using the universe index
+    const hypeAssetCtx = spotAssetCtxs[hypeUsdcUniverse.index];
+
+    if (!hypeAssetCtx || !hypeAssetCtx.midPx) {
+      throw new Error("HYPE/USDC midPx is missing");
+    }
+
+    const hypeToUsd = parseFloat(hypeAssetCtx.midPx);
+
+    if (isNaN(hypeToUsd) || hypeToUsd <= 0) {
+      throw new Error("Parsed HYPE price is not a valid positive number");
+    }
+
+    return hypeToUsd;
+  } catch (error) {
+    console.error("Error fetching HYPE price:", getErrorMessage(error));
+    return null; // Return null if price fetching fails
+  }
+}
+
 // Function to process a found payment
 async function processPayment(
   supabase: SupabaseClient,
@@ -108,9 +197,11 @@ async function processPayment(
   paidAmountBigInt: bigint,
   txHash: Hex,
   tokenName: "HYPE" | "USDT0" | "USDHL",
+  hypeToUsdRate?: number,
 ) {
   // Assuming 18 decimals for all tokens for now. This should be confirmed.
   const paidAmount = parseFloat(formatEther(paidAmountBigInt));
+  let paidAmountInOrderCurrency = paidAmount;
 
   // Check if payment method matches
   if (order.payment_method !== tokenName) {
@@ -120,21 +211,30 @@ async function processPayment(
     return;
   }
 
-  const total = order.total;
-  const tolerance = total * 0.01;
-  const minAmount = total - tolerance;
-  const maxAmount = total + tolerance;
+  // Convert HYPE payment to USD value for comparison if necessary
+  if (tokenName === "HYPE") {
+    if (!hypeToUsdRate) {
+      console.error(
+        `Cannot process HYPE payment for order ${order.id} without HYPE/USD rate.`,
+      );
+      return;
+    }
+    paidAmountInOrderCurrency = paidAmount * hypeToUsdRate;
+  }
+
+  const amountToPay =
+    order.status === "underpaid" ? order.remaining_amount : order.total;
+  const tolerance = amountToPay * 0.01;
+  const minAmount = amountToPay - tolerance;
 
   let newStatus: Order["status"] = order.status;
-  const newPaidAmount = order.paid_amount + paidAmount;
-  const newRemainingAmount = total - newPaidAmount;
+  const newPaidAmount = order.paid_amount + paidAmountInOrderCurrency;
+  const newRemainingAmount = order.total - newPaidAmount;
 
-  if (newPaidAmount >= minAmount && newPaidAmount <= maxAmount) {
+  if (paidAmountInOrderCurrency >= minAmount) {
     newStatus = "completed";
-  } else if (newPaidAmount < minAmount) {
-    newStatus = "underpaid";
   } else {
-    newStatus = "overpaid";
+    newStatus = "underpaid";
   }
 
   // Update order in DB
@@ -143,7 +243,7 @@ async function processPayment(
     .update({
       status: newStatus,
       paid_amount: newPaidAmount,
-      remaining_amount: newRemainingAmount,
+      remaining_amount: newRemainingAmount > 0 ? newRemainingAmount : 0,
       tx_hash: txHash,
     })
     .eq("id", order.id);
@@ -161,7 +261,7 @@ async function processPayment(
       // Fetch order items for email
       const { data: items, error: itemsError } = await supabase
         .from("order_items")
-        .select(`quantity, price, products(name)`)
+        .select(`quantity, price_at_purchase, products(name)`)
         .eq("order_id", order.id);
 
       if (itemsError) {
@@ -183,7 +283,7 @@ async function processPayment(
           items?.map((i) => ({
             name: i.products?.name ?? "Unknown Product",
             quantity: i.quantity,
-            price: i.price,
+            price: i.price_at_purchase,
           })) || [],
           order.total,
         ),
@@ -195,8 +295,14 @@ async function processPayment(
         to: order.users.email,
         subject: "Action Required: Your HyperWear Order is Underpaid",
         html: `<p>Hi ${order.users.user_metadata?.firstName || ""},</p>
-               <p>Your order #${order.id} is currently underpaid. You paid ${newPaidAmount} but the total is ${total}.</p>
-               <p>Please send the remaining amount of ${newRemainingAmount} to complete your order.</p>
+               <p>Your order #${order.id} is currently underpaid. You paid ${newPaidAmount.toFixed(
+                 5,
+               )} but the total is ${order.total.toFixed(5)} ${
+                 order.payment_method
+               }.</p>
+               <p>Please send the remaining amount of ${newRemainingAmount.toFixed(
+                 5,
+               )} ${order.payment_method} to complete your order.</p>
                <p>Thanks,<br/>The HyperWear Team</p>`,
       });
       console.log(`Sent underpayment notification for order ${order.id}`);
@@ -209,15 +315,10 @@ Deno.serve(async (req: Request) => {
     return new Response("ok", {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
       },
     });
-  }
-
-  // 1. Authenticate the request
-  const authHeader = req.headers.get("Authorization");
-  if (authHeader !== `Bearer ${Deno.env.get("CRON_SECRET")}`) {
-    return sendResponse({ error: "Unauthorized" }, 401);
   }
 
   const supabase = createClient(
@@ -226,12 +327,46 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
+    // 1. Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader !== `Bearer ${Deno.env.get("CRON_SECRET")}`) {
+      return sendResponse({ error: "Unauthorized" }, 401);
+    }
+
     // 2. Log cron job start
     await supabase.from("cron_logs").insert({
       job_name: "payment-verifier",
       status: "started",
       details: "Starting payment verification cycle.",
     });
+
+    // 3. Get pending and underpaid orders
+    const { data: orders, error: ordersError } = await supabase
+      .from("orders")
+      .select(
+        `
+        id, wallet_address, total, paid_amount, remaining_amount, status, tx_hash,
+        payment_method, created_at, expires_at, user_id,
+        users ( email, user_metadata )
+      `,
+      )
+      .in("status", ["pending", "underpaid"])
+      .not("wallet_address", "is", null)
+      .gt("expires_at", new Date().toISOString());
+
+    if (ordersError) {
+      throw new Error(`Failed to fetch orders: ${ordersError.message}`);
+    }
+
+    if (!orders || orders.length === 0) {
+      console.log("No pending orders to check.");
+      await supabase.from("cron_logs").insert({
+        job_name: "payment-verifier",
+        status: "completed",
+        details: "No pending orders to check.",
+      });
+      return sendResponse({ ok: true, message: "No orders to process" });
+    }
 
     // 4. Get last scanned block
     const { data: state } = await supabase
@@ -242,119 +377,132 @@ Deno.serve(async (req: Request) => {
       .limit(1)
       .single();
 
-    const latestBlock = await getBlock(viemClient);
+    const latestBlock = await viemClient.getBlock();
     const fromBlock = state?.last_processed_block
       ? BigInt(state.last_processed_block) + 1n
       : latestBlock.number - 100n; // Scan last 100 blocks on first run
     const toBlock = latestBlock.number;
 
     if (fromBlock > toBlock) {
-      console.log("No new blocks to process.");
-      return sendResponse({ message: "No new blocks to process." });
+      console.log(
+        `fromBlock (${fromBlock}) is greater than toBlock (${toBlock}). Skipping run.`,
+      );
+      await supabase.from("cron_logs").insert({
+        job_name: "payment-verifier",
+        status: "completed",
+        details: `Already up to date. Last processed block: ${
+          state?.last_processed_block
+        }`,
+        last_processed_block: toBlock.toString(),
+      });
+      return sendResponse({
+        ok: true,
+        message: "Already up to date.",
+      });
     }
 
-    // 5. Fetch pending/underpaid orders
-    const { data: orders, error: fetchError } = await supabase
-      .from("orders")
-      .select("*, users(email, user_metadata)")
-      .in("status", ["pending", "underpaid"])
-      .neq("wallet_address", null)
-      .gt("expires_at", new Date().toISOString());
-
-    if (fetchError) {
-      throw new Error(`Error fetching orders: ${fetchError.message}`);
-    }
-
-    if (!orders || orders.length === 0) {
-      return sendResponse({ message: "No pending orders to process." });
-    }
-
-    console.log(
-      `Found ${orders.length} orders to process from block ${fromBlock} to ${toBlock}.`,
-    );
+    console.log(`Scanning from block ${fromBlock} to ${toBlock}`);
 
     const ordersByWallet = new Map<string, Order>(
-      orders.map((o: Order) => [o.wallet_address.toLowerCase(), o]),
+      orders
+        .filter((o) => o.wallet_address)
+        .map((o) => [o.wallet_address!.toLowerCase(), o as Order]),
     );
 
-    // 6. Scan for ERC20 transfers
+    // 5. Scan for ERC20 transfers (USDT0, USDHL)
     const erc20Tokens = [
-      { address: USDT0_ADDRESS, name: "USDT0" },
-      { address: USDHL_ADDRESS, name: "USDHL" },
+      { name: "USDT0" as const, address: USDT0_ADDRESS },
+      { name: "USDHL" as const, address: USDHL_ADDRESS },
     ];
 
     for (const token of erc20Tokens) {
-      const logs = await getLogs(viemClient, {
-        address: token.address,
+      if (!orders.some((o) => o.payment_method === token.name)) continue;
+
+      const logs = await viemClient.getLogs({
+        address: token.address as Hex,
         event: erc20TransferEventAbi[0],
-        args: {
-          to: RECEIVING_WALLET,
-        },
+        args: { to: RECEIVING_WALLET },
         fromBlock,
         toBlock,
       });
 
+      console.log(
+        `Found ${logs.length} ${token.name} transaction(s) to the receiving wallet.`,
+      );
+
       for (const log of logs) {
         const { from, value } = log.args;
+        if (!from || !value) continue;
         const fromAddress = from.toLowerCase();
-
-        if (ordersByWallet.has(fromAddress)) {
-          const order = ordersByWallet.get(fromAddress)!;
-          if (order.status !== "completed") {
-            await processPayment(
-              supabase,
-              order,
-              value,
-              log.transactionHash,
-              token.name as any,
-            );
-            ordersByWallet.delete(fromAddress); // Avoid processing multiple payments for same order in one run
-          }
+        const order = ordersByWallet.get(fromAddress);
+        if (order && order.payment_method === token.name) {
+          await processPayment(
+            supabase,
+            order,
+            value,
+            log.transactionHash,
+            token.name,
+          );
+          ordersByWallet.delete(fromAddress);
         }
       }
     }
 
-    // 7. Scan for native HYPE transfers
-    for (let blockNumber = fromBlock; blockNumber <= toBlock; blockNumber++) {
-      const block = await getBlock(viemClient, {
-        blockNumber,
-        includeTransactions: true,
-      });
-      for (const tx of block.transactions) {
-        if (tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase()) {
-          const fromAddress = tx.from.toLowerCase();
-          if (ordersByWallet.has(fromAddress)) {
-            const order = ordersByWallet.get(fromAddress)!;
-            if (order.status !== "completed") {
-              await processPayment(supabase, order, tx.value, tx.hash, "HYPE");
-              ordersByWallet.delete(fromAddress); // Avoid processing multiple payments for same order in one run
+    // 6. Scan for native HYPE transfers
+    if (orders.some((o) => o.payment_method === "HYPE")) {
+      const hypeToUsdRate = await getHypeToUsdRate();
+      if (hypeToUsdRate) {
+        for (
+          let blockNumber = fromBlock;
+          blockNumber <= toBlock;
+          blockNumber++
+        ) {
+          if (ordersByWallet.size === 0) break;
+          const block = await viemClient.getBlock({
+            blockNumber,
+            includeTransactions: true,
+          });
+          for (const tx of block.transactions) {
+            if (tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase()) {
+              const fromAddress = tx.from.toLowerCase();
+              const order = ordersByWallet.get(fromAddress);
+              if (order && order.payment_method === "HYPE") {
+                await processPayment(
+                  supabase,
+                  order,
+                  tx.value,
+                  tx.hash,
+                  "HYPE",
+                  hypeToUsdRate,
+                );
+                ordersByWallet.delete(fromAddress);
+              }
             }
           }
         }
+      } else {
+        console.log("Skipping HYPE payments as rate is unavailable.");
       }
     }
 
-    // 8. Process payments and update orders (Combined Logic)
-    // This section is now implemented within the scanning loops.
-
-    // 9. Log cron job completion and update last processed block
+    // 7. Log cron job completion
     await supabase.from("cron_logs").insert({
       job_name: "payment-verifier",
       status: "completed",
-      details: `Verification cycle finished. Processed ${orders.length} orders. Scanned blocks ${fromBlock}-${toBlock}.`,
+      details: `Processed blocks from ${fromBlock} to ${toBlock}.`,
       last_processed_block: toBlock.toString(),
     });
 
-    return sendResponse({ success: true, processedOrders: orders.length });
+    return sendResponse({ ok: true });
   } catch (error) {
+    const errorMessage = getErrorMessage(error);
+    console.error("An error occurred:", errorMessage);
     await supabase.from("cron_logs").insert({
       job_name: "payment-verifier",
       status: "failed",
-      details: (error as Error).message,
+      details: errorMessage,
     });
-
-    console.error("An error occurred:", error);
-    return sendResponse({ error: (error as Error).message }, 500);
+    return sendResponse({ error: errorMessage }, 500);
   }
 });
 
