@@ -13,7 +13,7 @@ export const UserAccountNav = ({ user }: UserAccountNavProps) => {
   return (
     <>
       {user ? (
-        <Link href="/dashboard" legacyBehavior>
+        <Link href="/dashboard">
           <Button
             variant="ghost"
             size="icon"
@@ -23,7 +23,7 @@ export const UserAccountNav = ({ user }: UserAccountNavProps) => {
           </Button>
         </Link>
       ) : (
-        <Link href="/sign-in" legacyBehavior>
+        <Link href="/sign-in">
           <Button
             variant="ghost"
             size="icon"

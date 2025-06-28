@@ -104,7 +104,7 @@ const Footer = () => {
                     <Link
                       href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
                       className="text-white/70 transition-colors duration-200 hover:text-white"
-                      legacyBehavior>
+                    >
                       {link}
                     </Link>
                   </li>

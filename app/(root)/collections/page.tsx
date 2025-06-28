@@ -87,7 +87,7 @@ const CollectionsPage = () => {
                   {collection.description}
                 </p>
                 <div className="mt-6 flex items-center justify-between">
-                  <Link href={collection.link} legacyBehavior>
+                  <Link href={collection.link}>
                     <Button
                       variant="outline"
                       className="rounded-full font-semibold"
@@ -95,7 +95,7 @@ const CollectionsPage = () => {
                       View Collection
                     </Button>
                   </Link>
-                  <Link href="/products" legacyBehavior>
+                  <Link href="/products">
                     <Button className="bg-primary hover:bg-secondary rounded-full font-semibold text-white hover:text-black">
                       Shop Now
                     </Button>

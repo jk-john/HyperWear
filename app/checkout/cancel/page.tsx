@@ -23,7 +23,7 @@ export default function CancelPage() {
       <h1 className="text-destructive text-3xl font-bold">Payment Canceled</h1>
       <p className="mt-4">Your payment was not processed. You can try again.</p>
       <div className="mt-8">
-        <Link href="/checkout" legacyBehavior>
+        <Link href="/checkout">
           <Button className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-80 rounded-full py-6 text-lg font-bold transition-colors hover:text-white">
             Back to Checkout
           </Button>
