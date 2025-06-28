@@ -28,7 +28,7 @@ export default function PasswordResetPage() {
       <Link
         href="/sign-in"
         className="self-center pt-4 text-sm text-white hover:text-[var(--color-secondary)]"
-      >
+        legacyBehavior>
         <Button className="bg-mint hover:bg-secondary/80 rounded-full text-white hover:text-black">
           Remembered your password? Sign In
         </Button>

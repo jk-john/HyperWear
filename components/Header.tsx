@@ -54,7 +54,7 @@ export const Header = () => {
           <SearchBar />
           <UserAccountNav user={user} />
           <Cart />
-          <Link href="/products">
+          <Link href="/products" legacyBehavior>
             <ShimmerButton>Shop Now</ShimmerButton>
           </Link>
         </div>

@@ -81,21 +81,21 @@ export function Navigation() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/collections">
+          <Link href="/collections" legacyBehavior>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Collections
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/new-arrivals">
+          <Link href="/new-arrivals" legacyBehavior>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               New Arrivals
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/community">
+          <Link href="/community" legacyBehavior>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Community
             </NavigationMenuLink>
@@ -125,7 +125,7 @@ const ListItem = React.forwardRef<
           className,
         )}
         {...props}
-      >
+        legacyBehavior>
         <div className="flex items-center space-x-4">
           <Image
             src={src}
