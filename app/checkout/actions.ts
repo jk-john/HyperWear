@@ -131,10 +131,12 @@ export async function finalizeHypeOrder(
       user_id: user.id,
       total: totalPrice,
       status: txHash ? "completed" : "pending",
-      payment_method: formValues.paymentMethod,
+      payment_method: formValues.paymentMethod.toUpperCase(),
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       tx_hash: txHash,
       wallet_address: formValues.evmAddress,
+      paid_amount: 0,
+      remaining_amount: totalPrice,
       // Shipping details
       shipping_email: formValues.email,
       shipping_first_name: formValues.firstName,

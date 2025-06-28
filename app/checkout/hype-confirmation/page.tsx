@@ -4,37 +4,31 @@ import { finalizeHypeOrder } from "@/app/checkout/actions";
 import { Button } from "@/components/ui/Button";
 import { LEDGER_RECEIVING_ADDRESS } from "@/constants/wallet";
 import { useCartStore } from "@/stores/cart";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-
-const shortenHash = (hash: string, start = 6, end = 4) => {
-  if (!hash) return "";
-  return `${hash.slice(0, start)}...${hash.slice(hash.length - end)}`;
-};
 
 function HypeConfirmation() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { cartItems, clearCart } = useCartStore();
+  const supabase = createClient();
 
   const initialAmount = parseFloat(searchParams.get("amount") || "0");
-  const cartTotalUsd = parseFloat(searchParams.get("cartTotal") || "0");
   const evmAddress = searchParams.get("evmAddress");
   const paymentMethod = searchParams.get("paymentMethod");
+  const orderId = searchParams.get("orderId");
 
-  const [amountToPay, setAmountToPay] = useState(initialAmount);
-  const [totalHypeRequired, setTotalHypeRequired] = useState(initialAmount);
-  const [orderStatus, setOrderStatus] = useState<string | null>("pending");
+  const [amountToPay, setAmountToPay] = useState<number>(initialAmount);
+  const [orderStatus, setOrderStatus] = useState<string>("pending");
   const [paidAmount, setPaidAmount] = useState<number>(0);
-  const [txHash, setTxHash] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [copiedAmount, setCopiedAmount] = useState(false);
-  const [isFinalizing, setIsFinalizing] = useState(false);
 
   const receivingAddress = LEDGER_RECEIVING_ADDRESS;
 
@@ -52,74 +46,131 @@ function HypeConfirmation() {
     setTimeout(() => setCopiedAmount(false), 2000);
   };
 
-  const createOrderWithHype = async () => {
+  const createOrFetchOrder = useCallback(async () => {
     try {
-      const shippingInfo = JSON.parse(
-        localStorage.getItem("shippingAddress") || "{}",
-      );
-      const formValues = {
-        firstName: shippingInfo.first_name,
-        lastName: shippingInfo.last_name,
-        email: shippingInfo.email,
-        phone_number: shippingInfo.phone_number,
-        street: shippingInfo.street,
-        address_complement: shippingInfo.address_complement,
-        city: shippingInfo.city,
-        postal_code: shippingInfo.postal_code,
-        country: shippingInfo.country,
-        company_name: shippingInfo.company_name,
-        delivery_instructions: shippingInfo.delivery_instructions,
-        paymentMethod: paymentMethod as "hype" | "usdhl",
-        evmAddress: evmAddress || undefined,
-      };
+      if (orderId) {
+        // If orderId is present, fetch the existing order
+        const { data: order, error } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("id", orderId)
+          .single();
 
-      const result = await finalizeHypeOrder(
-        cartItems,
-        null, // No txHash yet
-        formValues,
-        totalPrice,
-      );
+        if (error || !order) {
+          toast.error("Could not find your order. Redirecting...");
+          router.push("/checkout");
+          return;
+        }
 
-      if (!result.success) {
-        toast.error(result.error || "Failed to create order.");
-        router.push("/checkout");
-      }
-    } catch (error) {
-      console.error("Error creating order:", error);
-      toast.error("An unexpected error occurred while creating your order.");
-      router.push("/checkout");
-    }
-  };
-  const totalPrice = useCartStore((state) => state.totalPrice());
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      createOrderWithHype();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        setOrderStatus(order.status);
+        setPaidAmount(order.paid_amount ?? 0);
+        setExpiresAt(order.expires_at);
+        setAmountToPay(order.remaining_amount ?? order.total ?? 0);
+      } else if (cartItems.length > 0) {
+        // Create a new order if no ID is present
+        const shippingInfo = JSON.parse(
+          localStorage.getItem("shippingAddress") || "{}",
+        );
+        const totalPriceUSD = cartItems.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0,
+        );
 
-  useEffect(() => {
-    const priceInterval = setInterval(async () => {
-      if (paymentMethod !== "hype") return;
-      try {
-        const response = await fetch("/api/hype-price", { cache: "no-store" });
-        if (response.ok) {
-          const { hypeToUsd } = await response.json();
-          if (cartTotalUsd > 0 && hypeToUsd > 0) {
-            const newTotalHype = cartTotalUsd / hypeToUsd;
-            setTotalHypeRequired(newTotalHype);
-            if (orderStatus !== "underpaid") {
-              setAmountToPay(newTotalHype);
+        let finalAmount = totalPriceUSD;
+
+        // For HYPE payments, convert USD to HYPE amount
+        if (paymentMethod === "hype") {
+          try {
+            const hypePriceResponse = await fetch(
+              `/api/hype-price?amount=${totalPriceUSD}`,
+              {
+                cache: "no-store",
+              },
+            );
+            if (!hypePriceResponse.ok) {
+              const errorData = await hypePriceResponse.json();
+              throw new Error(errorData.error || "Failed to fetch HYPE price");
             }
+            const priceData = await hypePriceResponse.json();
+            if (!priceData.hypeAmount) {
+              throw new Error("Invalid price data received.");
+            }
+            finalAmount = priceData.hypeAmount;
+          } catch (error) {
+            console.error("Could not fetch HYPE price:", error);
+            toast.error(
+              "Could not fetch current HYPE price. Please try again.",
+            );
+            router.push("/checkout");
+            return;
           }
         }
-      } catch (error) {
-        console.error("Failed to refresh HYPE price:", error);
-      }
-    }, 15000);
 
-    return () => clearInterval(priceInterval);
-  }, [cartTotalUsd, orderStatus, paymentMethod]);
+        const result = await finalizeHypeOrder(
+          cartItems,
+          null,
+          { ...shippingInfo, paymentMethod, evmAddress },
+          finalAmount, // Pass the token amount (HYPE amount for HYPE payments, USD for others)
+        );
+
+        if (result.success && result.orderId) {
+          // Redirect to the same page with the new orderId
+          router.replace(
+            `/checkout/hype-confirmation?orderId=${result.orderId}&amount=${finalAmount}&paymentMethod=${paymentMethod}`,
+          );
+        } else {
+          toast.error(result.error || "Failed to create order.");
+          router.push("/checkout");
+        }
+      }
+    } catch (error) {
+      console.error("Error in createOrFetchOrder:", error);
+      toast.error("An unexpected error occurred.");
+    }
+  }, [orderId, cartItems, evmAddress, paymentMethod, router, supabase]);
+
+  useEffect(() => {
+    createOrFetchOrder();
+  }, [createOrFetchOrder]);
+
+  useEffect(() => {
+    if (!orderId) return;
+
+    // Listen for real-time updates on the order
+    const channel = supabase
+      .channel(`order-${orderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `id=eq.${orderId}`,
+        },
+        (payload) => {
+          const updatedOrder = payload.new as {
+            status: string;
+            remaining_amount: number;
+            paid_amount: number;
+          };
+          setOrderStatus(updatedOrder.status);
+          setAmountToPay(updatedOrder.remaining_amount);
+          setPaidAmount(updatedOrder.paid_amount);
+
+          if (updatedOrder.status === "completed") {
+            toast.success("Payment complete! Finalizing your order...");
+            clearCart();
+            localStorage.removeItem("shippingAddress");
+            router.push(`/checkout/success?orderId=${orderId}`);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [orderId, supabase, router, clearCart]);
 
   useEffect(() => {
     if (!expiresAt) return;
@@ -138,55 +189,6 @@ function HypeConfirmation() {
     return () => clearInterval(timerInterval);
   }, [expiresAt]);
 
-  useEffect(() => {
-    if (!evmAddress || isFinalizing || isExpired) return;
-
-    const verificationInterval = setInterval(async () => {
-      try {
-        const response = await fetch(
-          `/api/verify-payment?evmAddress=${evmAddress}`,
-        );
-        if (!response.ok) return;
-
-        const data = await response.json();
-        setOrderStatus(data.status);
-        setTxHash(data.tx_hash);
-        if (data.expires_at) {
-          setExpiresAt(data.expires_at);
-        }
-
-        if (data.status === "completed") {
-          setIsFinalizing(true);
-          toast.success("Payment complete! Finalizing your order...");
-          clearCart();
-          localStorage.removeItem("shippingAddress");
-          router.push(`/checkout/success?orderId=${data.id}`);
-          clearInterval(verificationInterval);
-        } else if (data.status === "underpaid") {
-          if (data.remaining_amount !== null) {
-            setAmountToPay(data.remaining_amount);
-          }
-          if (data.paid_amount !== null) {
-            setPaidAmount(data.paid_amount);
-          }
-        }
-      } catch (error) {
-        console.error("Error verifying payment:", error);
-      }
-    }, 5000);
-
-    return () => clearInterval(verificationInterval);
-  }, [
-    evmAddress,
-    isFinalizing,
-    router,
-    clearCart,
-    paymentMethod,
-    cartTotalUsd,
-    totalHypeRequired,
-    isExpired,
-  ]);
-
   const getPaymentMessage = () => {
     if (orderStatus === "underpaid") {
       return (
@@ -195,22 +197,31 @@ function HypeConfirmation() {
             Partial Payment Received!
           </p>
           <p>
-            You have paid {paidAmount.toFixed(2)} /{" "}
-            {totalHypeRequired.toFixed(2)} $
+            You have paid {paidAmount.toFixed(2)} / {initialAmount.toFixed(2)} $
             {paymentMethod?.toUpperCase() || "HYPE"}.
-          </p>
-          <p className="mt-2">
-            Please send the remaining amount to complete your order.
+            <br />
+            Please send the remaining{" "}
+            <strong>
+              {amountToPay.toFixed(5)} ${paymentMethod?.toUpperCase() || "HYPE"}
+            </strong>
+            .
           </p>
         </div>
       );
     }
-    return (
-      <p className="mb-6">
-        To finalize your order, please send exactly on{" "}
-        <span className="text-primary font-bold">HyperEVM</span>:
-      </p>
-    );
+    if (orderStatus === "pending") {
+      return (
+        <div className="mb-4 text-center">
+          <p className="font-semibold">
+            To complete your order, please send exactly:
+          </p>
+          <h2 className="text-primary my-2 text-2xl font-bold">
+            {amountToPay.toFixed(5)} ${paymentMethod?.toUpperCase() || "HYPE"}
+          </h2>
+        </div>
+      );
+    }
+    return null;
   };
 
   const formatTime = (ms: number | null) => {
@@ -225,30 +236,7 @@ function HypeConfirmation() {
   return (
     <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4 text-center">
       <div className="w-full max-w-md rounded-lg bg-gray-100 p-8 shadow-lg dark:bg-gray-800">
-        {isFinalizing ? (
-          <div>
-            <h1 className="mb-4 text-2xl font-bold text-green-500 dark:text-green-400">
-              Payment Confirmed!
-            </h1>
-            <div className="my-4 space-y-2 rounded-lg bg-gray-200 p-4 text-left font-mono text-sm text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-              <p className="break-all">
-                <span>Tx:</span>{" "}
-                <span className="font-bold">{shortenHash(txHash || "")}</span>
-              </p>
-              <a
-                href={`https://explorer.hyperliquid.xyz/tx/${txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400"
-              >
-                View on Explorer
-              </a>
-            </div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Finalizing your order... you will be redirected shortly.
-            </p>
-          </div>
-        ) : isExpired ? (
+        {isExpired ? (
           <div>
             <h1 className="mb-4 text-2xl font-bold text-red-500 dark:text-red-400">
               Payment Window Expired
@@ -321,9 +309,8 @@ function HypeConfirmation() {
                 onClick={() => router.push("/checkout")}
                 variant="secondary"
                 className="bg-primary hover:bg-secondary/80 w-full px-8 text-white hover:text-black"
-                disabled={isFinalizing}
               >
-                {isFinalizing ? "Processing..." : "Cancel Payment"}
+                Cancel Payment
               </Button>
             </div>
           </>

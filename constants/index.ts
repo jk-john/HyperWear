@@ -1,3 +1,5 @@
+// This is just for testing purposes
+
 export const products = [
   {
     id: "1",

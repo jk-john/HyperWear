@@ -1,457 +1,369 @@
-/// <reference types="https://deno.land/x/deno/cli/types/v1.d.ts" />
+/// <reference types="https://esm.sh/v135/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
+
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import {
-  Address,
-  createPublicClient,
-  defineChain,
-  formatUnits,
-  http,
-  parseAbiItem,
-  parseUnits,
-} from "viem";
-import { Database } from "../../../types/supabase.ts";
-// @deno-types="npm:@types/react@18.2.0"
-import React from "https://esm.sh/react@18.2.0";
 import { Resend } from "resend";
+import {
+  createPublicClient,
+  formatEther,
+  getBlock,
+  getLogs,
+  Hex,
+  http,
+} from "viem";
+import { hyperliquid } from "viem/chains";
 
-import { OrderConfirmationEmail } from "../../../components/emails/OrderConfirmationEmail.tsx";
+// Constants from user request
+const RECEIVING_WALLET = "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
+const CHAIN_RPC_URL = "https://api.hyperliquid.xyz/evm";
+const USDT0_ADDRESS = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
+const USDHL_ADDRESS = "0xb50A96253aBDF803D85efcDce07Ad8becBc52BD5";
+const RESEND_FROM_EMAIL = "HyperWear <noreply@hyperwear.io>";
 
-// Define hyperliquid chain
-const hyperliquidChain = defineChain({
-  id: 999,
-  name: "HyperEVM",
-  network: "hyperevm",
-  nativeCurrency: {
-    decimals: 18,
-    name: "HYPE",
-    symbol: "HYPE",
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://api.hyperliquid.xyz/evm"],
-    },
-    public: {
-      http: ["https://api.hyperliquid.xyz/evm"],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: "HyperEVM Explorer",
-      url: "https://explorer.hyperliquid.xyz",
-    },
-  },
+// Initialize viem client
+const viemClient = createPublicClient({
+  chain: hyperliquid,
+  transport: http(CHAIN_RPC_URL),
 });
 
-// Constants
-const RECEIVING_WALLET_ADDRESS: Address =
-  "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
+// Initialize Resend
+const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
-const TOKEN_CONTRACTS: Record<string, Address> = {
-  usdhl: "0xb50A96253aBDF803D85efcDce07Ad8becBc52BD5",
-  usdt0: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+// ERC20 Transfer Event ABI
+const erc20TransferEventAbi = [
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: "from", type: "address" },
+      { indexed: true, name: "to", type: "address" },
+      { indexed: false, name: "value", type: "uint256" },
+    ],
+    name: "Transfer",
+    type: "event",
+  },
+] as const;
+
+// Type definition for our orders
+type Order = {
+  id: string;
+  wallet_address: string;
+  total: number;
+  paid_amount: number;
+  remaining_amount: number;
+  status: "pending" | "underpaid" | "completed" | "overpaid";
+  tx_hash: string | null;
+  payment_method: "HYPE" | "USDT0" | "USDHL";
+  created_at: string;
+  expires_at: string;
+  user_id: string;
+  users: {
+    email: string;
+    user_metadata: {
+      firstName?: string;
+    };
+  } | null;
 };
 
-const ORDER_EXPIRATION_MINUTES = 15;
+// Simplified HTML email templates
+const completionEmailHtml = (
+  customerName: string,
+  orderId: string,
+  orderDate: string,
+  items: { name: string; quantity: number; price: number }[],
+  total: number,
+) => `
+  <h1>Thanks for your order!</h1>
+  <p>Hi ${customerName}, we're getting your order #${orderId} ready to be shipped.</p>
+  <p><strong>Order Date:</strong> ${orderDate}</p>
+  <hr />
+  ${items
+    .map(
+      (item) => `
+    <div>
+      <p><strong>${item.name}</strong></p>
+      <p>Quantity: ${item.quantity} | Price: $${(item.price * item.quantity).toFixed(2)}</p>
+    </div>
+  `,
+    )
+    .join("")}
+  <hr />
+  <h2>Total: $${total.toFixed(2)}</h2>
+`;
 
-type Order = Database["public"]["Tables"]["orders"]["Row"];
+// Helper function to send a response
+const sendResponse = (data: unknown, status = 200) => {
+  return new Response(JSON.stringify(data), {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
+    },
+    status,
+  });
+};
 
-// Viem public client for HyperEVM
-const viemClient = createPublicClient({
-  chain: hyperliquidChain,
-  transport: http(),
-});
-
-// ABI for the ERC20 Transfer event
-const transferEventAbi = parseAbiItem(
-  "event Transfer(address indexed from, address indexed to, uint256 value)",
-);
-
-async function sendUnderpaymentNoticeEmail(
-  _email: string,
-  _paidAmount: number,
-  _remainingAmount: number,
-) {
-  // TODO: Implement email sending logic, e.g., via Resend
-  console.log(
-    `Placeholder: Sent underpayment notice to ${_email} for ${_paidAmount} paid, ${_remainingAmount} remaining.`,
-  );
-  return Promise.resolve();
-}
-
-async function verifyPayment(
+// Function to process a found payment
+async function processPayment(
   supabase: SupabaseClient,
   order: Order,
-  processedTxHashes: Set<string>,
-): Promise<{ status: string; orderId: string; detail: string }> {
-  // 1. Check if order is expired
-  if (order.expires_at) {
-    const expiresAt = new Date(order.expires_at);
-    if (expiresAt < new Date()) {
-      // To-do: Maybe update the status to 'expired'
-      const msg = `Order ${order.id} has expired. Skipping.`;
-      console.log(msg);
-      return { status: "skipped", orderId: order.id, detail: msg };
-    }
-  }
-
-  if (!order.wallet_address) {
-    const msg = `Order ${order.id} is missing a wallet_address. Skipping.`;
-    console.warn(msg);
-    return { status: "skipped", orderId: order.id, detail: msg };
-  }
-
-  console.log(
-    `Verifying payment for order ${order.id} with method ${order.payment_method}...`,
-  );
-
-  try {
-    const currentBlockNumber = await viemClient.getBlockNumber();
-    const fromBlock = currentBlockNumber - 2000n; // Scan last 2000 blocks (~33 mins)
-
-    // Always compare against the total amount of the order.
-    const totalExpectedAmountSmallestUnit = parseUnits(
-      order.total!.toString(),
-      18,
-    );
-    // Allow for a small margin of error in payment amount.
-    const lowerBound = (totalExpectedAmountSmallestUnit * 99n) / 100n; // 99%
-    const upperBound = (totalExpectedAmountSmallestUnit * 101n) / 100n; // 101%
-
-    const alreadyPaidAmount = parseUnits(
-      (order.paid_amount || 0).toString(),
-      18,
-    );
-
-    let totalValueThisRun = 0n;
-    const hashesThisRun = new Set<string>();
-
-    // Handle native $HYPE payment
-    if (order.payment_method === "hype") {
-      // This is inefficient but necessary for now on HyperEVM
-      for (let i = 0n; i < currentBlockNumber - fromBlock; i++) {
-        const blockNumber = currentBlockNumber - i;
-        const block = await viemClient.getBlock({
-          blockNumber: blockNumber,
-          includeTransactions: true,
-        });
-
-        for (const tx of block.transactions) {
-          if (
-            tx.to?.toLowerCase() === RECEIVING_WALLET_ADDRESS.toLowerCase() &&
-            tx.from.toLowerCase() === order.wallet_address.toLowerCase() &&
-            !processedTxHashes.has(tx.hash) &&
-            !order.tx_hash?.includes(tx.hash)
-          ) {
-            totalValueThisRun += tx.value;
-            hashesThisRun.add(tx.hash);
-          }
-        }
-      }
-    }
-    // Handle ERC20 token payments (USDHL/USDT0)
-    else if (order.payment_method && TOKEN_CONTRACTS[order.payment_method]) {
-      const contractAddress = TOKEN_CONTRACTS[order.payment_method];
-      const logs = await viemClient.getLogs({
-        address: contractAddress,
-        event: transferEventAbi,
-        args: {
-          from: order.wallet_address as Address,
-          to: RECEIVING_WALLET_ADDRESS as Address,
-        },
-        fromBlock,
-      });
-
-      const newLogs = logs.filter(
-        (log) =>
-          log.transactionHash &&
-          !processedTxHashes.has(log.transactionHash) &&
-          !order.tx_hash?.includes(log.transactionHash),
-      );
-
-      for (const log of newLogs) {
-        const logArgs = log.args as { value?: bigint };
-        if (!logArgs || typeof logArgs.value === "undefined") continue;
-
-        totalValueThisRun += logArgs.value;
-        hashesThisRun.add(log.transactionHash!);
-      }
-    }
-
-    if (totalValueThisRun > 0n) {
-      const totalPaidSoFar = alreadyPaidAmount + totalValueThisRun;
-      const totalPaidSoFarFloat = parseFloat(formatUnits(totalPaidSoFar, 18));
-      const remainingAmount = Math.max(0, order.total! - totalPaidSoFarFloat);
-      const allTxHashes = Array.from(hashesThisRun).join(",");
-      const updatedTxHash = order.tx_hash
-        ? `${order.tx_hash},${allTxHashes}`
-        : allTxHashes;
-
-      // If total paid is sufficient, mark as completed.
-      if (totalPaidSoFar >= lowerBound && totalPaidSoFar <= upperBound) {
-        return await updateOrderStatus(
-          supabase,
-          order,
-          "completed",
-          updatedTxHash,
-          totalPaidSoFarFloat,
-          0,
-        );
-      } else if (totalPaidSoFar < lowerBound) {
-        // Otherwise, it's still underpaid.
-        return await updateOrderStatus(
-          supabase,
-          order,
-          "underpaid",
-          updatedTxHash,
-          totalPaidSoFarFloat,
-          remainingAmount,
-        );
-      } else {
-        // It's overpaid.
-        return await updateOrderStatus(
-          supabase,
-          order,
-          "overpaid",
-          updatedTxHash,
-          totalPaidSoFarFloat,
-          0,
-        );
-      }
-    }
-
-    const noMatchMsg = `No new valid transaction found for order ${order.id}.`;
-    console.log(noMatchMsg);
-    return { status: "no_match", orderId: order.id, detail: noMatchMsg };
-  } catch (error) {
-    const errorMsg = `Error verifying payment for order ${order.id}:`;
-    console.error(errorMsg, error);
-    return {
-      status: "error",
-      orderId: order.id,
-      detail: `${errorMsg} ${(error as Error).message}`,
-    };
-  }
-}
-
-async function updateOrderStatus(
-  supabase: SupabaseClient,
-  order: Order,
-  status: "completed" | "underpaid" | "overpaid",
-  tx_hash: string,
-  paid_amount: number | null,
-  remaining_amount: number | null,
+  paidAmountBigInt: bigint,
+  txHash: Hex,
+  tokenName: "HYPE" | "USDT0" | "USDHL",
 ) {
-  const detail = `Found transaction for order ${order.id}: ${tx_hash}. Setting status to ${status}.`;
-  console.log(detail);
+  // Assuming 18 decimals for all tokens for now. This should be confirmed.
+  const paidAmount = parseFloat(formatEther(paidAmountBigInt));
 
+  // Check if payment method matches
+  if (order.payment_method !== tokenName) {
+    console.log(
+      `Skipping payment for order ${order.id}: payment method mismatch.`,
+    );
+    return;
+  }
+
+  const total = order.total;
+  const tolerance = total * 0.01;
+  const minAmount = total - tolerance;
+  const maxAmount = total + tolerance;
+
+  let newStatus: Order["status"] = order.status;
+  const newPaidAmount = order.paid_amount + paidAmount;
+  const newRemainingAmount = total - newPaidAmount;
+
+  if (newPaidAmount >= minAmount && newPaidAmount <= maxAmount) {
+    newStatus = "completed";
+  } else if (newPaidAmount < minAmount) {
+    newStatus = "underpaid";
+  } else {
+    newStatus = "overpaid";
+  }
+
+  // Update order in DB
   const { error: updateError } = await supabase
     .from("orders")
     .update({
-      status,
-      tx_hash,
-      paid_amount,
-      remaining_amount,
+      status: newStatus,
+      paid_amount: newPaidAmount,
+      remaining_amount: newRemainingAmount,
+      tx_hash: txHash,
     })
     .eq("id", order.id);
 
   if (updateError) {
-    const errorMsg = `Failed to update order ${order.id} to ${status}:`;
-    console.error(errorMsg, updateError);
-    return {
-      status: "error",
-      orderId: order.id,
-      detail: `${errorMsg} ${updateError.message}`,
-    };
+    console.error(`Failed to update order ${order.id}:`, updateError);
+    return;
   }
 
-  if (status === "underpaid" && order.user_id && remaining_amount) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("email")
-      .eq("id", order.user_id)
-      .single();
-    if (user?.email) {
-      await sendUnderpaymentNoticeEmail(
-        user.email,
-        paid_amount || 0,
-        remaining_amount,
-      );
-    }
-  }
+  console.log(`Order ${order.id} updated to status: ${newStatus}`);
 
-  if (status === "completed" && order.user_id) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("email, user_metadata")
-      .eq("id", order.user_id)
-      .single();
-
-    if (user && user.email) {
-      const customerName =
-        (user.user_metadata?.firstName as string) || "Valued Customer";
-
-      const { data: orderItems, error: itemsError } = await supabase
+  // Send email notifications
+  if (order.users?.email) {
+    if (newStatus === "completed") {
+      // Fetch order items for email
+      const { data: items, error: itemsError } = await supabase
         .from("order_items")
-        .select("*, products(name)")
+        .select(`quantity, price, products(name)`)
         .eq("order_id", order.id);
 
       if (itemsError) {
         console.error(
-          `Error fetching order items for ${order.id}:`,
+          `Failed to fetch items for order ${order.id}:`,
           itemsError,
         );
-      } else {
-        const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-        if (!RESEND_API_KEY) {
-          console.error("RESEND_API_KEY is not set.");
-          return {
-            status: "error",
-            orderId: order.id,
-            detail: "RESEND_API_KEY is not set",
-          };
-        }
-        const resend = new Resend(RESEND_API_KEY);
-
-        try {
-          await resend.emails.send({
-            from: "HyperWear <noreply@hyperwear.io>",
-            to: user.email,
-            subject: "Your HyperWear Order Confirmation",
-            react: React.createElement(OrderConfirmationEmail, {
-              customerName,
-              orderId: order.id,
-              orderDate: new Date(order.created_at).toLocaleDateString(),
-              items:
-                orderItems?.map((item) => ({
-                  name: item.products!.name,
-                  quantity: item.quantity ?? 1,
-                  price: item.price ?? 0,
-                })) || [],
-              total: order.total ?? 0,
-            }),
-          });
-          console.log(`Confirmation email sent to ${user.email}`);
-        } catch (emailError) {
-          console.error(
-            `Failed to send confirmation email for order ${order.id}:`,
-            emailError,
-          );
-        }
+        return; // Or handle error differently
       }
+
+      await resend.emails.send({
+        from: RESEND_FROM_EMAIL,
+        to: order.users.email,
+        subject: "Your HyperWear Order is Confirmed!",
+        html: completionEmailHtml(
+          order.users.user_metadata?.firstName || "Valued Customer",
+          order.id,
+          new Date(order.created_at).toLocaleDateString(),
+          items?.map((i) => ({
+            name: i.products?.name ?? "Unknown Product",
+            quantity: i.quantity,
+            price: i.price,
+          })) || [],
+          order.total,
+        ),
+      });
+      console.log(`Sent completion email for order ${order.id}`);
+    } else if (newStatus === "underpaid") {
+      await resend.emails.send({
+        from: RESEND_FROM_EMAIL,
+        to: order.users.email,
+        subject: "Action Required: Your HyperWear Order is Underpaid",
+        html: `<p>Hi ${order.users.user_metadata?.firstName || ""},</p>
+               <p>Your order #${order.id} is currently underpaid. You paid ${newPaidAmount} but the total is ${total}.</p>
+               <p>Please send the remaining amount of ${newRemainingAmount} to complete your order.</p>
+               <p>Thanks,<br/>The HyperWear Team</p>`,
+      });
+      console.log(`Sent underpayment notification for order ${order.id}`);
     }
   }
-
-  console.log(`Order ${order.id} successfully marked as ${status}.`);
-  return { status, orderId: order.id, detail };
 }
 
-async function logToSupabase(
-  supabase: SupabaseClient,
-  log: {
-    status: "success" | "error";
-    message: string;
-    details: object;
-  },
-) {
-  const { error } = await supabase.from("cron_logs").insert([log]);
-  if (error) {
-    console.error("Failed to log to Supabase:", error);
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
+      },
+    });
   }
-}
 
-// Supabase client for admin operations
-const supabaseAdmin = createClient<Database>(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-);
-
-serve(async (req: Request) => {
-  const authHeader = req.headers.get("Authorization")!;
+  // 1. Authenticate the request
+  const authHeader = req.headers.get("Authorization");
   if (authHeader !== `Bearer ${Deno.env.get("CRON_SECRET")}`) {
-    return new Response("Unauthorized", { status: 401 });
+    return sendResponse({ error: "Unauthorized" }, 401);
   }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
 
   try {
-    // 1. Fetch all 'pending' or 'underpaid' orders that haven't expired.
-    const now = new Date();
-    const fifteenMinutesAgo = new Date(
-      now.getTime() - ORDER_EXPIRATION_MINUTES * 60 * 1000,
-    );
+    // 2. Log cron job start
+    await supabase.from("cron_logs").insert({
+      job_name: "payment-verifier",
+      status: "started",
+      details: "Starting payment verification cycle.",
+    });
 
-    const { data: orders, error } = await supabaseAdmin
+    // 4. Get last scanned block
+    const { data: state } = await supabase
+      .from("cron_logs")
+      .select("last_processed_block")
+      .eq("job_name", "payment-verifier")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    const latestBlock = await getBlock(viemClient);
+    const fromBlock = state?.last_processed_block
+      ? BigInt(state.last_processed_block) + 1n
+      : latestBlock.number - 100n; // Scan last 100 blocks on first run
+    const toBlock = latestBlock.number;
+
+    if (fromBlock > toBlock) {
+      console.log("No new blocks to process.");
+      return sendResponse({ message: "No new blocks to process." });
+    }
+
+    // 5. Fetch pending/underpaid orders
+    const { data: orders, error: fetchError } = await supabase
       .from("orders")
-      .select("*")
+      .select("*, users(email, user_metadata)")
       .in("status", ["pending", "underpaid"])
-      .gt("created_at", fifteenMinutesAgo.toISOString());
+      .neq("wallet_address", null)
+      .gt("expires_at", new Date().toISOString());
 
-    if (error) {
-      console.error("Error fetching orders:", error);
-      await logToSupabase(supabaseAdmin, {
-        status: "error",
-        message: "Failed to fetch orders.",
-        details: { error: error.message },
-      });
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-      });
+    if (fetchError) {
+      throw new Error(`Error fetching orders: ${fetchError.message}`);
     }
 
     if (!orders || orders.length === 0) {
-      const msg = "No pending or underpaid orders to process.";
-      console.log(msg);
-      await logToSupabase(supabaseAdmin, {
-        status: "success",
-        message: msg,
-        details: {},
-      });
-      return new Response(JSON.stringify({ message: msg }), { status: 200 });
+      return sendResponse({ message: "No pending orders to process." });
     }
 
-    console.log(`Found ${orders.length} orders to process.`);
-    const processedTxHashes = new Set<string>();
-
-    // 2. Process each order
-    const processingPromises = orders.map((order) =>
-      verifyPayment(supabaseAdmin, order, processedTxHashes),
+    console.log(
+      `Found ${orders.length} orders to process from block ${fromBlock} to ${toBlock}.`,
     );
-    const results = await Promise.all(processingPromises);
 
-    const summary = {
-      totalOrders: orders.length,
-      processed: results.filter((r) => r.status !== "skipped").length,
-      skipped: results.filter((r) => r.status === "skipped").length,
-      completed: results.filter((r) => r.status === "completed").length,
-      underpaid: results.filter((r) => r.status === "underpaid").length,
-      overpaid: results.filter((r) => r.status === "overpaid").length,
-      noMatch: results.filter((r) => r.status === "no_match").length,
-      errors: results.filter((r) => r.status === "error").length,
-    };
+    const ordersByWallet = new Map<string, Order>(
+      orders.map((o: Order) => [o.wallet_address.toLowerCase(), o]),
+    );
 
-    console.log("Verification process finished. Summary:", summary);
+    // 6. Scan for ERC20 transfers
+    const erc20Tokens = [
+      { address: USDT0_ADDRESS, name: "USDT0" },
+      { address: USDHL_ADDRESS, name: "USDHL" },
+    ];
 
-    // 3. Log the outcome
-    await logToSupabase(supabaseAdmin, {
-      status: "success",
-      message: "Cron job executed successfully.",
-      details: { summary, results },
+    for (const token of erc20Tokens) {
+      const logs = await getLogs(viemClient, {
+        address: token.address,
+        event: erc20TransferEventAbi[0],
+        args: {
+          to: RECEIVING_WALLET,
+        },
+        fromBlock,
+        toBlock,
+      });
+
+      for (const log of logs) {
+        const { from, value } = log.args;
+        const fromAddress = from.toLowerCase();
+
+        if (ordersByWallet.has(fromAddress)) {
+          const order = ordersByWallet.get(fromAddress)!;
+          if (order.status !== "completed") {
+            await processPayment(
+              supabase,
+              order,
+              value,
+              log.transactionHash,
+              token.name as any,
+            );
+            ordersByWallet.delete(fromAddress); // Avoid processing multiple payments for same order in one run
+          }
+        }
+      }
+    }
+
+    // 7. Scan for native HYPE transfers
+    for (let blockNumber = fromBlock; blockNumber <= toBlock; blockNumber++) {
+      const block = await getBlock(viemClient, {
+        blockNumber,
+        includeTransactions: true,
+      });
+      for (const tx of block.transactions) {
+        if (tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase()) {
+          const fromAddress = tx.from.toLowerCase();
+          if (ordersByWallet.has(fromAddress)) {
+            const order = ordersByWallet.get(fromAddress)!;
+            if (order.status !== "completed") {
+              await processPayment(supabase, order, tx.value, tx.hash, "HYPE");
+              ordersByWallet.delete(fromAddress); // Avoid processing multiple payments for same order in one run
+            }
+          }
+        }
+      }
+    }
+
+    // 8. Process payments and update orders (Combined Logic)
+    // This section is now implemented within the scanning loops.
+
+    // 9. Log cron job completion and update last processed block
+    await supabase.from("cron_logs").insert({
+      job_name: "payment-verifier",
+      status: "completed",
+      details: `Verification cycle finished. Processed ${orders.length} orders. Scanned blocks ${fromBlock}-${toBlock}.`,
+      last_processed_block: toBlock.toString(),
     });
 
-    return new Response(JSON.stringify({ summary }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    return sendResponse({ success: true, processedOrders: orders.length });
+  } catch (error) {
+    await supabase.from("cron_logs").insert({
+      job_name: "payment-verifier",
+      status: "failed",
+      details: (error as Error).message,
     });
-  } catch (e: unknown) {
-    console.error("An unexpected error occurred:", e);
-    const error = e as Error;
-    await logToSupabase(supabaseAdmin, {
-      status: "error",
-      message: "Cron job failed unexpectedly.",
-      details: { error: error.message },
-    });
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+
+    console.error("An error occurred:", error);
+    return sendResponse({ error: (error as Error).message }, 500);
   }
 });
+
+/*
+Deployment steps:
+1. Create Vault secret: Go to the Supabase Dashboard -> Project Settings -> Vault, and create a new secret named 'PAYMENT_VERIFIER_BEARER' with your secure bearer token.
+2. Set CRON_SECRET in function's environment: Go to the Edge Function's settings and add an environment variable 'CRON_SECRET' with the same value as the Vault secret.
+3. Deploy the function:
+   npx supabase functions deploy payment-verifier --no-verify-jwt --import-map supabase/import_map.json
+4. Apply migrations:
+   npx supabase db push
+*/

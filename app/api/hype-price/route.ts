@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const amountUSD = searchParams.get("amount");
+
   try {
+    console.log("Fetching HYPE price from Hyperliquid API...");
+
     const response = await fetch("https://api.hyperliquid.xyz/info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -18,63 +23,134 @@ export async function GET() {
     }
 
     const data = await response.json();
+    console.log("Raw API response structure:", {
+      isArray: Array.isArray(data),
+      length: data?.length,
+      firstElementKeys: data?.[0] ? Object.keys(data[0]) : [],
+      secondElementType: typeof data?.[1],
+      secondElementLength: Array.isArray(data?.[1])
+        ? data[1].length
+        : "not array",
+    });
 
     if (!Array.isArray(data) || data.length < 2) {
-      console.error("Unexpected data format from Hyperliquid API:", data);
+      console.error("Invalid response format:", data);
       throw new Error("Unexpected data format from Hyperliquid API");
     }
 
-    const meta = data[0];
-    const spotAssetCtxs = data[1];
+    const [meta, spotAssetCtxs] = data;
 
-    if (
-      !meta ||
-      !meta.tokens ||
-      !meta.universe ||
-      !spotAssetCtxs ||
-      !Array.isArray(spotAssetCtxs)
-    ) {
-      console.error("Invalid API response format:", data);
-      throw new Error("Invalid API response format");
+    // Validate meta structure
+    if (!meta || !meta.tokens || !meta.universe) {
+      console.error("Invalid meta structure:", meta);
+      throw new Error("Invalid metadata structure from Hyperliquid API");
     }
 
-    const { tokens, universe } = meta;
+    // Validate spotAssetCtxs structure
+    if (!Array.isArray(spotAssetCtxs)) {
+      console.error("Invalid spotAssetCtxs structure:", spotAssetCtxs);
+      throw new Error("Invalid spot asset contexts from Hyperliquid API");
+    }
 
-    const hypeToken = tokens.find(
-      (t: { name: string }) => t.name.trim().toUpperCase() === "HYPE",
-    );
-    const usdcToken = tokens.find(
-      (t: { name: string }) => t.name.trim().toUpperCase() === "USDC",
+    console.log("Meta tokens count:", meta.tokens?.length);
+    console.log("Meta universe count:", meta.universe?.length);
+    console.log("Spot asset contexts count:", spotAssetCtxs.length);
+
+    // Find HYPE token
+    const hypeToken = meta.tokens.find(
+      (t: { name: string; index: number }) =>
+        t.name?.trim().toUpperCase() === "HYPE",
     );
 
-    console.log("Found HYPE token:", JSON.stringify(hypeToken, null, 2));
-    console.log("Found USDC token:", JSON.stringify(usdcToken, null, 2));
+    // Find USDC token
+    const usdcToken = meta.tokens.find(
+      (t: { name: string; index: number }) =>
+        t.name?.trim().toUpperCase() === "USDC",
+    );
+
+    console.log("Found HYPE token:", hypeToken);
+    console.log("Found USDC token:", usdcToken);
 
     if (!hypeToken) {
-      throw new Error("HYPE token not found in metadata.");
-    }
-    if (!usdcToken) {
-      throw new Error("USDC token not found in metadata.");
-    }
-
-    const hypeUniverse = universe.find((u: { tokens: number[] }) => {
-      return (
-        u.tokens.includes(hypeToken.index) && u.tokens.includes(usdcToken.index)
+      console.error(
+        "HYPE token not found in tokens list:",
+        meta.tokens.map((t: any) => t.name),
       );
-    });
-
-    if (!hypeUniverse) {
-      throw new Error("HYPE/USDC trading pair not found in universe.");
+      throw new Error("HYPE token not found in metadata");
     }
 
-    const hypeAssetCtx = spotAssetCtxs[hypeUniverse.index];
-
-    if (hypeAssetCtx && hypeAssetCtx.midPx) {
-      const hypeToUsd = parseFloat(hypeAssetCtx.midPx);
-      return NextResponse.json({ hypeToUsd });
+    if (!usdcToken) {
+      console.error(
+        "USDC token not found in tokens list:",
+        meta.tokens.map((t: any) => t.name),
+      );
+      throw new Error("USDC token not found in metadata");
     }
 
-    throw new Error("HYPE asset context not found or midPx is missing.");
+    // Find the universe pair that contains both HYPE and USDC
+    const hypeUsdcUniverse = meta.universe.find(
+      (u: { name?: string; tokens: number[]; index: number }) => {
+        const hasHype = u.tokens?.includes(hypeToken.index);
+        const hasUsdc = u.tokens?.includes(usdcToken.index);
+        return hasHype && hasUsdc;
+      },
+    );
+
+    console.log("Found HYPE/USDC universe pair:", hypeUsdcUniverse);
+
+    if (!hypeUsdcUniverse) {
+      console.error("HYPE/USDC pair not found in universe:", {
+        hypeIndex: hypeToken.index,
+        usdcIndex: usdcToken.index,
+        universeItems: meta.universe.map((u: any) => ({
+          name: u.name,
+          tokens: u.tokens,
+          index: u.index,
+        })),
+      });
+      throw new Error("HYPE/USDC trading pair not found in universe");
+    }
+
+    // Get the asset context using the universe index
+    const hypeAssetCtx = spotAssetCtxs[hypeUsdcUniverse.index];
+
+    console.log("HYPE asset context:", hypeAssetCtx);
+
+    if (!hypeAssetCtx) {
+      console.error(
+        "Asset context not found at index:",
+        hypeUsdcUniverse.index,
+      );
+      throw new Error("HYPE asset context not found");
+    }
+
+    if (!hypeAssetCtx.midPx) {
+      console.error("midPx not found in asset context:", hypeAssetCtx);
+      throw new Error("HYPE/USDC midPx is missing");
+    }
+
+    const hypeToUsd = parseFloat(hypeAssetCtx.midPx);
+
+    if (isNaN(hypeToUsd) || hypeToUsd <= 0) {
+      console.error("Invalid HYPE price:", hypeAssetCtx.midPx);
+      throw new Error("Parsed HYPE price is not a valid positive number");
+    }
+
+    console.log("Successfully fetched HYPE price:", hypeToUsd);
+
+    if (amountUSD) {
+      const amount = parseFloat(amountUSD);
+      if (isNaN(amount)) {
+        return NextResponse.json(
+          { error: "Invalid amount provided." },
+          { status: 400 },
+        );
+      }
+      const hypeAmount = amount / hypeToUsd;
+      return NextResponse.json({ hypeToUsd, hypeAmount });
+    }
+
+    return NextResponse.json({ hypeToUsd });
   } catch (error) {
     console.error("Error fetching HYPE price:", error);
     const errorMessage =

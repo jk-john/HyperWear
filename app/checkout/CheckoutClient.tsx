@@ -169,31 +169,43 @@ export function CheckoutClient({
         values.paymentMethod === "hype" ||
         values.paymentMethod === "usdhl"
       ) {
-        const cartTotal = totalPrice();
-        let amount = cartTotal.toString();
-        if (values.paymentMethod === "hype") {
-          try {
+        if (!values.evmAddress) {
+          toast.error("Please enter your EVM address.");
+          return;
+        }
+
+        let amount: string | undefined;
+        try {
+          if (values.paymentMethod === "hype") {
             const hypePriceResponse = await fetch("/api/hype-price", {
               cache: "no-store",
             });
-            if (!hypePriceResponse.ok)
-              throw new Error("Failed to fetch HYPE price");
+            if (!hypePriceResponse.ok) {
+              const errorData = await hypePriceResponse.json();
+              throw new Error(errorData.error || "Failed to fetch HYPE price");
+            }
             const priceData = await hypePriceResponse.json();
-            amount = (cartTotal / priceData.hypeToUsd).toFixed(2);
-          } catch (error) {
-            console.error("Could not fetch HYPE price:", error);
-            toast.error("Could not fetch HYPE price. Please try again.");
-            setIsSubmitting(false);
-            return;
+            if (!priceData.hypeToUsd) {
+              throw new Error("Invalid price data received.");
+            }
+            amount = (totalPrice() / priceData.hypeToUsd).toString();
+          } else {
+            // For USDHL, 1:1 conversion
+            amount = totalPrice().toString();
           }
+
+          router.push(
+            `/checkout/hype-confirmation?cartTotal=${totalPrice()}&amount=${amount}&evmAddress=${values.evmAddress}&paymentMethod=${values.paymentMethod}`,
+          );
+        } catch (error) {
+          console.error("Could not fetch HYPE price:", error);
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred.";
+          toast.error(`Could not proceed with HYPE payment: ${errorMessage}`);
+          return;
         }
-        localStorage.setItem(
-          "shippingAddress",
-          JSON.stringify(shippingAddress),
-        );
-        router.push(
-          `/checkout/hype-confirmation?cartTotal=${cartTotal}&amount=${amount}&evmAddress=${values.evmAddress}&paymentMethod=${values.paymentMethod}`,
-        );
       } else if (values.paymentMethod === "nowpayments") {
         toast.error("NowPayments is not yet implemented.");
       }
@@ -498,7 +510,7 @@ export function CheckoutClient({
                             <div className="flex w-full items-center justify-between">
                               <span>Pay with $HYPE on HyperEVM</span>
                               <Image
-                                src="/hype.svg"
+                                src="/HYPE.svg"
                                 alt="HYPE"
                                 width={24}
                                 height={24}
