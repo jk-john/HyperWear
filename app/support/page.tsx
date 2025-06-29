@@ -44,7 +44,7 @@ export default function SupportPage() {
           errorData.error || "An unexpected error occurred. Please try again.",
         );
       }
-    } catch (error) {
+    } catch (_error) {
       setSubmissionStatus("error");
       setFeedbackMessage("An unexpected error occurred. Please try again.");
     } finally {

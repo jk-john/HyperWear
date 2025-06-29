@@ -12,14 +12,12 @@ interface ProductImageCarouselProps {
   images: string[];
   productName: string;
   onImageClick: (index: number) => void;
-  className?: string;
 }
 
 export const ProductImageCarousel = ({
   images,
   productName,
   onImageClick,
-  className,
 }: ProductImageCarouselProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
     Autoplay({ playOnInit: true, delay: 2000, stopOnInteraction: true }),

@@ -1,5 +1,25 @@
 import { NextResponse } from "next/server";
 
+interface Token {
+  name: string;
+  index: number;
+}
+
+interface Universe {
+  name?: string;
+  tokens: number[];
+  index: number;
+}
+
+interface Meta {
+  tokens: Token[];
+  universe: Universe[];
+}
+
+interface SpotAssetCtx {
+  midPx: string;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const amountUSD = searchParams.get("amount");
@@ -38,7 +58,7 @@ export async function GET(request: Request) {
       throw new Error("Unexpected data format from Hyperliquid API");
     }
 
-    const [meta, spotAssetCtxs] = data;
+    const [meta, spotAssetCtxs] = data as [Meta, SpotAssetCtx[]];
 
     // Validate meta structure
     if (!meta || !meta.tokens || !meta.universe) {
@@ -58,14 +78,12 @@ export async function GET(request: Request) {
 
     // Find HYPE token
     const hypeToken = meta.tokens.find(
-      (t: { name: string; index: number }) =>
-        t.name?.trim().toUpperCase() === "HYPE",
+      (t: Token) => t.name?.trim().toUpperCase() === "HYPE",
     );
 
     // Find USDC token
     const usdcToken = meta.tokens.find(
-      (t: { name: string; index: number }) =>
-        t.name?.trim().toUpperCase() === "USDC",
+      (t: Token) => t.name?.trim().toUpperCase() === "USDC",
     );
 
     console.log("Found HYPE token:", hypeToken);
@@ -74,7 +92,7 @@ export async function GET(request: Request) {
     if (!hypeToken) {
       console.error(
         "HYPE token not found in tokens list:",
-        meta.tokens.map((t: any) => t.name),
+        meta.tokens.map((t: Token) => t.name),
       );
       throw new Error("HYPE token not found in metadata");
     }
@@ -82,19 +100,17 @@ export async function GET(request: Request) {
     if (!usdcToken) {
       console.error(
         "USDC token not found in tokens list:",
-        meta.tokens.map((t: any) => t.name),
+        meta.tokens.map((t: Token) => t.name),
       );
       throw new Error("USDC token not found in metadata");
     }
 
     // Find the universe pair that contains both HYPE and USDC
-    const hypeUsdcUniverse = meta.universe.find(
-      (u: { name?: string; tokens: number[]; index: number }) => {
-        const hasHype = u.tokens?.includes(hypeToken.index);
-        const hasUsdc = u.tokens?.includes(usdcToken.index);
-        return hasHype && hasUsdc;
-      },
-    );
+    const hypeUsdcUniverse = meta.universe.find((u: Universe) => {
+      const hasHype = u.tokens?.includes(hypeToken.index);
+      const hasUsdc = u.tokens?.includes(usdcToken.index);
+      return hasHype && hasUsdc;
+    });
 
     console.log("Found HYPE/USDC universe pair:", hypeUsdcUniverse);
 
@@ -102,7 +118,7 @@ export async function GET(request: Request) {
       console.error("HYPE/USDC pair not found in universe:", {
         hypeIndex: hypeToken.index,
         usdcIndex: usdcToken.index,
-        universeItems: meta.universe.map((u: any) => ({
+        universeItems: meta.universe.map((u: Universe) => ({
           name: u.name,
           tokens: u.tokens,
           index: u.index,

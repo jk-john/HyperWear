@@ -43,16 +43,16 @@ export default function AboutUs() {
               Day Traders & Night Apes
             </h2>
             <p>
-              We're two lifelong friends from France whose days begin and end on
-              the HyperLiquid order book—aping into new pairs with breakfast,
-              debating funding rates over dinner. We've been here since{" "}
-              <strong className="text-secondary">block 0</strong>, and we've
-              loved every second of the ride.
+              We&apos;re two lifelong friends from France whose days begin and
+              end on the HyperLiquid order book—aping into new pairs with
+              breakfast, debating funding rates over dinner. We&apos;ve been
+              here since <strong className="text-secondary">block 0</strong>,
+              and we&apos;ve loved every second of the ride.
             </p>
             <p>
               From the moment HyperLiquid launched, it clicked with us. The
-              community, the tech, the vibe—it all felt different. We weren't
-              just early adopters; we were all-in.
+              community, the tech, the vibe—it all felt different. We
+              weren&apos;t just early adopters; we were all-in.
             </p>
           </div>
           <div>
@@ -80,7 +80,7 @@ export default function AboutUs() {
                 The Airdrop That Changed Everything
               </h2>
               <p>
-                When the HyperLiquid airdrop hit, it didn't just pad our
+                When the HyperLiquid airdrop hit, it didn&apos;t just pad our
                 wallets—it rewired our outlook. We asked ourselves:{" "}
                 <em className="text-light">
                   How do we give this value back instead of just cashing out?
@@ -90,7 +90,7 @@ export default function AboutUs() {
                 </strong>
               </p>
               <p>
-                We're turning gratitude into gear and pledging{" "}
+                We&apos;re turning gratitude into gear and pledging{" "}
                 <strong className="text-secondary">
                   to buy HYPE tokens as much as possible.
                 </strong>

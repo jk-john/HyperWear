@@ -18,7 +18,7 @@ interface PasswordChangeConfirmationEmailProps {
 
 const baseUrl = process.env.NEXT_PUBLIC_URL
   ? `https://${process.env.NEXT_PUBLIC_URL}`
-  : "";
+  : "http://localhost:3000";
 
 export const PasswordChangeConfirmationEmail = ({
   customerName,
@@ -50,7 +50,11 @@ export const PasswordChangeConfirmationEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={logoContainer}>
-          <Img src={`${baseUrl}/logo.svg`} width="180" alt="HyperWear" />
+          <Img
+            src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
+            width="180"
+            alt="HyperWear"
+          />
         </Section>
         <Heading style={h1}>Password Changed Successfully</Heading>
         <Text style={text}>Hi {customerName},</Text>
@@ -69,7 +73,7 @@ export const PasswordChangeConfirmationEmail = ({
         </Text>
         <Text style={footer}>
           You&apos;re receiving this email because you interacted with
-          HyperWear.io. For support, contact support@hyperwear.io.
+          HyperWear.io. For support, contact : contact@hyperwear.io.
         </Text>
       </Container>
     </Body>

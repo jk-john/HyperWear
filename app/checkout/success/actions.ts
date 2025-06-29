@@ -31,7 +31,7 @@ export async function getOrderDetails(orderId: string) {
   }
 
   if (order && order.order_items) {
-    // @ts-ignore
+    // @ts-expect-error
     order.order_items.forEach((item) => {
       if (item.products && item.products.images) {
         item.products.images = item.products.images.map(

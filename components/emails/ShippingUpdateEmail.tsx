@@ -18,10 +18,6 @@ interface ShippingUpdateEmailProps {
   carrier: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_URL
-  ? `https://${process.env.NEXT_PUBLIC_URL}`
-  : "";
-
 export const ShippingUpdateEmail = ({
   customerName,
   trackingNumber,
@@ -54,7 +50,11 @@ export const ShippingUpdateEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={logoContainer}>
-          <Img src={`${baseUrl}/logo.svg`} width="180" alt="HyperWear" />
+          <Img
+            src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
+            width="180"
+            alt="HyperWear"
+          />
         </Section>
         <Heading style={h1}>Your Order is on its Way!</Heading>
         <Text style={text}>Hi {customerName},</Text>

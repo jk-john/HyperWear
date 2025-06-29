@@ -21,6 +21,10 @@ type OrderConfirmationEmailProps = {
   total: number;
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_URL
+  ? `https://${process.env.NEXT_PUBLIC_URL}`
+  : "http://localhost:3000";
+
 const OrderConfirmationEmail = ({
   customerName,
   orderId,
@@ -36,17 +40,17 @@ const OrderConfirmationEmail = ({
         <Container className="mx-auto my-10 max-w-2xl rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
           <Section className="text-center">
             <Img
-              src="https://www.hyperliquid.xyz/logo.png"
+              src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
               width="120"
               alt="HyperWear Logo"
               className="mx-auto"
             />
             <Heading className="mt-4 text-2xl font-bold text-gray-800">
-              Thanks for your order!
+              Thanks for your order, {customerName}!
             </Heading>
             <Text className="text-gray-600">
-              We're getting your order ready. We'll let you know once it has
-              shipped.
+              We&apos;re getting your order ready. We&apos;ll let you know once
+              it has shipped.
             </Text>
           </Section>
 
@@ -98,10 +102,7 @@ const OrderConfirmationEmail = ({
             <Text>
               If you have any questions, please contact our support team.
             </Text>
-            <Link
-              href="https://www.hyperliquid.xyz/en"
-              className="text-blue-500 hover:underline"
-            >
+            <Link href={baseUrl} className="text-blue-500 hover:underline">
               Visit our website
             </Link>
           </Section>

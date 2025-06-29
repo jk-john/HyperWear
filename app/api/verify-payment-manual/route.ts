@@ -3,7 +3,7 @@ import { TOKEN_ADDRESSES } from "@/constants/wallet";
 import { hyperliquid } from "@/lib/hyperliquid";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { createPublicClient, formatUnits, http } from "viem";
+import { createPublicClient, formatUnits, http, Log, Transaction } from "viem";
 
 const RECEIVING_WALLET = "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
 
@@ -29,9 +29,15 @@ type Order = {
   shipping_last_name: string;
 };
 
-type OrderItem = {
-  order_id: string;
-  // ... existing code ...
+type Erc20TransferLog = Log & {
+  token: "USDT0" | "USDHL";
+  amount: string;
+  from: `0x${string}`;
+};
+
+type ProcessableTransaction = {
+  tx?: Transaction;
+  log?: Erc20TransferLog;
 };
 
 async function getErc20Transfers(
@@ -77,12 +83,13 @@ async function getErc20Transfers(
 async function processPaymentsForOrder(
   supabase: SupabaseClient,
   order: Order,
-  transactions: { tx?: any; log?: any }[],
+  transactions: ProcessableTransaction[],
 ) {
   const processedHashes = new Set(order.tx_hashes || []);
-  const newTransactions = transactions.filter(
-    (t) => !processedHashes.has(t.tx?.hash || t.log?.transactionHash),
-  );
+  const newTransactions = transactions.filter((t) => {
+    const hash = t.tx?.hash || t.log?.transactionHash;
+    return hash ? !processedHashes.has(hash) : false;
+  });
 
   if (newTransactions.length === 0) {
     return;
@@ -100,7 +107,7 @@ async function processPaymentsForOrder(
       txHash = item.tx.hash;
     } else if (item.log) {
       paidAmount = parseFloat(item.log.amount);
-      txHash = item.log.transactionHash;
+      txHash = item.log.transactionHash ?? undefined;
     }
 
     if (txHash) {
@@ -167,7 +174,7 @@ async function processPaymentsForOrder(
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -202,7 +209,7 @@ export async function POST(request: Request) {
     const ordersByWallet = new Map(
       orders.map((o) => [o.wallet_address!.toLowerCase(), o as Order]),
     );
-    const transactionsByUser = new Map<string, { tx?: any; log?: any }[]>();
+    const transactionsByUser = new Map<string, ProcessableTransaction[]>();
 
     // Fetch native HYPE transactions
     if (orders.some((o) => o.payment_method === "HYPE")) {

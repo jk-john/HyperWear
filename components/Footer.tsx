@@ -4,11 +4,44 @@ import { Socials } from "@/components/Socials";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 
 // TODO: The footer is not working
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data.message);
+        setEmail("");
+      } else {
+        toast.error(data.error || "Something went wrong.");
+      }
+    } catch (_error) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-dark2 font-body text-white">
       <div className="container mx-auto px-6 py-16">
@@ -21,17 +54,27 @@ const Footer = () => {
             Crypto was Fragmented. HyperLiquid made it United. Wear the
             Movement.
           </p>
-          <div className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row">
+          <form
+            onSubmit={handleSubmit}
+            className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row"
+          >
             <Input
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="bg-dark1 border-tealMid/50 focus:ring-accent focus:border-accent h-12 rounded-lg text-white transition-all placeholder:text-white/40 focus:ring-2"
             />
-            <Button className="text-jungle hover:bg-cream/90 shadow-accent/20 h-12 transform rounded-lg bg-white px-8 font-bold shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="text-jungle hover:bg-cream/90 shadow-accent/20 h-12 transform rounded-lg bg-white px-8 font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
+            >
               <Mail className="mr-2 h-5 w-5" />
-              Subscribe
+              {loading ? "Subscribing..." : "Subscribe"}
             </Button>
-          </div>
+          </form>
         </div>
 
         {/* Main Footer Content */}

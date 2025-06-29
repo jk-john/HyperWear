@@ -104,8 +104,20 @@ export default function CommunityPageClient() {
             </p>
 
             <div className="mt-4 flex flex-row items-center justify-center gap-12">
-              <Instagram className="h-6 w-6 text-cyan-200" />
-              <Twitter className="h-6 w-6 text-cyan-200" />
+              <a
+                href="https://www.instagram.com/hyperwear_off/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="h-6 w-6 text-cyan-200" />
+              </a>
+              <a
+                href="https://x.com/wear_hyper"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Twitter className="h-6 w-6 text-cyan-200" />
+              </a>
             </div>
           </div>
         </section>
