@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogClose,

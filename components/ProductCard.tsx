@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { ProductImageCarousel } from "./ProductImageCarousel";
 import { ProductImageModal } from "./ProductImageModal";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 
 interface ProductCardProps {
   product: Product;
