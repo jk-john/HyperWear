@@ -37,6 +37,8 @@ function HypeConfirmation() {
 
   const tokenImages: { [key: string]: string } = {
     hype: "/hyperliquid-logo.png",
+    usdt0: "/USDT0.svg",
+    usdhl: "/USDHL.svg",
   };
   const normalizedPaymentMethod = paymentMethod?.toLowerCase() || "hype";
   const tokenImage = tokenImages[normalizedPaymentMethod];

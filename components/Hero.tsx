@@ -53,7 +53,7 @@ export default function Hero() {
             asChild
             className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
           >
-            <Link href="/about">About Us</Link>
+            <Link href="/about-us">About Us</Link>
           </Button>
         </motion.div>
       </div>

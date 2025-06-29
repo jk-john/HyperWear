@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -87,7 +88,15 @@ export function Navigation() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/new-arrivals">New Arrivals</Link>
+            <Link href="/new-arrivals" className="flex items-center gap-x-1">
+              <Badge
+                variant="secondary"
+                className="bg-secondary text-primary absolute -top-4 -right-4"
+              >
+                Coming Soon
+              </Badge>
+              New Arrivals
+            </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>

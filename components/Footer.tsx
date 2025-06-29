@@ -1,7 +1,8 @@
 "use client";
 
+import { Socials } from "@/components/Socials";
 import { Input } from "@/components/ui/input";
-import { Instagram, Mail, Twitter } from "lucide-react";
+import { Mail } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
@@ -49,20 +50,7 @@ const Footer = () => {
             </p>
 
             <div className="flex space-x-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-dark1 h-11 w-11 transform rounded-lg text-white/70 transition-all duration-300 hover:scale-110 hover:text-white"
-              >
-                <Twitter className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-dark1 h-11 w-11 transform rounded-lg text-white/70 transition-all duration-300 hover:scale-110 hover:text-white"
-              >
-                <Instagram className="h-5 w-5" />
-              </Button>
+              <Socials />
             </div>
           </div>
 

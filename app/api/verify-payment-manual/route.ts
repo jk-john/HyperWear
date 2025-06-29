@@ -1,21 +1,9 @@
 import { sendOrderConfirmationEmail } from "@/app/actions/send-order-confirmation";
+import { TOKEN_ADDRESSES } from "@/constants/wallet";
+import { hyperliquid } from "@/lib/hyperliquid";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import {
-  createPublicClient,
-  defineChain,
-  formatEther,
-  http
-} from "viem";
-
-export const hyperliquid = defineChain({
-  id: 999,
-  name: "Hyperliquid",
-  nativeCurrency: { name: "HYPE", symbol: "HYPE", decimals: 18 },
-  rpcUrls: {
-    default: { http: ["https://rpc.hyperliquid.xyz/evm"] },
-  },
-});
+import { createPublicClient, formatUnits, http } from "viem";
 
 const RECEIVING_WALLET = "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
 
@@ -46,13 +34,55 @@ type OrderItem = {
   // ... existing code ...
 };
 
+async function getErc20Transfers(
+  token: "USDT0" | "USDHL",
+  fromBlock: bigint,
+  toBlock: bigint,
+) {
+  const tokenInfo = TOKEN_ADDRESSES[token];
+
+  const logs = await viemClient.getLogs({
+    address: tokenInfo.address as `0x${string}`,
+    event: {
+      type: "event",
+      name: "Transfer",
+      inputs: [
+        { type: "address", name: "from", indexed: true },
+        { type: "address", name: "to", indexed: true },
+        { type: "uint256", name: "value", indexed: false },
+      ],
+    },
+    args: {
+      to: RECEIVING_WALLET,
+    },
+    fromBlock,
+    toBlock,
+  });
+
+  return logs
+    .map((log) => {
+      if (log.args.value === undefined || log.args.from === undefined) {
+        return null;
+      }
+      return {
+        ...log,
+        token: token,
+        amount: formatUnits(log.args.value, tokenInfo.decimals),
+        from: log.args.from,
+      };
+    })
+    .filter(Boolean);
+}
+
 async function processPaymentsForOrder(
   supabase: SupabaseClient,
   order: Order,
-  transactions: { tx: any }[],
+  transactions: { tx?: any; log?: any }[],
 ) {
   const processedHashes = new Set(order.tx_hashes || []);
-  const newTransactions = transactions.filter((t) => !processedHashes.has(t.tx.hash));
+  const newTransactions = transactions.filter(
+    (t) => !processedHashes.has(t.tx?.hash || t.log?.transactionHash),
+  );
 
   if (newTransactions.length === 0) {
     return;
@@ -61,16 +91,31 @@ async function processPaymentsForOrder(
   let currentPaidAmount = order.paid_amount;
   const hashesToAdd = [];
 
-  for (const { tx } of newTransactions) {
-    const paidAmount = parseFloat(formatEther(tx.value));
-    currentPaidAmount += paidAmount;
-    hashesToAdd.push(tx.hash);
-    console.log(`Processing tx ${tx.hash} with amount ${paidAmount} for order ${order.id}`);
+  for (const item of newTransactions) {
+    let paidAmount = 0;
+    let txHash: string | undefined;
+
+    if (item.tx) {
+      paidAmount = parseFloat(formatUnits(item.tx.value, 18));
+      txHash = item.tx.hash;
+    } else if (item.log) {
+      paidAmount = parseFloat(item.log.amount);
+      txHash = item.log.transactionHash;
+    }
+
+    if (txHash) {
+      currentPaidAmount += paidAmount;
+      hashesToAdd.push(txHash);
+      console.log(
+        `Processing tx ${txHash} with amount ${paidAmount} for order ${order.id}`,
+      );
+    }
   }
 
   const newRemainingAmount = order.total - currentPaidAmount;
   const totalWithTolerance = order.total * 0.99;
-  const newStatus = currentPaidAmount >= totalWithTolerance ? "completed" : "underpaid";
+  const newStatus =
+    currentPaidAmount >= totalWithTolerance ? "completed" : "underpaid";
 
   const { error } = await supabase
     .from("orders")
@@ -85,7 +130,9 @@ async function processPaymentsForOrder(
   if (error) {
     console.error(`Failed to update order ${order.id}:`, error);
   } else {
-    console.log(`Order ${order.id} updated to status: ${newStatus}, Total Paid: ${currentPaidAmount}`);
+    console.log(
+      `Order ${order.id} updated to status: ${newStatus}, Total Paid: ${currentPaidAmount}`,
+    );
 
     if (newStatus === "completed") {
       const { data: orderItems, error: itemsError } = await supabase
@@ -146,7 +193,8 @@ export async function POST(request: Request) {
 
     const latestBlock = await viemClient.getBlock();
     // Scan last 500 blocks for manual verification
-    const fromBlock = latestBlock.number > 500n ? latestBlock.number - 500n : 1n;
+    const fromBlock =
+      latestBlock.number > 500n ? latestBlock.number - 500n : 1n;
     const toBlock = latestBlock.number;
 
     console.log(`Scanning from block ${fromBlock} to ${toBlock}`);
@@ -154,8 +202,9 @@ export async function POST(request: Request) {
     const ordersByWallet = new Map(
       orders.map((o) => [o.wallet_address!.toLowerCase(), o as Order]),
     );
-    const transactionsByUser = new Map<string, { tx: any }[]>();
+    const transactionsByUser = new Map<string, { tx?: any; log?: any }[]>();
 
+    // Fetch native HYPE transactions
     if (orders.some((o) => o.payment_method === "HYPE")) {
       const blockNumbersToScan = Array.from(
         { length: Number(toBlock - fromBlock) + 1 },
@@ -179,13 +228,32 @@ export async function POST(request: Request) {
             const fromAddress = tx.from.toLowerCase();
             if (
               tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase() &&
-              ordersByWallet.has(fromAddress)
+              ordersByWallet.has(fromAddress) &&
+              ordersByWallet.get(fromAddress)?.payment_method === "HYPE"
             ) {
               if (!transactionsByUser.has(fromAddress)) {
                 transactionsByUser.set(fromAddress, []);
               }
               transactionsByUser.get(fromAddress)!.push({ tx });
             }
+          }
+        }
+      }
+    }
+
+    // Fetch ERC20 transfers for USDT0 and USDHL
+    const erc20Tokens: ("USDT0" | "USDHL")[] = ["USDT0", "USDHL"];
+    for (const token of erc20Tokens) {
+      if (orders.some((o) => o.payment_method === token)) {
+        const transfers = await getErc20Transfers(token, fromBlock, toBlock);
+        for (const log of transfers) {
+          if (!log) continue;
+          const fromAddress = log.from.toLowerCase();
+          if (ordersByWallet.has(fromAddress)) {
+            if (!transactionsByUser.has(fromAddress)) {
+              transactionsByUser.set(fromAddress, []);
+            }
+            transactionsByUser.get(fromAddress)!.push({ log });
           }
         }
       }

@@ -56,7 +56,7 @@ const formSchema = z
     country: z.string().min(1, { message: "Country is required." }),
     companyName: z.string().optional(),
     deliveryInstructions: z.string().optional(),
-    paymentMethod: z.enum(["stripe", "nowpayments", "hype", "usdhl"], {
+    paymentMethod: z.enum(["stripe", "nowpayments", "hype", "usdhl", "usdt0"], {
       required_error: "You need to select a payment method.",
     }),
     evmAddress: z.string().optional(),
@@ -64,7 +64,9 @@ const formSchema = z
   .refine(
     (data) => {
       if (
-        (data.paymentMethod === "hype" || data.paymentMethod === "usdhl") &&
+        (data.paymentMethod === "hype" ||
+          data.paymentMethod === "usdhl" ||
+          data.paymentMethod === "usdt0") &&
         (!data.evmAddress ||
           !data.evmAddress.startsWith("0x") ||
           data.evmAddress.length !== 42)
@@ -167,7 +169,8 @@ export function CheckoutClient({
         }
       } else if (
         values.paymentMethod === "hype" ||
-        values.paymentMethod === "usdhl"
+        values.paymentMethod === "usdhl" ||
+        values.paymentMethod === "usdt0"
       ) {
         if (!values.evmAddress) {
           toast.error("Please enter your EVM address.");
@@ -463,12 +466,15 @@ export function CheckoutClient({
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select a payment method" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white text-black">
-                          <SelectItem value="stripe">
+                        <SelectContent>
+                          <SelectItem
+                            value="stripe"
+                            className="border-b-2 border-black bg-white"
+                          >
                             <div className="flex w-full items-center justify-between">
                               <span>Credit Card (Stripe)</span>
                               <Image
@@ -480,28 +486,12 @@ export function CheckoutClient({
                               />
                             </div>
                           </SelectItem>
-                          <SelectItem value="nowpayments">
+                          <SelectItem
+                            value="usdt0"
+                            className="border-b-2 border-black bg-white"
+                          >
                             <div className="flex w-full items-center justify-between">
-                              <span>Crypto (NowPayments)</span>
-                              <div className="ml-2 flex items-center gap-2">
-                                <Image
-                                  src="/usdc.png"
-                                  alt="USDC"
-                                  width={24}
-                                  height={24}
-                                />
-                                <Image
-                                  src="/usdt.svg"
-                                  alt="USDT"
-                                  width={24}
-                                  height={24}
-                                />
-                              </div>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="usdhl">
-                            <div className="flex w-full items-center justify-between">
-                              <span>Pay with USDT0 or USDHL on HyperEVM</span>
+                              <span>Pay with USDT0 on HyperEVM</span>
                               <div className="ml-2 flex items-center gap-2">
                                 <Image
                                   src="/USDT0.svg"
@@ -509,6 +499,16 @@ export function CheckoutClient({
                                   width={24}
                                   height={24}
                                 />
+                              </div>
+                            </div>
+                          </SelectItem>
+                          <SelectItem
+                            value="usdhl"
+                            className="border-b-2 border-black bg-white"
+                          >
+                            <div className="flex w-full items-center justify-between">
+                              <span>Pay with USDHL on HyperEVM</span>
+                              <div className="ml-2 flex items-center gap-2">
                                 <Image
                                   src="/USDHL.svg"
                                   alt="USDHL"
@@ -518,7 +518,10 @@ export function CheckoutClient({
                               </div>
                             </div>
                           </SelectItem>
-                          <SelectItem value="hype">
+                          <SelectItem
+                            value="hype"
+                            className="border-b-2 border-black bg-white"
+                          >
                             <div className="flex w-full items-center justify-between">
                               <span>Pay with $HYPE on HyperEVM</span>
                               <Image
@@ -537,7 +540,8 @@ export function CheckoutClient({
                   )}
                 />
                 {(form.watch("paymentMethod") === "hype" ||
-                  form.watch("paymentMethod") === "usdhl") && (
+                  form.watch("paymentMethod") === "usdhl" ||
+                  form.watch("paymentMethod") === "usdt0") && (
                   <FormField
                     control={form.control}
                     name="evmAddress"
