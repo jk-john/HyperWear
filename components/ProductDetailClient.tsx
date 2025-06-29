@@ -13,7 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ProductImageCarousel } from "./ProductImageCarousel";
 import { ProductImageModal } from "./ProductImageModal";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 
 interface ProductDetailClientProps {
   product: Product;
