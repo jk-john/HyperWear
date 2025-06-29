@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Instagram, Twitter } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -63,9 +64,12 @@ export default function CommunityPageClient() {
               className="mx-auto mb-4 rounded-2xl"
               key="purr-happy"
             />
-            <h2 className="font-body mb-2 text-xl font-semibold text-white">
-              Eligible PURR NFT holders, fill this form.
-            </h2>
+            <div className="flex flex-col items-center gap-y-2">
+              <h2 className="font-body text-xl font-semibold text-white">
+                Eligible PURR NFT holders, fill this form.
+              </h2>
+              <Badge variant="secondary">Coming Soon</Badge>
+            </div>
             <Image
               src="/purr-lying-happy.png"
               alt="Purr Happy"
@@ -75,27 +79,34 @@ export default function CommunityPageClient() {
               key="purr-lying-happy"
             />
           </div>
-          <PurrNftForm />
+          <fieldset disabled className="cursor-not-allowed opacity-50">
+            <PurrNftForm />
+          </fieldset>
         </section>
 
         {/* HYPE Stakers Section */}
         <section className="w-full max-w-2xl rounded-lg border border-cyan-500/30 bg-cyan-900/20 p-8 text-center backdrop-blur-sm">
-          <h2 className="font-display mb-4 text-3xl font-bold text-white">
-            HYPE Stakers Get Ready!
-          </h2>
-          <p className="font-body mx-auto max-w-lg text-lg text-cyan-200">
-            Reductions for $HYPE stakers will be coming for the next drop. Stay
-            tuned for more details!
-          </p>
-          <br />
-          <br />
-          <p className="text-cyan-200">
-            Join us on our socials for more updates!
-          </p>
+          <div className="mb-4 flex flex-col items-center gap-y-2">
+            <h2 className="font-display text-3xl font-bold text-white">
+              HYPE Stakers Get Ready!
+            </h2>
+            <Badge variant="secondary">Coming Soon</Badge>
+          </div>
+          <div className="opacity-50">
+            <p className="font-body mx-auto max-w-lg text-lg text-cyan-200">
+              Reductions for $HYPE stakers will be coming for the next drop.
+              Stay tuned for more details!
+            </p>
+            <br />
+            <br />
+            <p className="text-cyan-200">
+              Join us on our socials for more updates!
+            </p>
 
-          <div className="mt-4 flex flex-row items-center justify-center gap-12">
-            <Instagram className="h-6 w-6 text-cyan-200" />
-            <Twitter className="h-6 w-6 text-cyan-200" />
+            <div className="mt-4 flex flex-row items-center justify-center gap-12">
+              <Instagram className="h-6 w-6 text-cyan-200" />
+              <Twitter className="h-6 w-6 text-cyan-200" />
+            </div>
           </div>
         </section>
       </div>

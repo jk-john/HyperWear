@@ -34,11 +34,11 @@ export function ProfileSummary({ defaultAddress, user }: ProfileSummaryProps) {
       <div className="flex flex-col items-center gap-8 md:flex-row">
         <div className="flex flex-col items-center text-center md:text-left">
           <Image
-            src="/purr-lying-happy.png"
+            src="/purr-logo.jpg"
             alt="User Avatar"
             width={128}
             height={128}
-            className="border-secondary mx-auto mr-15 rounded-full border-4 object-cover"
+            className="border-secondary mx-auto mr-15 ml-10 rounded-full border-4 object-cover"
           />
         </div>
         <div className="grid flex-grow grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">

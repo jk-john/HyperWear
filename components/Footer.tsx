@@ -79,7 +79,7 @@ const Footer = () => {
             },
             {
               title: "Company",
-              links: ["About Us", "Careers", "Contact"],
+              links: ["About Us", "Careers", "Support"],
             },
           ].map((column) => (
             <div key={column.title}>

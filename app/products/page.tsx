@@ -16,7 +16,7 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const supabase = createClient();
-  const { gender, category, sortBy, order } = searchParams;
+  const { gender, category, sortBy, order } = await searchParams;
 
   let query = supabase.from("products").select("*");
 
@@ -27,7 +27,9 @@ export default async function ProductsPage({
     query = query.eq("category", category);
   }
   if (sortBy) {
-    query = query.order(sortBy, { ascending: order !== "desc" });
+    query = query.order(sortBy, {
+      ascending: order !== "desc",
+    });
   }
 
   const { data: products, error } = await query;
