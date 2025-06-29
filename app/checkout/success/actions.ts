@@ -10,12 +10,6 @@ export async function getOrderDetails(orderId: string) {
     .select(
       `
       *,
-      shipping_first_name,
-      shipping_last_name,
-      shipping_street,
-      shipping_city,
-      shipping_postal_code,
-      shipping_country,
       order_items (
         quantity,
         price_at_purchase,

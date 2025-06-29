@@ -174,6 +174,18 @@ export function CheckoutClient({
           return;
         }
 
+        const shippingInfo = {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phoneNumber: values.phoneNumber,
+          street: values.street,
+          city: values.city,
+          zip: values.zip,
+          country: values.country,
+        };
+        localStorage.setItem("shippingAddress", JSON.stringify(shippingInfo));
+
         let amount: string | undefined;
         try {
           if (values.paymentMethod === "hype") {

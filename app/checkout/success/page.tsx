@@ -3,20 +3,19 @@
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
-import { CheckCircle, Home, Package, ShoppingCart, Truck } from "lucide-react";
-import dynamic from "next/dynamic";
+import {
+  CheckCircle,
+  Home,
+  Loader2,
+  Package,
+  ShoppingCart,
+  Truck,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { getOrderDetails } from "./actions";
-
-const Player = dynamic(
-  () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
-  {
-    ssr: false,
-  },
-);
 
 type OrderWithItems = Tables<"orders"> & {
   order_items: Array<{
@@ -27,13 +26,6 @@ type OrderWithItems = Tables<"orders"> & {
       images: string[];
     };
   }>;
-  shipping_first_name: string | null;
-  shipping_last_name: string | null;
-  shipping_street: string | null;
-  shipping_city: string | null;
-  shipping_postal_code: string | null;
-  shipping_country: string | null;
-  total: number | null;
 };
 
 function SuccessContent() {
@@ -90,12 +82,7 @@ function SuccessContent() {
         <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
           Processing your order...
         </h1>
-        <Player
-          autoplay
-          loop
-          src="https://lottie.host/e24f7e4a-a82f-4749-a359-5f187a077473/3L7JzJc8bA.json"
-          style={{ height: "300px", width: "300px" }}
-        />
+        <Loader2 className="mt-8 h-24 w-24 animate-spin text-white" />
         <p className="text-muted-foreground mt-4 text-white">
           Please wait while we confirm your order details.
         </p>
@@ -140,17 +127,17 @@ function SuccessContent() {
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
+  const subtotal = order.order_items.reduce(
+    (acc, item) => acc + item.price_at_purchase * item.quantity,
+    0,
+  );
+
   return (
     <div className="bg-background text-foreground min-h-screen">
       <main className="container mx-auto px-4 py-12 md:px-6 lg:py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:gap-16">
           <div className="flex flex-col items-center justify-center text-center md:items-start md:text-left">
-            <Player
-              autoplay
-              loop={false}
-              src="https://lottie.host/9f7b2d5a-6b8a-4d7a-8f8b-9e8c3b5a7b8c/t2kR3bY5qE.json"
-              style={{ height: "180px", width: "180px", marginBottom: "1rem" }}
-            />
+            <CheckCircle className="mb-4 h-32 w-32 self-center text-green-500 md:self-start" />
             <h1 className="text-4xl font-extrabold tracking-tighter text-white sm:text-5xl">
               Thank you for your order!
             </h1>
@@ -230,7 +217,7 @@ function SuccessContent() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-white">Subtotal</span>
-                <span className="text-white">${order.total?.toFixed(2)}</span>
+                <span className="text-white">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white">Shipping</span>
@@ -246,7 +233,7 @@ function SuccessContent() {
 
             <div className="flex justify-between text-lg font-bold">
               <span className="text-white">Total</span>
-              <span className="text-white">${order.total?.toFixed(2)}</span>
+              <span className="text-white">${subtotal.toFixed(2)}</span>
             </div>
 
             <div className="mt-8">

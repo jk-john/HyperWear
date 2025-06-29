@@ -38,10 +38,10 @@ type FormValues = {
   firstName: string;
   lastName: string;
   email: string;
-  phone_number: string;
+  phoneNumber: string;
   street: string;
   city: string;
-  postal_code: string;
+  zip: string;
   country: string;
   paymentMethod: "stripe" | "nowpayments" | "hype" | "usdhl";
   evmAddress?: string;
@@ -143,9 +143,9 @@ export async function finalizeHypeOrder(
       shipping_last_name: formValues.lastName,
       shipping_street: formValues.street,
       shipping_city: formValues.city,
-      shipping_postal_code: formValues.postal_code,
+      shipping_postal_code: formValues.zip,
       shipping_country: formValues.country,
-      shipping_phone_number: formValues.phone_number,
+      shipping_phone_number: formValues.phoneNumber,
     })
     .select()
     .single();

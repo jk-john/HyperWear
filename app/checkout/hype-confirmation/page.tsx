@@ -244,7 +244,8 @@ function HypeConfirmation() {
       toast.success("Payment complete! Finalizing your order...");
       clearCart();
       localStorage.removeItem("shippingAddress");
-      router.push(`/checkout/success?orderId=${orderId}`);
+      // Hard redirect to clear any lingering state from previous pages
+      window.location.href = `/checkout/success?orderId=${orderId}`;
     }
   }, [orderStatus, orderId, router, clearCart]);
 
