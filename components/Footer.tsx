@@ -111,7 +111,7 @@ const Footer = () => {
               ],
             },
             {
-              title: "Support",
+              title: "Informations",
               links: [
                 "Size Guide",
                 "Shipping Info",
