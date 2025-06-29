@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button";
 import {
   Sheet,
   SheetClose,
@@ -17,6 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } =

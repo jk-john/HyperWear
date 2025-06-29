@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Instagram, Mail, Twitter } from "lucide-react";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 // TODO: The footer is not working
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { finalizeHypeOrder } from "@/app/checkout/actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { LEDGER_RECEIVING_ADDRESS } from "@/constants/wallet";
 import { useCartStore } from "@/stores/cart";
 import { createClient } from "@/utils/supabase/client";

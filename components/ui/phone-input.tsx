@@ -1,5 +1,9 @@
 "use client";
-import { Button } from "@/components/ui/Button";
+import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
+import * as RPNInput from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
+import { Button } from "./button";
 import {
   Command,
   CommandEmpty,
@@ -7,16 +11,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
-import * as React from "react";
-import * as RPNInput from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
+} from "./command";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";

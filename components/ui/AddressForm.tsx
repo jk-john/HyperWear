@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -19,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { Button } from "./button";
 
 const E164_PHONE_REGEX = /^\+\d{6,15}$/;
 

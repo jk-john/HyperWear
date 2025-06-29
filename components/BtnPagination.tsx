@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -32,7 +32,7 @@ export default function BtnPagination({
             onClick={onPrev}
             disabled={isPrevDisabled}
           >
-            <ChevronLeftIcon
+            <ChevronLeft
               className="-ms-1 text-white"
               size={16}
               aria-hidden="true"
@@ -48,7 +48,7 @@ export default function BtnPagination({
             disabled={isNextDisabled}
           >
             <span className="text-white">Next</span>
-            <ChevronRightIcon
+            <ChevronRight
               className="-me-1 text-white"
               size={16}
               aria-hidden="true"
