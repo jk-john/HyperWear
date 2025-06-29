@@ -24,9 +24,16 @@ type OrderWithItems = Tables<"orders"> & {
     price_at_purchase: number;
     products: {
       name: string;
-      image_url: string;
+      images: string[];
     };
   }>;
+  shipping_first_name: string | null;
+  shipping_last_name: string | null;
+  shipping_street: string | null;
+  shipping_city: string | null;
+  shipping_postal_code: string | null;
+  shipping_country: string | null;
+  total: number | null;
 };
 
 function SuccessContent() {
@@ -80,7 +87,7 @@ function SuccessContent() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
           Processing your order...
         </h1>
         <Player
@@ -89,7 +96,7 @@ function SuccessContent() {
           src="https://lottie.host/e24f7e4a-a82f-4749-a359-5f187a077473/3L7JzJc8bA.json"
           style={{ height: "300px", width: "300px" }}
         />
-        <p className="text-muted-foreground mt-4">
+        <p className="text-muted-foreground mt-4 text-white">
           Please wait while we confirm your order details.
         </p>
       </div>
@@ -154,33 +161,48 @@ function SuccessContent() {
               shortly.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Link href="/collections" passHref>
-                <Button size="lg" className="w-full sm:w-auto">
-                  <ShoppingCart className="mr-2 h-5 w-5" /> Continue Shopping
-                </Button>
-              </Link>
-              <Link href="/dashboard/orders" passHref>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                >
-                  <Truck className="mr-2 h-5 w-5" />
-                  Track Your Order
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full border-white text-white sm:w-auto"
+              >
+                <Link href="/collections" passHref>
+                  <div className="flex items-center">
+                    <ShoppingCart className="block-inline mr-2 h-5 w-5 border-white text-white" />
+                    <span className="block-inline text-white">
+                      Continue Shopping
+                    </span>
+                  </div>
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full border-white text-white sm:w-auto"
+              >
+                <Link href="/dashboard/orders" passHref>
+                  <div className="flex items-center">
+                    <Truck className="mr-2 h-5 w-5 border-white text-white" />
+                    Track Your Order
+                  </div>
+                </Link>
+              </Button>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border p-6 shadow-lg lg:p-8">
-            <h2 className="mb-6 text-2xl font-bold">Order Summary</h2>
+          <div className="bg-card rounded-2xl border-5 border-white p-6 shadow-lg lg:p-8">
+            <h2 className="mb-6 text-2xl font-bold text-white">
+              Order Summary
+            </h2>
             <div className="space-y-5">
               {order.order_items.map((item, index) => (
                 <div key={index} className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className="aspect-square w-20 overflow-hidden rounded-lg border">
                       <Image
-                        src={item.products.image_url}
+                        src={
+                          item.products.images?.[0] || "/placeholder-image.png"
+                        }
                         alt={item.products.name}
                         width={80}
                         height={80}
@@ -188,62 +210,65 @@ function SuccessContent() {
                       />
                     </div>
                     <div>
-                      <p className="font-semibold">{item.products.name}</p>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="font-semibold text-white">
+                        {item.products.name}
+                      </p>
+                      <p className="text-muted-foreground text-sm text-white">
                         Qty: {item.quantity}
                       </p>
                     </div>
                   </div>
-                  <p className="font-semibold">
+                  <p className="font-semibold text-white">
                     ${(item.price_at_purchase * item.quantity).toFixed(2)}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="my-6 border-t" />
+            <div className="my-6 border-t border-white" />
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>${order.total?.toFixed(2)}</span>
+                <span className="text-white">Subtotal</span>
+                <span className="text-white">${order.total?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>Free</span>
+                <span className="text-white">Shipping</span>
+                <span className="text-white">Free</span>
               </div>
               <div className="flex justify-between">
-                <span>Taxes</span>
-                <span>Calculated at next step</span>
+                <span className="text-white">Taxes</span>
+                <span className="text-white">Calculated at next step</span>
               </div>
             </div>
 
-            <div className="my-6 border-t" />
+            <div className="my-6 border-t border-white" />
 
             <div className="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span>${order.total?.toFixed(2)}</span>
+              <span className="text-white">Total</span>
+              <span className="text-white">${order.total?.toFixed(2)}</span>
             </div>
 
             <div className="mt-8">
-              <h3 className="mb-4 text-lg font-semibold">
+              <h3 className="mb-4 text-lg font-semibold text-white">
                 Shipping Information
               </h3>
               <div className="text-muted-foreground text-sm">
-                <p>
+                <p className="text-white">
                   {order.shipping_first_name} {order.shipping_last_name}
                 </p>
-                <p>{order.shipping_street}</p>
-                <p>
+                <p className="text-white">{order.shipping_street}</p>
+                <p className="text-white">
                   {order.shipping_city}, {order.shipping_postal_code}
                 </p>
-                <p>{order.shipping_country}</p>
+                <p className="text-white">{order.shipping_country}</p>
               </div>
             </div>
 
             <div className="mt-8 flex items-center gap-3 rounded-lg bg-green-50 p-4 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-              <CheckCircle className="h-5 w-5" />
-              <p className="text-sm font-medium">
+              <CheckCircle className="h-5 w-5 text-white" />
+              {/* TODO: Add a link to the tracking page based on the database*/}
+              <p className="text-primary text-sm font-medium">
                 Estimated Delivery: {deliveryDate.toLocaleDateString()}
               </p>
             </div>

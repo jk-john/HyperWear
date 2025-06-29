@@ -219,22 +219,25 @@ function HypeConfirmation() {
   }, [expiresAt]);
 
   useEffect(() => {
-    if (orderStatus === "completed") return;
+    if (orderStatus === "completed" || !orderId) return;
 
-    const interval = setInterval(() => {
-      if (orderId && evmAddress) {
-        fetch(`/api/verify-payment?evmAddress=${evmAddress}`)
-          .then((res) => res.json())
-          .then((order) => {
-            if (order && order.status === "completed") {
-              setOrderStatus("completed");
-            }
-          });
+    const checkStatus = async () => {
+      const { data: order } = await supabase
+        .from("orders")
+        .select("status")
+        .eq("id", orderId)
+        .single();
+
+      if (order?.status === "completed") {
+        setOrderStatus("completed");
       }
-    }, 15000); // Poll every 15 seconds
+    };
+
+    checkStatus();
+    const interval = setInterval(checkStatus, 15000); // Poll every 15 seconds
 
     return () => clearInterval(interval);
-  }, [orderId, evmAddress, orderStatus]);
+  }, [orderId, orderStatus, supabase]);
 
   useEffect(() => {
     if (orderStatus === "completed") {
