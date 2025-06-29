@@ -1,8 +1,8 @@
 "use client";
 
+import { Product } from "@/types";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
-import { Product } from "@/types";
 import ProductGrid from "./ProductGrid";
 
 const VISIBLE_PRODUCTS = 4;
@@ -39,7 +39,9 @@ export default function FeaturedProducts() {
           <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
             Featured Products
           </h2>
-          <p>Discover our handpicked selection of premium products.</p>
+          <p className="text-lg font-light text-gray-600">
+            Explore our carefully curated collection of exceptional products.
+          </p>
         </div>
         <div className="overflow-hidden">
           {loading ? (
