@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn, getURL } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, Github, X } from "lucide-react";
@@ -272,7 +272,7 @@ export const SignupForm = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${getURL()}auth/callback?next=/?signed_up=true`,
+        redirectTo: `${location.origin}/auth/callback?next=/?signed_up=true`,
       },
     });
 

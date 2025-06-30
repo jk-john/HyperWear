@@ -1,15 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getURL } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Button } from "./button";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,7 +31,7 @@ export function PasswordResetForm() {
     const supabase = createClient();
 
     const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-      redirectTo: `${getURL()}auth/callback?next=/password-update`,
+      redirectTo: `${location.origin}/auth/callback?next=/password-update`,
     });
 
     if (error) {
