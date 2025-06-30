@@ -14,9 +14,13 @@ export function AuthToast() {
     const welcomeMessage = searchParams.get("welcome_message");
     if (welcomeMessage) {
       toast.success(welcomeMessage);
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.delete("welcome_message");
-      router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
+      if (pathname !== "/welcome") {
+        const newParams = new URLSearchParams(searchParams.toString());
+        newParams.delete("welcome_message");
+        router.replace(`${pathname}?${newParams.toString()}`, {
+          scroll: false,
+        });
+      }
     }
 
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
