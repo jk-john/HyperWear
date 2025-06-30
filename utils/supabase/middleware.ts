@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export const createClient = (request: NextRequest) => {
   // Create an unmodified response
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -24,11 +24,6 @@ export const createClient = (request: NextRequest) => {
             value,
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value,
@@ -41,11 +36,6 @@ export const createClient = (request: NextRequest) => {
             name,
             value: "",
             ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
           });
           response.cookies.set({
             name,
