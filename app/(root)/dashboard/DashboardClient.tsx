@@ -76,6 +76,7 @@ export default function DashboardClient({
     initialAddresses.find((address) => address.is_default) || null;
 
   const handleSignOut = async () => {
+    console.log("handleSignOut called at:", new Date().toISOString());
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error("Failed to sign out. Please try again.");

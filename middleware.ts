@@ -10,7 +10,15 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  console.log({
+    message: "Middleware check",
+    pathname: request.nextUrl.pathname,
+    user: user?.id,
+    hasWelcomeMessage: request.nextUrl.searchParams.has("welcome_message"),
+  });
+
   if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+    console.log("Redirecting to /sign-in from middleware");
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
