@@ -26,6 +26,21 @@ export function AuthToast() {
     }
   }, [searchParams, router, pathname]);
 
+  // 🍪 Cookie fallback: if ad scripts stripped the welcome_message param
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/welcome_message=([^;]+)/);
+      if (match) {
+        const message = decodeURIComponent(match[1]);
+        toast.success(message);
+
+        // Remove the cookie
+        document.cookie =
+          "welcome_message=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const supabase = createClient();
     const {
