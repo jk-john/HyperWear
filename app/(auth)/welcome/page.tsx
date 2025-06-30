@@ -20,8 +20,10 @@ function WelcomeContent() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center space-y-2">
-      <h1 className="text-2xl font-semibold">Login successful</h1>
-      <p className="text-muted-foreground">You will be redirected shortly...</p>
+      <h1 className="text-2xl font-semibold text-white">Login successful</h1>
+      <p className="text-muted-foreground text-white">
+        You will be redirected shortly...
+      </p>
     </div>
   );
 }

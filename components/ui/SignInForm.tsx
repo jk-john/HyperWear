@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getCallbackUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Github } from "lucide-react";
@@ -93,7 +92,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: getCallbackUrl(),
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
