@@ -201,11 +201,11 @@ function SuccessContent() {
                       />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">
+                      <h3 className="font-semibold text-white">
                         {item.products.name}
-                      </p>
+                      </h3>
                       <p className="text-muted-foreground text-sm text-white">
-                        Qty: {item.quantity}
+                        Quantity: {item.quantity}
                       </p>
                     </div>
                   </div>
@@ -214,6 +214,14 @@ function SuccessContent() {
                   </p>
                 </div>
               ))}
+            </div>
+            <div className="mt-6 border-t pt-6">
+              <div className="flex justify-between">
+                <p className="text-lg font-medium text-white">Total</p>
+                <p className="text-lg font-bold text-white">
+                  ${order.total?.toFixed(2)}
+                </p>
+              </div>
             </div>
 
             <div className="my-6 border-t border-white" />

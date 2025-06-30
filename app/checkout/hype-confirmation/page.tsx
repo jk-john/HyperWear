@@ -154,6 +154,7 @@ function HypeConfirmation() {
           null,
           { ...shippingInfo, paymentMethod, evmAddress },
           finalAmount, // Pass the token amount (HYPE amount for HYPE payments, USD for others)
+          totalPriceUSD, // Pass the USD total
           evmAddress ?? undefined,
         );
 
