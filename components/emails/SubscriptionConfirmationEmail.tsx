@@ -32,9 +32,13 @@ export default function SubscriptionConfirmationEmail({
           <Img
             src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
             alt="Welcome to HyperWear"
-            width="25%"
-            height="25%"
-            style={{ marginBottom: "20px", borderRadius: "100%" }}
+            width="120"
+            height="auto"
+            style={{
+              marginBottom: "20px",
+              borderRadius: "100%",
+              maxWidth: "100%",
+            }}
           />
           <Section>
             <Text style={heading}>You&apos;re in! 🐾 Welcome to HyperWear</Text>
