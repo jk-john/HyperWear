@@ -82,15 +82,32 @@ export async function POST(request: NextRequest) {
 
   // Attempt to send a confirmation email via Resend
   try {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: "HyperWear Movement <noreply@hyperwear.io>", // Use your verified sender
       to: email,
       subject: "You're in! 🐾 Welcome to the HyperWear Movement",
       react: SubscriptionConfirmationEmail({ email, fullName }), // Pass email and fullName as props for personalization
     });
+    if (error) {
+      console.error(`❌ Failed to send confirmation email to ${email}:`, error);
+      return NextResponse.json(
+        {
+          message:
+            "Successfully subscribed, but failed to send confirmation email.",
+        },
+        { status: 207 }
+      );
+    }
   } catch (error) {
     // Email send failed — log it but don't fail the subscription
     console.error(`❌ Failed to send confirmation email to ${email}:`, error);
+    return NextResponse.json(
+      {
+        message:
+          "Successfully subscribed, but failed to send confirmation email.",
+      },
+      { status: 207 }
+    );
   }
 
   // Return success response

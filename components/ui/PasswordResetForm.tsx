@@ -2,8 +2,6 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getURL } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -29,20 +27,27 @@ export function PasswordResetForm() {
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    const supabase = createClient();
 
-    const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-      redirectTo: `${getURL()}auth/callback?next=/password-update`,
-    });
+    try {
+      const response = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error || "An unexpected error occurred.");
+      }
+
+      toast.success("Password reset link sent! Please check your email.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset link.");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    toast.success("Password reset link sent! Please check your email.");
-    setIsLoading(false);
   };
 
   return (
