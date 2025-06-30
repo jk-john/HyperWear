@@ -20,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UpdateProfileForm } from "@/components/ui/UpdateProfileForm";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -98,7 +97,14 @@ export default function DashboardClient({
           </Button>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-          <ProfileSummary defaultAddress={defaultAddress} user={user} />
+          <ProfileSummary
+            defaultAddress={defaultAddress}
+            user={user}
+            profile={profile}
+            isEditing={isEditingProfile}
+            onToggleEdit={() => setIsEditingProfile(!isEditingProfile)}
+            onSuccess={() => setIsEditingProfile(false)}
+          />
 
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
             <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
@@ -278,49 +284,6 @@ export default function DashboardClient({
             </div>
 
             <div className="lg:col-span-1">
-              {/* Profile Info */}
-              <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Profile Information</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsEditingProfile(!isEditingProfile)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {isEditingProfile ? (
-                    <UpdateProfileForm
-                      profile={profile}
-                      onSuccess={() => setIsEditingProfile(false)}
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      <p className="text-sm">
-                        <span className="font-semibold text-gray-400">
-                          Email:{" "}
-                        </span>
-                        {user.email}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-semibold text-gray-400">
-                          Phone:{" "}
-                        </span>
-                        {profile?.phone_number || "Not set"}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-semibold text-gray-400">
-                          Birthday:{" "}
-                        </span>
-                        {profile?.birthday || "Not set"}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* Account Management */}
               <Card className="mt-8 border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
                 <CardHeader>
@@ -331,9 +294,7 @@ export default function DashboardClient({
                     <Link href="/password-update">Change Password</Link>
                   </Button>
                   <Button variant="destructive" className="w-full" asChild>
-                    <a href="mailto:support@hyperwear.xyz?subject=Account Deletion Request">
-                      Request Account Deletion
-                    </a>
+                    <Link href="/support">Request Account Deletion</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -404,25 +365,6 @@ export default function DashboardClient({
               Delete
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-        <DialogContent className="bg-background border-[var(--color-primary)] text-white">
-          <DialogHeader>
-            <DialogTitle>Update Profile</DialogTitle>
-            <DialogDescription>
-              Manage your profile information here.
-            </DialogDescription>
-          </DialogHeader>
-          <UpdateProfileForm
-            profile={profile}
-            onSuccess={() => setIsEditingProfile(false)}
-          />
-          <DialogClose className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
         </DialogContent>
       </Dialog>
     </div>

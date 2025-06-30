@@ -1,3 +1,4 @@
+import { getPublicImageUrl } from "@/lib/utils";
 import {
   Body,
   Button,
@@ -7,57 +8,68 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
+  Tailwind,
   Text,
 } from "@react-email/components";
 
 interface SignUpConfirmationEmailProps {
-  fullName?: string | null;
+  customerName?: string | null;
   confirmationLink?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const SignUpConfirmationEmail = ({
-  fullName,
+  customerName,
   confirmationLink = `${baseUrl}/(auth)/sign-in`,
-}: SignUpConfirmationEmailProps) => (
-  <Html>
-    <Head />
-    <Preview>Welcome to HyperWear! Confirm your email</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src={`${baseUrl}/hyperwear.png`}
-          width="120"
-          height="auto"
-          alt="HyperWear"
-          style={logo}
-        />
-        <Heading style={heading}>Welcome, {fullName || "New Friend"}!</Heading>
-        <Text style={text}>
-          Thanks for joining the HyperWear Movement. Click the button below to
-          confirm your email address and activate your account.
-        </Text>
-        <Section style={buttonContainer}>
-          <Button style={button} href={confirmationLink}>
-            Confirm Email
-          </Button>
-        </Section>
-        <Text style={text}>
-          If you didn&apos;t sign up for HyperWear, you can safely ignore this
-          email.
-        </Text>
-        <Hr style={hr} />
-        <Link href={baseUrl} style={footer}>
-          HyperWear Movement
-        </Link>
-      </Container>
-    </Body>
-  </Html>
-);
+}: SignUpConfirmationEmailProps) => {
+  return (
+    <Tailwind>
+      <Html>
+        <Head />
+        <Preview>Welcome to HyperWear!</Preview>
+        <Body className="mx-auto my-auto bg-white font-sans">
+          <Container className="mx-auto my-10 w-full max-w-[465px] rounded border border-solid border-gray-200 p-5">
+            <Section className="text-center">
+              <Img
+                className="mx-auto my-0"
+                width={100}
+                height={100}
+                alt="HyperWear logo"
+                src={getPublicImageUrl("hyperwear-public/hyperwear.png")}
+              />
+            </Section>
+            <Heading className="mx-0 my-8 w-full p-0 text-center text-3xl font-bold">
+              Welcome to HyperWear!
+            </Heading>
+            <Text className="text-base leading-6">Hi {customerName},</Text>
+            <Text className="text-base leading-6">
+              Thanks for signing up. Please click the button below to confirm
+              your email address.
+            </Text>
+            <Button
+              className="rounded-full bg-black px-5 py-3 text-center text-sm font-semibold text-white no-underline"
+              href={confirmationLink}
+            >
+              Confirm Email
+            </Button>
+            <Text className="text-base leading-6">
+              Best,
+              <br />
+              The HyperWear Team
+            </Text>
+            <Hr className="my-6 w-full border border-solid border-gray-200" />
+            <Text className="text-xs text-gray-500">
+              HyperWear.io. For support, contact: contact@hyperwear.io.
+            </Text>
+          </Container>
+        </Body>
+      </Html>
+    </Tailwind>
+  );
+};
 
 export default SignUpConfirmationEmail;
 

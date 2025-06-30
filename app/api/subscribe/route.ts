@@ -1,6 +1,6 @@
 import SubscriptionConfirmationEmail from "@/components/emails/SubscriptionConfirmationEmail";
 import { resend } from "@/lib/resend";
-import { getURL } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
@@ -87,18 +87,24 @@ export async function POST(request: NextRequest) {
   // Attempt to send a confirmation email via Resend
   try {
     const { data, error } = await resend.emails.send({
-      from: "HyperWear Movement <team@hyperwear.io>",
+      from: "HyperWear <noreply@hyperwear.io>",
       to: email,
       subject: "You're in! 🐾 Welcome to the HyperWear Movement",
       react: SubscriptionConfirmationEmail({ email, fullName }),
       text: `Welcome to HyperWear! Thanks for subscribing, ${
         fullName || email
-      }. You're now part of the HyperWear movement. Wear the culture. Follow the mission. Unsubscribe: ${getURL()}unsubscribe?email=${encodeURIComponent(
+      }. You're now part of the HyperWear movement. Wear the culture. Follow the mission. Unsubscribe: ${getSiteUrl()}unsubscribe?email=${encodeURIComponent(
         email,
       )}`,
     });
     if (error) {
       console.error(`❌ Failed to send confirmation email to ${email}:`, error);
+      await supabaseAdmin.from("email_logs").insert({
+        email_type: "subscription_confirmation",
+        to_email: email,
+        status: "error",
+        error: error.message,
+      });
       return NextResponse.json(
         {
           message:
@@ -107,9 +113,22 @@ export async function POST(request: NextRequest) {
         { status: 207 }
       );
     }
+    await supabaseAdmin.from("email_logs").insert({
+      email_type: "subscription_confirmation",
+      to_email: email,
+      status: "success",
+    });
   } catch (error) {
     // Email send failed — log it but don't fail the subscription
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error(`❌ Failed to send confirmation email to ${email}:`, error);
+    await supabaseAdmin.from("email_logs").insert({
+      email_type: "subscription_confirmation",
+      to_email: email,
+      status: "error",
+      error: errorMessage,
+    });
     return NextResponse.json(
       {
         message:

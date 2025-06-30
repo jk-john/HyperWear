@@ -10,7 +10,7 @@ export async function sendPasswordChangeConfirmation() {
 
   try {
     await resend.emails.send({
-      from: "HyperWear <no-reply@hyperwear.io>",
+      from: "HyperWear <noreply@hyperwear.io>",
       to: user.email,
       subject: "Your HyperWear password was changed",
       react: PasswordChangeConfirmationEmail({

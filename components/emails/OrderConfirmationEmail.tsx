@@ -1,6 +1,7 @@
-import { getURL } from "@/lib/utils";
+import { getPublicImageUrl, getSiteUrl } from "@/lib/utils";
 import {
   Body,
+  Column,
   Container,
   Head,
   Heading,
@@ -9,12 +10,13 @@ import {
   Img,
   Link,
   Preview,
+  Row,
   Section,
   Tailwind,
   Text,
 } from "@react-email/components";
 
-const baseUrl = getURL();
+const baseUrl = getSiteUrl();
 
 type OrderConfirmationEmailProps = {
   customerName: string;
@@ -39,10 +41,11 @@ const OrderConfirmationEmail = ({
         <Container className="mx-auto my-10 max-w-2xl rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
           <Section className="text-center">
             <Img
-              src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
-              width="120"
-              alt="HyperWear Logo"
-              className="mx-auto"
+              className="mx-auto my-0"
+              width={100}
+              height={100}
+              alt="HyperWear logo"
+              src={getPublicImageUrl("hyperwear-public/hyperwear.png")}
             />
             <Heading className="mt-4 text-2xl font-bold text-gray-800">
               Thanks for your order, {customerName}!
@@ -101,9 +104,16 @@ const OrderConfirmationEmail = ({
             <Text>
               If you have any questions, please contact our support team.
             </Text>
-            <Link href={baseUrl} className="text-blue-500 hover:underline">
-              Visit our website
-            </Link>
+            <Row>
+              <Column>
+                <Link
+                  href={getSiteUrl()}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  hyperwear.io
+                </Link>
+              </Column>
+            </Row>
           </Section>
         </Container>
       </Body>

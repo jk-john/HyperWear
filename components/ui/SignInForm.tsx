@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getURL } from "@/lib/utils"; // ✅ NEW: import getURL utility
+import { getCallbackUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Github } from "lucide-react";
@@ -53,7 +53,7 @@ const formSchema = z.object({
   }),
 });
 
-export function SignInForm() {
+export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -83,7 +83,7 @@ export function SignInForm() {
       data.user?.email;
 
     toast.success(`Signed in successfully! Welcome ${userName}`);
-    router.push("/");
+    router.push(callbackUrl || "/");
     router.refresh();
     setIsLoading(false);
   };
@@ -93,7 +93,7 @@ export function SignInForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${getURL()}/auth/callback?next=/?signed_in=true`,
+        redirectTo: getCallbackUrl(),
       },
     });
 

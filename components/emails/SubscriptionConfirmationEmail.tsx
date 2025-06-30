@@ -1,8 +1,9 @@
-import { getURL } from "@/lib/utils";
+import { getPublicImageUrl, getSiteUrl } from "@/lib/utils";
 import {
   Body,
   Container,
   Head,
+  Heading,
   Html,
   Img,
   Link,
@@ -11,7 +12,7 @@ import {
   Text,
 } from "@react-email/components";
 
-const baseUrl = getURL();
+const baseUrl = getSiteUrl();
 
 export default function SubscriptionConfirmationEmail({
   email,
@@ -30,18 +31,16 @@ export default function SubscriptionConfirmationEmail({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
-            alt="Welcome to HyperWear"
-            width="120"
-            height="auto"
-            style={{
-              marginBottom: "20px",
-              borderRadius: "100%",
-              maxWidth: "100%",
-            }}
+            className="mx-auto my-0"
+            width={100}
+            height={100}
+            alt="HyperWear logo"
+            src={getPublicImageUrl("hyperwear-public/hyperwear.png")}
           />
           <Section>
-            <Text style={heading}>You&apos;re in! 🐾 Welcome to HyperWear</Text>
+            <Heading className="mx-0 my-8 w-full p-0 text-center text-3xl font-bold">
+              You&apos;re in! 🐾 Welcome to HyperWear
+            </Heading>
             <Text style={text}>{welcomeMessage}</Text>
             <Text style={text}>
               Thanks for subscribing. You&apos;re now part of the HyperWear
@@ -62,36 +61,50 @@ export default function SubscriptionConfirmationEmail({
               </Link>
             </Text>
             <Section style={{ textAlign: "center", marginTop: "20px" }}>
-              <a
-                href="https://x.com/wear_hyper"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ margin: "0 10px" }}
+              <Link
+                style={{
+                  display: "inline-block",
+                  margin: "0 10px",
+                }}
+                href="https://twitter.com/hyperwear"
               >
                 <Img
-                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/twitter.png"
-                  alt="X"
-                  width="32"
-                  height="32"
-                  style={{ display: "inline-block" }}
+                  className="mx-auto my-0"
+                  width={32}
+                  height={32}
+                  alt="Twitter"
+                  src={getPublicImageUrl("hyperwear-public/twitter.png")}
                 />
-              </a>
-              <a
-                href="https://www.instagram.com/hyperwear_off/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ margin: "0 10px" }}
+              </Link>
+              <Link
+                style={{
+                  display: "inline-block",
+                  margin: "0 10px",
+                }}
+                href="https://instagram.com/hyperwear"
               >
                 <Img
-                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/Instagram_Glyph_Gradient.png"
+                  className="mx-auto my-0"
+                  width={32}
+                  height={32}
                   alt="Instagram"
-                  width="32"
-                  height="32"
-                  style={{ display: "inline-block" }}
+                  src={getPublicImageUrl(
+                    "hyperwear-public/Instagram_Glyph_Gradient.png",
+                  )}
                 />
-              </a>
+              </Link>
             </Section>
           </Section>
+          <Text className="text-center text-xs text-gray-500">
+            © {new Date().getFullYear()} HyperWear. All rights reserved.
+            <br />
+            <Link
+              href={`${baseUrl}/unsubscribe?email=${encodeURIComponent(email)}`}
+              className="text-xs text-gray-500 underline"
+            >
+              Unsubscribe
+            </Link>
+          </Text>
         </Container>
       </Body>
     </Html>

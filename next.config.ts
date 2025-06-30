@@ -1,5 +1,9 @@
-import {withSentryConfig} from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+
+const supabaseHostname = new URL(
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
+).hostname;
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -12,7 +16,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "jhxxuhisdypknlvhaklm.supabase.co",
+        hostname: supabaseHostname,
+        port: "",
+        pathname: "/storage/v1/object/public/**",
       },
     ],
   },

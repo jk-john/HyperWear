@@ -24,16 +24,29 @@ export function getPublicImageUrl(path: string): string {
   return `${supabaseUrl}product-images/${path}`;
 }
 
-export const getURL = () => {
-  let url = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+export const getSiteUrl = () => {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-  // Ensure it starts with http or https
-  url = url.includes("http") ? url : `https://${url}`;
+  if (!siteUrl) {
+    if (process.env.NODE_ENV === "development") {
+      return "http://localhost:3000";
+    }
+    throw new Error(
+      "NEXT_PUBLIC_SITE_URL is not set. Please set it in your .env file."
+    );
+  }
 
-  // Ensure trailing slash
-  url = url.endsWith("/") ? url : `${url}/`;
+  const url = siteUrl.includes("http") ? siteUrl : `https://${siteUrl}`;
+  return url.endsWith("/") ? url : `${url}/`;
+};
 
-  return url;
+export const getCallbackUrl = () => {
+  if (typeof window === "undefined") {
+    // On the server, we can't use window.location.origin
+    // We must rely on the environment variable.
+    return `${getSiteUrl()}auth/callback`;
+  }
+  return `${window.location.origin}/auth/callback`;
 };
 
 export const formatPrice = (price: number) => {
@@ -42,3 +55,25 @@ export const formatPrice = (price: number) => {
     currency: "USD",
   }).format(price);
 };
+
+export function assertEnvVars() {
+  const requiredEnvVars = [
+    "NEXT_PUBLIC_SITE_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "RESEND_API_KEY",
+  ];
+
+  const missingEnvVars = requiredEnvVars.filter(
+    (key) => !process.env[key]
+  );
+
+  if (missingEnvVars.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missingEnvVars.join(
+        ", "
+      )}. Please check your .env file.`
+    );
+  }
+}

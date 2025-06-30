@@ -1,3 +1,4 @@
+import { getPublicImageUrl } from "@/lib/utils";
 import {
   Body,
   Button,
@@ -51,12 +52,16 @@ export const ShippingUpdateEmail = ({
       <Container style={container}>
         <Section style={logoContainer}>
           <Img
-            src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
-            width="180"
-            alt="HyperWear"
+            className="mx-auto my-0"
+            width={100}
+            height={100}
+            alt="HyperWear logo"
+            src={getPublicImageUrl("hyperwear-public/hyperwear.png")}
           />
         </Section>
-        <Heading style={h1}>Your Order is on its Way!</Heading>
+        <Heading className="mx-0 my-8 w-full p-0 text-center text-3xl font-bold">
+          Your Order Has Shipped!
+        </Heading>
         <Text style={text}>Hi {customerName},</Text>
         <Text style={text}>
           Good news! Your order has shipped and is heading your way. Here are

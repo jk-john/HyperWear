@@ -1,4 +1,4 @@
-import { getURL } from "@/lib/utils";
+import { getPublicImageUrl, getSiteUrl } from "@/lib/utils";
 import {
   Body,
   Button,
@@ -8,6 +8,7 @@ import {
   Heading,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Text,
@@ -17,7 +18,7 @@ interface PasswordChangeConfirmationEmailProps {
   customerName: string;
 }
 
-const baseUrl = getURL();
+const baseUrl = getSiteUrl();
 
 export const PasswordChangeConfirmationEmail = ({
   customerName,
@@ -50,9 +51,11 @@ export const PasswordChangeConfirmationEmail = ({
       <Container style={container}>
         <Section style={logoContainer}>
           <Img
-            src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/hyperwear.png"
-            width="180"
-            alt="HyperWear"
+            className="mx-auto my-0"
+            width={100}
+            height={100}
+            alt="HyperWear logo"
+            src={getPublicImageUrl("hyperwear-public/hyperwear.png")}
           />
         </Section>
         <Heading style={h1}>Password Changed Successfully</Heading>
@@ -74,6 +77,17 @@ export const PasswordChangeConfirmationEmail = ({
           You&apos;re receiving this email because you interacted with
           HyperWear.io. For support, contact : contact@hyperwear.io.
         </Text>
+        <Section className="pb-8 text-center">
+          <Text className="text-lg">
+            Changed your password by mistake?{" "}
+            <Link
+              className="text-lg text-blue-600"
+              href={`${getSiteUrl()}password-reset`}
+            >
+              Reset your password here
+            </Link>
+          </Text>
+        </Section>
       </Container>
     </Body>
   </Html>

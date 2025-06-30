@@ -1,41 +1,60 @@
-import { PasswordResetEmail } from "@/components/emails/PasswordResetEmail";
+import PasswordResetEmail from "@/components/emails/PasswordResetEmail";
 import { resend } from "@/lib/resend";
-import { createClient } from "@/utils/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
   const { email } = await request.json();
 
   if (!email) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  const supabase = createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/password-update`,
+  const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    redirectTo: `${request.nextUrl.origin}/password-update`,
   });
 
   if (error) {
-    console.error("Error sending password reset email:", error);
+    console.error("Error initiating password reset:", error);
     return NextResponse.json(
       {
-        error: "Failed to send password reset email. Please try again later.",
+        error: "Failed to initiate password reset. Please try again later.",
       },
       { status: 500 }
     );
   }
 
-  const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/password-update`;
+  const resetLink = `${request.nextUrl.origin}/password-update`;
 
   try {
     await resend.emails.send({
       from: "HyperWear <noreply@hyperwear.io>",
       to: email,
       subject: "Reset Your HyperWear Password",
-      react: PasswordResetEmail({ resetLink }),
+      react: PasswordResetEmail({
+        customerName: email, // Assuming name is not available here
+        resetLink,
+      }),
+    });
+    await supabaseAdmin.from("email_logs").insert({
+      email_type: "password_reset",
+      to_email: email,
+      status: "success",
     });
   } catch (emailError) {
+    const errorMessage =
+      emailError instanceof Error ? emailError.message : "Unknown error";
     console.error("Error sending password reset email:", emailError);
+    await supabaseAdmin.from("email_logs").insert({
+      email_type: "password_reset",
+      to_email: email,
+      status: "error",
+      error: errorMessage,
+    });
     return NextResponse.json(
       { error: "Failed to send password reset email. Please try again later." },
       { status: 500 }
