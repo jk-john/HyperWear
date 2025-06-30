@@ -20,14 +20,10 @@ export async function GET(request: Request) {
         user.email;
       const welcomeMessage = `Welcome ${userName}, you are now signed in. Happy Shopping!`;
 
-      if (next) {
-        const redirectUrl = new URL(next, origin);
-        redirectUrl.searchParams.set("welcome_message", welcomeMessage);
-        return NextResponse.redirect(redirectUrl);
-      }
-
-      const redirectUrl = new URL("/", origin);
+      // Redirect to the new callback page
+      const redirectUrl = new URL("/auth/callback", origin);
       redirectUrl.searchParams.set("welcome_message", welcomeMessage);
+      redirectUrl.searchParams.set("callbackUrl", next);
       return NextResponse.redirect(redirectUrl);
     }
   }
