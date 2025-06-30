@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-export default function CallbackPage() {
+export default function WelcomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
