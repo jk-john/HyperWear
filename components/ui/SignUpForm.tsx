@@ -220,7 +220,7 @@ const formSchema = z
 export const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
+  const id = useId();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -237,31 +237,30 @@ export const SignupForm = () => {
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: {
-          first_name: values.firstName,
-          last_name: values.lastName,
-          full_name: `${values.firstName} ${values.lastName}`,
+    try {
+      const response = await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      },
-    });
+        body: JSON.stringify(values),
+      });
 
-    if (error) {
-      toast.error(error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "An unexpected error occurred.");
+      }
+
+      toast.success(
+        result.message || "Sign-up successful! Check your email to verify.",
+      );
+      router.push("/(auth)/sign-in");
+    } catch (error: any) {
+      toast.error(error.message || "Sign-up failed.");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    toast.success(
-      "Signed up successfully! Please check your email to verify your account.",
-    );
-    router.push("/sign-in");
-    router.refresh();
-    setIsLoading(false);
   };
 
   const handleOAuthSignIn = async (provider: "github" | "google") => {
