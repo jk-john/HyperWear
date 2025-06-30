@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       const welcomeMessage = `Welcome ${userName}, you are now signed in. Happy Shopping!`;
 
       // Redirect to the new callback page
-      const redirectUrl = new URL("/auth/welcome", origin);
+      const redirectUrl = new URL("/welcome", origin);
       redirectUrl.searchParams.set("welcome_message", welcomeMessage);
       redirectUrl.searchParams.set("callbackUrl", next);
       return NextResponse.redirect(redirectUrl);
