@@ -1,5 +1,6 @@
 import SubscriptionConfirmationEmail from "@/components/emails/SubscriptionConfirmationEmail";
 import { resend } from "@/lib/resend";
+import { getURL } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
@@ -86,10 +87,15 @@ export async function POST(request: NextRequest) {
   // Attempt to send a confirmation email via Resend
   try {
     const { data, error } = await resend.emails.send({
-      from: "HyperWear Movement <noreply@hyperwear.io>", // Use your verified sender
+      from: "HyperWear Movement <team@hyperwear.io>",
       to: email,
       subject: "You're in! 🐾 Welcome to the HyperWear Movement",
-      react: SubscriptionConfirmationEmail({ email, fullName }), // Pass email and fullName as props for personalization
+      react: SubscriptionConfirmationEmail({ email, fullName }),
+      text: `Welcome to HyperWear! Thanks for subscribing, ${
+        fullName || email
+      }. You're now part of the HyperWear movement. Wear the culture. Follow the mission. Unsubscribe: ${getURL()}unsubscribe?email=${encodeURIComponent(
+        email,
+      )}`,
     });
     if (error) {
       console.error(`❌ Failed to send confirmation email to ${email}:`, error);

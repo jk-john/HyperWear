@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -25,6 +25,20 @@ export function getPublicImageUrl(path: string): string {
 }
 
 export const getURL = () => {
-  const isProduction = process.env.NODE_ENV === "production";
-  return isProduction ? "https://hyperwear.io" : "http://localhost:3000";
+  let url = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  // Ensure it starts with http or https
+  url = url.includes("http") ? url : `https://${url}`;
+
+  // Ensure trailing slash
+  url = url.endsWith("/") ? url : `${url}/`;
+
+  return url;
+};
+
+export const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(price);
 };
