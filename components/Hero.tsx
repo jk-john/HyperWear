@@ -27,27 +27,25 @@ export default function Hero() {
         >
           The Place To House All Hyperliquid Fans.
         </VelocityScroll>
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeInOut" }}
           className="text-cream font-body mt-6 max-w-2xl text-center text-lg leading-8"
         >
-          <p className="text-center">
-            <span className="text-secondary font-body font-semibold">
-              Crypto was fragmented
-            </span>{" "}
-            back then but{" "}
-            <span className="text-secondary font-body font-bold">
-              HyperLiquid
-            </span>{" "}
-            changed that. For the first time, wear the movement that{" "}
-            <span className="text-secondary decoration-secondary font-body decoration-2 underline-offset-4">
-              unites projects, creators, and assets
-            </span>{" "}
-            under one seamless ecosystem.{" "}
-          </p>
-        </motion.p>
+          <span className="text-secondary font-body font-semibold">
+            Crypto was fragmented
+          </span>{" "}
+          back then but{" "}
+          <span className="text-secondary font-body font-bold">
+            HyperLiquid
+          </span>{" "}
+          changed that. For the first time, wear the movement that{" "}
+          <span className="text-secondary decoration-secondary font-body decoration-2 underline-offset-4">
+            unites projects, creators, and assets
+          </span>{" "}
+          under one seamless ecosystem.{" "}
+        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
