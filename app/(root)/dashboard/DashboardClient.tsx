@@ -76,11 +76,11 @@ export default function DashboardClient({
     initialAddresses.find((address) => address.is_default) || null;
 
   const handleSignOut = async () => {
-    console.log("handleSignOut called at:", new Date().toISOString());
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error("Failed to sign out. Please try again.");
     } else {
+      toast.success("👋 You've been signed out successfully.");
       window.location.href = "/";
     }
   };
@@ -104,7 +104,10 @@ export default function DashboardClient({
             profile={profile}
             isEditing={isEditingProfile}
             onToggleEdit={() => setIsEditingProfile(!isEditingProfile)}
-            onSuccess={() => setIsEditingProfile(false)}
+            onSuccess={() => {
+              toast.success("Profile saved successfully.");
+              setIsEditingProfile(false);
+            }}
           />
 
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -316,7 +319,12 @@ export default function DashboardClient({
           </DialogHeader>
           <AddressForm
             address={editingAddress}
-            onSuccess={() => setIsAddressModalOpen(false)}
+            onSuccess={() => {
+              toast.success(
+                `Address ${editingAddress ? "updated" : "added"} successfully.`,
+              );
+              setIsAddressModalOpen(false);
+            }}
           />
           <DialogClose className="data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm text-white opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
             <X className="h-4 w-4" />

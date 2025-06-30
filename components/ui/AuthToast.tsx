@@ -12,6 +12,8 @@ export function AuthToast() {
 
   useEffect(() => {
     const welcomeMessage = searchParams.get("welcome_message");
+    const genericMessage = searchParams.get("message");
+
     if (welcomeMessage) {
       toast.success(welcomeMessage);
       if (pathname !== "/welcome") {
@@ -21,6 +23,11 @@ export function AuthToast() {
           scroll: false,
         });
       }
+    } else if (genericMessage) {
+      toast.error(genericMessage);
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete("message");
+      router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
 
     const hashParams = new URLSearchParams(window.location.hash.substring(1));

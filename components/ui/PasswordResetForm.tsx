@@ -42,9 +42,11 @@ export function PasswordResetForm() {
         throw new Error(error || "An unexpected error occurred.");
       }
 
-      toast.success("Password reset link sent! Please check your email.");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send reset link.");
+      toast.success("A reset link has been sent to your email.");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send reset link.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

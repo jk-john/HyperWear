@@ -47,12 +47,14 @@ function HypeConfirmation() {
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(receivingAddress);
+    toast.success("Copied to clipboard!");
     setCopiedAddress(true);
     setTimeout(() => setCopiedAddress(false), 2000);
   };
 
   const handleCopyAmount = () => {
     navigator.clipboard.writeText(amountToPay.toFixed(2));
+    toast.success("Copied to clipboard!");
     setCopiedAmount(true);
     setTimeout(() => setCopiedAmount(false), 2000);
   };
@@ -66,17 +68,21 @@ function HypeConfirmation() {
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Verification failed.");
+        toast.error(
+          data.error ||
+            "⚠️ Payment couldn't be verified. Please check and try again.",
+        );
+        return;
       }
       toast.success(
         "Verification scan complete. Fetching latest order status...",
       );
       // Manually re-fetch the order data to update the UI
       await createOrFetchOrder();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred.";
-      toast.error(`Verification failed: ${message}`);
+    } catch {
+      toast.error(
+        "⚠️ Payment couldn't be verified. Please check and try again.",
+      );
     } finally {
       setIsVerifying(false);
     }
@@ -191,6 +197,7 @@ function HypeConfirmation() {
             remaining_amount: number;
             paid_amount: number;
           };
+          toast.success("✅ Payment received! You'll be redirected shortly.");
           setOrderStatus(updatedOrder.status);
           setAmountToPay(updatedOrder.remaining_amount);
           setPaidAmount(updatedOrder.paid_amount);

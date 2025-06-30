@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useId } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -25,7 +25,6 @@ const formSchema = z
 export function UpdatePasswordForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const router = useRouter();
-  const id = useId();
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -58,7 +57,7 @@ export function UpdatePasswordForm() {
 
     await sendPasswordChangeConfirmation();
 
-    toast.success("Password updated successfully! You can now sign in.");
+    toast.success("Your password was updated successfully.");
     router.push("/sign-in");
     setIsLoading(false);
   };

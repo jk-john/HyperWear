@@ -15,6 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { getOrderDetails } from "./actions";
 
 type OrderWithItems = Tables<"orders"> & {
@@ -55,6 +56,9 @@ function SuccessContent() {
           setOrder(fetchedOrder as OrderWithItems);
           clearCart();
           localStorage.removeItem("shippingAddress");
+          toast.success(
+            "🎉 Order confirmed! We'll notify you once it's shipped.",
+          );
           setLoading(false);
           return; // Exit loop on success
         }

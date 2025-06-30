@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function SupportPage() {
   const [name, setName] = useState("");
@@ -11,15 +12,10 @@ export default function SupportPage() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState<
-    "success" | "error" | null
-  >(null);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmissionStatus(null);
 
     try {
       const response = await fetch("/api/support", {
@@ -29,24 +25,19 @@ export default function SupportPage() {
       });
 
       if (response.ok) {
-        setSubmissionStatus("success");
-        setFeedbackMessage(
-          "Thanks for your message! We'll get back to you shortly ✉️",
-        );
+        toast.success("Thanks for reaching out! We'll get back to you soon.");
         setName("");
         setEmail("");
         setSubject("");
         setMessage("");
       } else {
         const errorData = await response.json();
-        setSubmissionStatus("error");
-        setFeedbackMessage(
-          errorData.error || "An unexpected error occurred. Please try again.",
+        toast.error(
+          errorData.error || "We couldn't send your message. Try again later.",
         );
       }
-    } catch (_error) {
-      setSubmissionStatus("error");
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    } catch {
+      toast.error("We couldn't send your message. Try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,20 +128,6 @@ export default function SupportPage() {
             </Button>
           </div>
         </form>
-
-        {submissionStatus && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={`mt-4 rounded-md p-4 text-center ${
-              submissionStatus === "success"
-                ? "bg-green-500/20 text-green-300"
-                : "bg-red-500/20 text-red-300"
-            }`}
-          >
-            {feedbackMessage}
-          </motion.div>
-        )}
       </motion.div>
     </div>
   );

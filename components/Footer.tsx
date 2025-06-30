@@ -30,13 +30,17 @@ const Footer = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(data.message);
+        toast.success(
+          "You're in! Look out for updates from the HyperWear crew.",
+        );
         setEmail("");
       } else {
-        toast.error(data.error || "Something went wrong.");
+        toast.error(
+          data.error || "We couldn't send your message. Try again later.",
+        );
       }
-    } catch (_error) {
-      toast.error("An unexpected error occurred.");
+    } catch {
+      toast.error("We couldn't send your message. Try again later.");
     } finally {
       setLoading(false);
     }

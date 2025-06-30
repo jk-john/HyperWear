@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn, getCallbackUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, Github, X } from "lucide-react";
@@ -249,13 +249,18 @@ export const SignupForm = () => {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success(result.message);
+        toast.success(
+          "Welcome aboard! Please check your inbox to confirm your email.",
+        );
         router.push("/sign-in");
       } else {
-        toast.error(result.error || "An unexpected error occurred.");
+        toast.error(
+          result.error ||
+            "Hmm… something went wrong signing up. Please try again.",
+        );
       }
-    } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
+    } catch {
+      toast.error("Hmm… something went wrong signing up. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -266,7 +271,7 @@ export const SignupForm = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: getCallbackUrl(),
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
