@@ -248,16 +248,14 @@ export const SignupForm = () => {
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || "An unexpected error occurred.");
+      if (response.ok) {
+        toast.success(result.message);
+        router.push("/sign-in");
+      } else {
+        toast.error(result.error || "An unexpected error occurred.");
       }
-
-      toast.success(
-        result.message || "Sign-up successful! Check your email to verify.",
-      );
-      router.push("/(auth)/sign-in");
-    } catch (error: any) {
-      toast.error(error.message || "Sign-up failed.");
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -351,12 +349,12 @@ export const SignupForm = () => {
         </div>
 
         {/* Email */}
-        <LabelInputContainer>
-          <Label htmlFor="email" className="text-[var(--color-light)]">
+        <LabelInputContainer className="mb-4">
+          <Label htmlFor={`${id}-email`} className="text-[var(--color-light)]">
             Email Address
           </Label>
           <Input
-            id="email"
+            id={`${id}-email`}
             placeholder="john.doe@example.com"
             type="email"
             {...form.register("email")}
@@ -370,7 +368,7 @@ export const SignupForm = () => {
         </LabelInputContainer>
 
         {/* Password */}
-        <LabelInputContainer>
+        <LabelInputContainer className="mb-4">
           <Label htmlFor={passwordId} className="text-[var(--color-light)]">
             Password
           </Label>
@@ -383,7 +381,7 @@ export const SignupForm = () => {
         </LabelInputContainer>
 
         {/* Confirm Password */}
-        <LabelInputContainer>
+        <LabelInputContainer className="mb-8">
           <Label
             htmlFor={confirmPasswordId}
             className="text-[var(--color-light)]"

@@ -75,3 +75,13 @@ body {
   position: relative;
   min-width: 100%;
 }
+
+/* Override browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-dark) inset !important;
+  -webkit-text-fill-color: var(--color-light) !important;
+  caret-color: var(--color-light) !important;
+}
