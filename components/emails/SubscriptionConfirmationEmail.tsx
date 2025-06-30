@@ -65,7 +65,7 @@ export default function SubscriptionConfirmationEmail({
                 style={{ margin: "0 10px" }}
               >
                 <Img
-                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public//twitter.png"
+                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/twitter.png"
                   alt="X"
                   width="32"
                   height="32"
@@ -79,7 +79,7 @@ export default function SubscriptionConfirmationEmail({
                 style={{ margin: "0 10px" }}
               >
                 <Img
-                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public//Instagram_Glyph_Gradient.png"
+                  src="https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-public/Instagram_Glyph_Gradient.png"
                   alt="Instagram"
                   width="32"
                   height="32"
