@@ -14,11 +14,14 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.exchangeCodeForSession(code);
     if (!error && user) {
-      const firstName = user.user_metadata.first_name;
+      const userName =
+        user.user_metadata.first_name ||
+        user.user_metadata.name ||
+        user.email;
       const redirectUrl = new URL(next, origin);
       redirectUrl.searchParams.set(
         "welcome_message",
-        `Welcome ${firstName}, you are now signed in. Happy Shopping!`
+        `Welcome ${userName}, you are now signed in. Happy Shopping!`
       );
       return NextResponse.redirect(redirectUrl);
     }
