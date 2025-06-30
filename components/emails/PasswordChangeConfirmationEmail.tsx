@@ -1,3 +1,4 @@
+import { getURL } from "@/lib/utils";
 import {
   Body,
   Button,
@@ -16,9 +17,7 @@ interface PasswordChangeConfirmationEmailProps {
   customerName: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_URL
-  ? `https://${process.env.NEXT_PUBLIC_URL}`
-  : "http://localhost:3000";
+const baseUrl = getURL();
 
 export const PasswordChangeConfirmationEmail = ({
   customerName,

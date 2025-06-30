@@ -1,3 +1,4 @@
+import { getURL } from "@/lib/utils";
 import {
   Body,
   Container,
@@ -13,6 +14,8 @@ import {
   Text,
 } from "@react-email/components";
 
+const baseUrl = getURL();
+
 type OrderConfirmationEmailProps = {
   customerName: string;
   orderId: string;
@@ -20,10 +23,6 @@ type OrderConfirmationEmailProps = {
   items: { name: string; quantity: number; price: number }[];
   total: number;
 };
-
-const baseUrl = process.env.NEXT_PUBLIC_URL
-  ? `https://${process.env.NEXT_PUBLIC_URL}`
-  : "http://localhost:3000";
 
 const OrderConfirmationEmail = ({
   customerName,

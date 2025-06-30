@@ -1,3 +1,4 @@
+import { getURL } from "@/lib/utils";
 import {
   Body,
   Container,
@@ -10,9 +11,7 @@ import {
   Text,
 } from "@react-email/components";
 
-const baseUrl = process.env.NEXT_PUBLIC_URL
-  ? `https://${process.env.NEXT_PUBLIC_URL}`
-  : "http://localhost:3000";
+const baseUrl = getURL();
 
 export default function SubscriptionConfirmationEmail({
   email,
