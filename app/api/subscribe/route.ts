@@ -7,12 +7,15 @@ import { type NextRequest, NextResponse } from "next/server";
 // Handle POST requests to /api/subscribe
 export async function POST(request: NextRequest) {
   // Parse JSON body
-  const { email } = await request.json();
+  let { email } = await request.json();
 
   // Guard clause: make sure email is present
   if (!email) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
+
+  // Normalize email to lowercase
+  email = email.toLowerCase().trim();
 
   // Create a Supabase client to get the current user
   const supabase = createClient();
