@@ -6,11 +6,11 @@ export const Logo = () => {
     <>
       <Link href="/" className="flex items-center gap-2">
         <Image
-          src="/logo.svg"
+          src="/logo-hyperwear.svg"
           alt="HyperWear"
-          width={180}
-          height={180}
-          className="bg-primary cursor-pointer rounded-xl p-3"
+          width={250}
+          height={250}
+          className="cursor-pointer"
         />
       </Link>
     </>
