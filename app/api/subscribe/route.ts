@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
   // Attempt to send a confirmation email via Resend
   try {
     await resend.emails.send({
-      from: "contact@hyperwear.io", // Use your verified sender
+      from: "HyperWear Movement <noreply@hyperwear.io>", // Use your verified sender
       to: email,
       subject: "You're in! 🐾 Welcome to the HyperWear Movement",
       react: SubscriptionConfirmationEmail({ email, fullName }), // Pass email and fullName as props for personalization

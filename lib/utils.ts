@@ -23,3 +23,8 @@ export function getPublicImageUrl(path: string): string {
   // Otherwise, use the default 'product-images' bucket
   return `${supabaseUrl}product-images/${path}`;
 }
+
+export const getURL = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+  return isProduction ? "https://hyperwear.io" : "http://localhost:3000";
+};
