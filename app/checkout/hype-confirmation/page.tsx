@@ -25,7 +25,6 @@ function HypeConfirmation() {
   const [amountToPay, setAmountToPay] = useState<number>(initialAmount);
   const [orderStatus, setOrderStatus] = useState<string>("pending");
   const [paidAmount, setPaidAmount] = useState<number>(0);
-  const [orderTotal, setOrderTotal] = useState<number>(initialAmount);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
@@ -107,8 +106,7 @@ function HypeConfirmation() {
         setOrderStatus(order.status);
         setPaidAmount(order.paid_amount ?? 0);
         setExpiresAt(order.expires_at);
-        setAmountToPay(order.remaining_amount ?? order.total ?? 0);
-        setOrderTotal(order.total ?? 0);
+        setAmountToPay(order.remaining_amount ?? order.total_token_amount ?? 0);
       } else if (cartItems.length > 0) {
         // Create a new order if no ID is present
         const shippingInfo = JSON.parse(
@@ -267,9 +265,28 @@ function HypeConfirmation() {
             Partial Payment Received!
           </p>
           <p>
-            You have paid {paidAmount.toFixed(5)} / {orderTotal.toFixed(5)}.
+            <span className="inline-flex items-center justify-center gap-1.5">
+              You have paid {paidAmount.toFixed(5)}
+              {tokenImage && (
+                <Image
+                  src={tokenImage}
+                  alt={normalizedPaymentMethod.toUpperCase()}
+                  width={20}
+                  height={20}
+                />
+              )}
+            </span>
             <br />
-            Please send the remaining <strong>{amountToPay.toFixed(5)}</strong>.
+            <div className="mt-2 ml-2 flex flex-row items-center gap-2 pl-4">
+              Please send the remaining{" "}
+              <strong>{amountToPay.toFixed(5)}</strong>{" "}
+              <Image
+                src={tokenImage}
+                alt={normalizedPaymentMethod.toUpperCase()}
+                width={24}
+                height={24}
+              />
+            </div>
           </p>
         </div>
       );

@@ -16,6 +16,7 @@ type Order = {
   id: string;
   wallet_address: string;
   total: number;
+  total_token_amount: number;
   paid_amount: number;
   remaining_amount: number;
   status: "pending" | "underpaid" | "completed" | "overpaid";
@@ -95,6 +96,14 @@ async function processPaymentsForOrder(
     return;
   }
 
+  // Add a defensive check to ensure the token amount is valid
+  if (!order.total_token_amount || order.total_token_amount <= 0) {
+    console.error(
+      `Order ${order.id} has an invalid total_token_amount: ${order.total_token_amount}. Skipping payment processing.`,
+    );
+    return;
+  }
+
   let currentPaidAmount = order.paid_amount;
   const hashesToAdd = [];
 
@@ -119,10 +128,9 @@ async function processPaymentsForOrder(
     }
   }
 
-  const newRemainingAmount = order.total - currentPaidAmount;
-  const totalWithTolerance = order.total * 0.99;
+  const newRemainingAmount = order.total_token_amount - currentPaidAmount;
   const newStatus =
-    currentPaidAmount >= totalWithTolerance ? "completed" : "underpaid";
+    currentPaidAmount >= order.total_token_amount ? "completed" : "underpaid";
 
   const { error } = await supabase
     .from("orders")
@@ -174,7 +182,7 @@ async function processPaymentsForOrder(
   }
 }
 
-export async function POST(_request: Request) {
+export async function POST() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
