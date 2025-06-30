@@ -33,9 +33,20 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.2, ease: "easeInOut" }}
           className="text-cream font-body mt-6 max-w-2xl text-center text-lg leading-8"
         >
-          Crypto is fragmented today, but your community doesn&apos;t have to
-          be. For the first time, wear the movement that unites projects,
-          creators, and assets on one hyper-performant chain.
+          <p className="text-center">
+            <span className="text-secondary font-body font-semibold">
+              Crypto was fragmented
+            </span>{" "}
+            back then but{" "}
+            <span className="text-secondary font-body font-bold">
+              HyperLiquid
+            </span>{" "}
+            changed that. For the first time, wear the movement that{" "}
+            <span className="text-secondary decoration-secondary font-body decoration-2 underline-offset-4">
+              unites projects, creators, and assets
+            </span>{" "}
+            under one seamless ecosystem.{" "}
+          </p>
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
