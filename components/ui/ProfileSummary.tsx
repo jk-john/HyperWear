@@ -1,85 +1,59 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tables } from "@/types/supabase";
-import Image from "next/image";
+import { User } from "@supabase/supabase-js";
+import { Home, Mail, Phone, User as UserIcon } from "lucide-react";
 
-type Address = Tables<"user_addresses">;
+type UserAddress = Tables<"user_addresses">;
 
-interface ProfileSummaryProps {
-  defaultAddress: Address | null;
-  user: {
-    email?: string;
-  };
-}
-
-export function ProfileSummary({ defaultAddress, user }: ProfileSummaryProps) {
-  const userEmail = user.email;
-
-  const {
-    first_name,
-    last_name,
-    company_name,
-    phone_number,
-    street,
-    address_complement,
-    city,
-    postal_code,
-    country,
-    delivery_instructions,
-  } = defaultAddress || {};
+export function ProfileSummary({
+  user,
+  defaultAddress,
+}: {
+  user: User;
+  defaultAddress: UserAddress | null;
+}) {
+  const userName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.user_metadata?.first_name ||
+    "User";
+  const userEmail = user.email || "No email provided";
 
   return (
-    <div className="bg-primary flex flex-col rounded-lg p-8 shadow-lg">
-      <h2 className="font-display mb-6 text-3xl font-semibold text-white">
-        Profile Summary
-      </h2>
-      <div className="flex flex-col items-center gap-8 md:flex-row">
-        <div className="flex flex-col items-center text-center md:text-left">
-          <Image
-            src="/purr-logo.jpg"
-            alt="User Avatar"
-            width={128}
-            height={128}
-            className="border-secondary mx-auto mr-15 ml-10 rounded-full border-4 object-cover"
-          />
+    <Card className="border-[var(--color-primary)] bg-[var(--color-primary)]/50 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle>Profile Summary</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-4">
+          <UserIcon className="h-6 w-6 text-[var(--color-accent)]" />
+          <p>{userName}</p>
         </div>
-        <div className="grid flex-grow grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoItem label="First Name" value={first_name} />
-          <InfoItem label="Last Name" value={last_name} />
-          <InfoItem label="Email Address" value={userEmail} />
-          <InfoItem label="Phone Number" value={phone_number} />
-          <InfoItem label="Street Address" value={street} />
-          <InfoItem label="City" value={city} />
-          <InfoItem label="ZIP Code" value={postal_code} />
-          <InfoItem label="Country" value={country} />
-          {defaultAddress && company_name && (
-            <InfoItem label="Company" value={company_name} />
-          )}
-          {defaultAddress && address_complement && (
-            <InfoItem label="Apt / Suite" value={address_complement} />
-          )}
-          {defaultAddress && delivery_instructions && (
-            <InfoItem
-              label="Delivery Instructions"
-              value={delivery_instructions}
-              fullWidth
-            />
-          )}
+        <div className="flex items-center gap-4">
+          <Mail className="h-6 w-6 text-[var(--color-accent)]" />
+          <p>{userEmail}</p>
         </div>
-      </div>
-    </div>
-  );
-}
-
-interface InfoItemProps {
-  label: string;
-  value: string | null | undefined;
-  fullWidth?: boolean;
-}
-
-function InfoItem({ label, value, fullWidth = false }: InfoItemProps) {
-  return (
-    <div className={fullWidth ? "sm:col-span-2 lg:col-span-3" : ""}>
-      <p className="text-sm font-semibold text-gray-400">{label}</p>
-      <p className="text-lg text-white">{value || "–"}</p>
-    </div>
+        {defaultAddress ? (
+          <>
+            <div className="flex items-center gap-4">
+              <Home className="h-6 w-6 text-[var(--color-accent)]" />
+              <p>
+                {defaultAddress.street}, {defaultAddress.city},{" "}
+                {defaultAddress.postal_code}
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Phone className="h-6 w-6 text-[var(--color-accent)]" />
+              <p>{defaultAddress.phone_number}</p>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-4">
+            <Home className="h-6 w-6 text-[var(--color-accent)]" />
+            <p>No default address set.</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

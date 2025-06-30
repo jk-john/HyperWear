@@ -18,11 +18,16 @@ export async function GET(request: Request) {
         user.user_metadata.first_name ||
         user.user_metadata.name ||
         user.email;
-      const redirectUrl = new URL(next, origin);
-      redirectUrl.searchParams.set(
-        "welcome_message",
-        `Welcome ${userName}, you are now signed in. Happy Shopping!`
-      );
+      const welcomeMessage = `Welcome ${userName}, you are now signed in. Happy Shopping!`;
+
+      if (next) {
+        const redirectUrl = new URL(next, origin);
+        redirectUrl.searchParams.set("welcome_message", welcomeMessage);
+        return NextResponse.redirect(redirectUrl);
+      }
+
+      const redirectUrl = new URL("/", origin);
+      redirectUrl.searchParams.set("welcome_message", welcomeMessage);
       return NextResponse.redirect(redirectUrl);
     }
   }
