@@ -14,18 +14,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  // Create a new response and copy over the headers from the Supabase response
-  const nextResponse = NextResponse.next({
-    request: {
-      headers: new Headers(request.headers),
-    },
-  });
-
-  response.headers.forEach((value, key) => {
-    nextResponse.headers.set(key, value);
-  });
-
-  return nextResponse;
+  return response;
 }
 
 export const config = {
