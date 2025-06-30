@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, getURL } from "@/lib/utils"; // ✅ Updated: imported getURL
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, Github, X } from "lucide-react";
@@ -12,7 +12,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-// Bottom gradient component for buttons
 const BottomGradient = () => {
   return (
     <>
@@ -194,7 +193,6 @@ const PasswordStrengthInput = ({
     </div>
   );
 };
-
 const formSchema = z
   .object({
     firstName: z.string().min(2, {
@@ -219,7 +217,6 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-// Main signup form component
 export const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -272,7 +269,7 @@ export const SignupForm = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=/?signed_up=true`,
+        redirectTo: `${getURL()}/auth/callback?next=/?signed_up=true`, // ✅ Fixed
       },
     });
 
@@ -316,6 +313,7 @@ export const SignupForm = () => {
       </p>
 
       <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
+        {/* First/Last Name */}
         <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
           <LabelInputContainer>
             <Label htmlFor="firstname" className="text-[var(--color-light)]">
@@ -353,6 +351,7 @@ export const SignupForm = () => {
           </LabelInputContainer>
         </div>
 
+        {/* Email */}
         <LabelInputContainer>
           <Label htmlFor="email" className="text-[var(--color-light)]">
             Email Address
@@ -371,6 +370,7 @@ export const SignupForm = () => {
           )}
         </LabelInputContainer>
 
+        {/* Password */}
         <LabelInputContainer>
           <Label htmlFor={passwordId} className="text-[var(--color-light)]">
             Password
@@ -383,6 +383,7 @@ export const SignupForm = () => {
           />
         </LabelInputContainer>
 
+        {/* Confirm Password */}
         <LabelInputContainer>
           <Label
             htmlFor={confirmPasswordId}
