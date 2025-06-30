@@ -16,7 +16,7 @@ import {
   Text,
 } from "@react-email/components";
 
-const baseUrl = getSiteUrl();
+// const baseUrl = getSiteUrl();
 
 type OrderConfirmationEmailProps = {
   customerName: string;

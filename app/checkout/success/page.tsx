@@ -157,7 +157,7 @@ function SuccessContent() {
                 variant="outline"
                 className="w-full border-white text-white sm:w-auto"
               >
-                <Link href="/collections" passHref>
+                <Link href="/" passHref>
                   <div className="flex items-center">
                     <ShoppingCart className="block-inline mr-2 h-5 w-5 border-white text-white" />
                     <span className="block-inline text-white">
