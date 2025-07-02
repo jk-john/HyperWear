@@ -26,6 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const handleImageClick = (index: number) => {
     setInitialSlide(index);
@@ -37,9 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const needsSizeSelection =
-    (product.category === "T-shirts" || product.category === "Shorts") &&
-    product.available_sizes &&
-    product.available_sizes.length > 0;
+    product.available_sizes && product.available_sizes.length > 0;
 
   const handleAddToCart = () => {
     if (needsSizeSelection && !selectedSize) {
@@ -48,6 +47,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
     addToCart(product, selectedSize);
   };
+
+  const isLongDescription =
+    product.description && product.description.length > 100;
 
   return (
     <>
@@ -84,6 +86,28 @@ export default function ProductCard({ product }: ProductCardProps) {
               <h3 className="text-mint font-body text-center text-lg font-semibold dark:text-white">
                 {product.name}
               </h3>
+            </CardItem>
+            <CardItem
+              translateZ="40"
+              className="flex w-full flex-col items-center"
+            >
+              <p
+                className={`mt-2 text-center text-sm text-gray-600 dark:text-gray-400 ${
+                  !isDescriptionExpanded && "line-clamp-2"
+                }`}
+              >
+                {product.description}
+              </p>
+              {isLongDescription && (
+                <button
+                  onClick={() =>
+                    setIsDescriptionExpanded(!isDescriptionExpanded)
+                  }
+                  className="text-link mt-1 text-center text-sm"
+                >
+                  {isDescriptionExpanded ? "Read less" : "Read more"}
+                </button>
+              )}
             </CardItem>
             <CardItem translateZ="20">
               <p className="bg-primary text-secondary mb-6 rounded-lg px-4 py-1 text-center font-medium dark:text-white">

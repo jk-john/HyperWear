@@ -123,6 +123,22 @@ export const ProductImageModal = ({
             <div>
               <p className="mb-4 text-lg font-semibold">${product.price}</p>
               <p className="text-muted-foreground">{product.description}</p>
+
+              <div className="mt-4 flex space-x-4">
+                {product.gender && (
+                  <div className="flex items-center space-x-2">
+                    <span className="font-semibold">Gender:</span>
+                    <span>{product.gender}</span>
+                  </div>
+                )}
+                {product.category && (
+                  <div className="flex items-center space-x-2">
+                    <span className="font-semibold">Category:</span>
+                    <span>{product.category}</span>
+                  </div>
+                )}
+              </div>
+
               {needsSizeSelection && (
                 <div className="mt-4">
                   <Select onValueChange={setSelectedSize} value={selectedSize}>
