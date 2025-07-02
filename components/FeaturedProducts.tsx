@@ -33,13 +33,13 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="bg-white pt-10">
+    <section className="mb-8 rounded-lg bg-white px-4 pt-8 sm:mb-12 sm:px-6 sm:pt-10 md:px-8">
       <div className="container mx-auto">
-        <div className="mb-12 text-center">
-          <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
+        <div className="mb-8 text-center sm:mb-12">
+          <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
             Featured Products
           </h2>
-          <p className="text-lg font-light text-gray-600">
+          <p className="text-base font-light text-gray-600 sm:text-lg">
             Explore our carefully curated collection of exceptional products.
           </p>
         </div>

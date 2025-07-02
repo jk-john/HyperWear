@@ -54,7 +54,39 @@ const components: {
   },
 ];
 
-export function Navigation() {
+export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
+  if (isMobile) {
+    return (
+      <nav className="flex flex-col space-y-4">
+        <h3 className="text-lg font-bold">Products</h3>
+        <ul className="flex flex-col space-y-2 pl-4">
+          {components.map((component) => (
+            <li key={component.title}>
+              <Link href={component.href} className="hover:underline">
+                {component.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/collections"
+          className="text-lg font-medium hover:underline"
+        >
+          Collections
+        </Link>
+        <Link
+          href="/new-arrivals"
+          className="text-lg font-medium hover:underline"
+        >
+          New Arrivals
+        </Link>
+        <Link href="/community" className="text-lg font-medium hover:underline">
+          Community
+        </Link>
+      </nav>
+    );
+  }
+
   return (
     <NavigationMenu>
       <NavigationMenuList>

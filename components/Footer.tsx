@@ -82,13 +82,13 @@ const Footer = () => {
         </div>
 
         {/* Main Footer Content */}
-        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-12 grid grid-cols-1 gap-10 text-center md:grid-cols-2 md:text-left lg:grid-cols-5">
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <div className="font-display mb-4 text-3xl font-bold">
               <span>HyperWear</span>
             </div>
-            <p className="mb-8 pr-28 text-justify leading-relaxed text-white/70">
+            <p className="mb-8 pr-0 text-white/70 sm:pr-28 md:text-justify">
               We&apos;re designing premium merch to reflect and empower the
               unique spirit of the Hyperliquid community.
               <br />
@@ -96,7 +96,7 @@ const Footer = () => {
               HyperLiquid. It is not affiliated with or endorsed by HyperLiquid.
             </p>
 
-            <div className="flex space-x-3">
+            <div className="flex justify-center space-x-3 md:justify-start">
               <Socials />
             </div>
           </div>

@@ -6,8 +6,16 @@ import { Navigation } from "@/components/header/Navigation";
 import { SearchBar } from "@/components/header/SearchBar";
 import { UserAccountNav } from "@/components/header/UserAccountNav";
 import ShimmerButton from "@/components/ui/ShimmerButton";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -44,19 +52,46 @@ export const Header = () => {
           <Logo />
         </div>
 
-        {/* Center Section - Navigation */}
+        {/* Desktop Navigation */}
         <div className="hidden items-center md:flex">
           <Navigation />
         </div>
 
-        {/* Right Section - Actions */}
-        <div className="flex items-center space-x-4">
+        {/* Desktop Actions */}
+        <div className="hidden items-center space-x-4 md:flex">
           <SearchBar />
           <UserAccountNav user={user} />
           <Cart />
           <Link href="/products">
             <ShimmerButton>Shop Now</ShimmerButton>
           </Link>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger>
+              <Menu className="h-6 w-6" />
+            </SheetTrigger>
+            <SheetContent className="w-full bg-white sm:w-3/4">
+              <SheetHeader>
+                <SheetTitle>
+                  <Logo />
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-8 flex flex-col items-center space-y-4 px-4">
+                <Navigation isMobile />
+                <div className="w-full">
+                  <SearchBar />
+                </div>
+                <UserAccountNav user={user} displayMode="button" />
+                <Cart displayMode="button" />
+                <Link href="/products" className="w-full">
+                  <ShimmerButton className="w-full">Shop Now</ShimmerButton>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

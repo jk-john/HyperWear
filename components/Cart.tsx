@@ -18,7 +18,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
-export const Cart = () => {
+export const Cart = ({
+  displayMode = "icon",
+}: {
+  displayMode?: "icon" | "button";
+}) => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } =
     useCartStore();
   const totalCartItems = cartItems.reduce(
@@ -36,18 +40,33 @@ export const Cart = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
-        >
-          <ShoppingBag className="h-5 w-5" />
-          {totalCartItems > 0 && (
-            <Badge className="bg-accent text-primary absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
-              {totalCartItems}
-            </Badge>
-          )}
-        </Button>
+        {displayMode === "button" ? (
+          <Button
+            variant="ghost"
+            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 p-3 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            <span>Cart</span>
+            {totalCartItems > 0 && (
+              <Badge className="bg-accent text-primary ml-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
+                {totalCartItems}
+              </Badge>
+            )}
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {totalCartItems > 0 && (
+              <Badge className="bg-accent text-primary absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
+                {totalCartItems}
+              </Badge>
+            )}
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent className="flex w-[400px] flex-col bg-white/95 backdrop-blur-xl sm:w-[540px]">
         <SheetHeader className="px-6 pt-6">

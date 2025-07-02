@@ -17,13 +17,13 @@ export default async function AllProducts() {
   }
 
   return (
-    <section className="bg-white py-10">
+    <section className="rounded-lg bg-white px-4 py-8 sm:px-6 sm:py-10 md:px-8">
       <div className="container mx-auto">
-        <div className="mb-4 text-center">
-          <h2 className="font-display text-4xl font-semibold text-[var(--color-dark)]">
+        <div className="mb-8 text-center sm:mb-12">
+          <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
             All Products
           </h2>
-          <p>
+          <p className="text-base font-light text-gray-600 sm:text-lg">
             These are the products coming from the database. This is a
             placeholder for the actual products.
           </p>
