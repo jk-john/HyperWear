@@ -41,7 +41,7 @@ export default function CommunityPageClient() {
         </h1>
 
         <p
-          className="text-cream font-body relative z-10 mx-auto my-2 max-w-lg text-justify"
+          className="text-cream font-body relative z-10 mx-auto my-2 max-w-lg text-center sm:text-justify"
           style={{ color: "var(--color-light)" }}
         >
           Are you a member of the HyperLiquid community looking to collaborate?
@@ -65,7 +65,7 @@ export default function CommunityPageClient() {
               key="purr-happy"
             />
             <div className="flex flex-col items-center gap-y-2">
-              <h2 className="font-body text-xl font-semibold text-white">
+              <h2 className="font-body sm:text-md text-lg font-semibold text-white">
                 Eligible PURR NFT holders, fill this form.
               </h2>
               <Badge variant="secondary">Coming Soon</Badge>

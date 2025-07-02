@@ -1,9 +1,9 @@
 "use client";
 
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import Link from "next/link";
 
 const CollectionsPage = () => {
   const carouselImages = [
@@ -70,8 +70,14 @@ const CollectionsPage = () => {
           {collections.map((collection) => (
             <div
               key={collection.title}
-              className="transform overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-2"
+              className="relative transform overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-2"
             >
+              <Badge
+                variant="secondary"
+                className="bg-secondary text-primary absolute top-2 right-2"
+              >
+                Coming Soon
+              </Badge>
               <Image
                 src={collection.image}
                 height="400"
@@ -87,19 +93,19 @@ const CollectionsPage = () => {
                   {collection.description}
                 </p>
                 <div className="mt-6 flex items-center justify-between">
-                  <Link href={collection.link} legacyBehavior>
-                    <Button
-                      variant="outline"
-                      className="rounded-full font-semibold"
-                    >
-                      View Collection
-                    </Button>
-                  </Link>
-                  <Link href="/products" legacyBehavior>
-                    <Button className="bg-primary hover:bg-secondary rounded-full font-semibold text-white hover:text-black">
-                      Shop Now
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="outline"
+                    className="cursor-not-allowed rounded-full font-semibold opacity-60"
+                    disabled
+                  >
+                    View Collection
+                  </Button>
+                  <Button
+                    className="bg-primary hover:bg-secondary cursor-not-allowed rounded-full font-semibold text-white opacity-60 hover:text-black"
+                    disabled
+                  >
+                    Shop Now
+                  </Button>
                 </div>
               </div>
             </div>

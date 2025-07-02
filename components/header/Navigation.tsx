@@ -31,7 +31,7 @@ const components: {
   {
     title: "Shorts",
     href: "/products?category=shorts",
-    src: "/products-img/short-1/front.png",
+    src: "/products-img/short-front.png",
     description: "Comfort and style for every day.",
   },
   {
@@ -60,13 +60,36 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
       <nav className="flex flex-col space-y-4">
         <h3 className="text-lg font-bold">Products</h3>
         <ul className="flex flex-col space-y-2 pl-4">
-          {components.map((component) => (
-            <li key={component.title}>
-              <Link href={component.href} className="hover:underline">
-                {component.title}
-              </Link>
-            </li>
-          ))}
+          {components.map((component) => {
+            const isComingSoon =
+              component.title === "Shorts" || component.title === "Plushies";
+            return (
+              <li
+                key={component.title}
+                className={cn(isComingSoon && "cursor-not-allowed opacity-60")}
+              >
+                <Link
+                  href={isComingSoon ? "#!" : component.href}
+                  onClick={(e) => {
+                    if (isComingSoon) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="flex items-center gap-x-1 hover:underline"
+                >
+                  {component.title}
+                  {isComingSoon && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-secondary text-primary"
+                    >
+                      Coming Soon
+                    </Badge>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         <Link
           href="/collections"
@@ -145,18 +168,25 @@ const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { src: string; liClassName?: string }
 >(({ className, title, children, src, liClassName, href, ...props }, ref) => {
+  const isComingSoon = title === "Shorts" || title === "Plushies";
   return (
     <li
       className={cn(
         "group hover:bg-secondary transform-gpu rounded-md transition-all duration-300 ease-in-out hover:scale-[1.02]",
         liClassName,
+        isComingSoon && "cursor-not-allowed opacity-60",
       )}
     >
       <Link
         ref={ref}
-        href={href ?? ""}
+        href={isComingSoon ? "#!" : (href ?? "")}
+        onClick={(e) => {
+          if (isComingSoon) {
+            e.preventDefault();
+          }
+        }}
         className={cn(
-          "focus:bg-primary focus:text-accent-foreground group-hover:text-primary block space-y-1 rounded-md p-3 leading-none no-underline outline-none select-none",
+          "focus:bg-primary focus:text-accent-foreground group-hover:text-primary relative block space-y-1 rounded-md p-3 leading-none no-underline outline-none select-none",
           className,
         )}
         {...props}
@@ -176,6 +206,14 @@ const ListItem = React.forwardRef<
             </p>
           </div>
         </div>
+        {isComingSoon && (
+          <Badge
+            variant="secondary"
+            className="bg-secondary text-primary absolute -top-2 right-0 translate-y-1/2 transform"
+          >
+            Coming Soon
+          </Badge>
+        )}
       </Link>
     </li>
   );
