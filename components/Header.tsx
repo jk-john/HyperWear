@@ -17,10 +17,13 @@ import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const Header = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createClient();
@@ -43,6 +46,10 @@ export const Header = () => {
       authListener?.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
@@ -69,9 +76,11 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger>
-              <Menu className="h-6 w-6" />
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button>
+                <Menu className="h-6 w-6" />
+              </button>
             </SheetTrigger>
             <SheetContent className="w-full bg-white sm:w-3/4">
               <SheetHeader>

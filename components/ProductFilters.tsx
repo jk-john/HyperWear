@@ -12,9 +12,13 @@ import {
 
 type ProductFiltersProps = {
   categories: string[];
+  isMobile?: boolean;
 };
 
-export function ProductFilters({ categories }: ProductFiltersProps) {
+export function ProductFilters({
+  categories,
+  isMobile = false,
+}: ProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -54,10 +58,15 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     router.push(`${pathname}${query}`);
   };
 
+  const selectTriggerClassName = isMobile ? "h-10" : "h-12";
+  const titleClassName = isMobile
+    ? "mb-2 text-center text-lg font-semibold"
+    : "mb-2 text-lg font-semibold";
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col items-center gap-6">
       <div>
-        <h3 className="mb-2 text-lg font-semibold">Sort by</h3>
+        <h3 className={titleClassName}>Sort by</h3>
         <Select
           onValueChange={handleSortChange}
           defaultValue={
@@ -66,48 +75,68 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
               : "none"
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className={selectTriggerClassName}>
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="none">Default</SelectItem>
-            <SelectItem value="price-asc">Price: Low to High</SelectItem>
-            <SelectItem value="price-desc">Price: High to Low</SelectItem>
+          <SelectContent className="bg-white text-center">
+            <SelectItem value="none" className="justify-center">
+              Default
+            </SelectItem>
+            <SelectItem value="price-asc" className="justify-center">
+              Price: Low to High
+            </SelectItem>
+            <SelectItem value="price-desc" className="justify-center">
+              Price: High to Low
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div>
-        <h3 className="mb-2 text-lg font-semibold">Gender</h3>
+        <h3 className={titleClassName}>Gender</h3>
         <Select
           onValueChange={(value) => handleFilterChange("gender", value)}
           defaultValue={searchParams.get("gender") ?? "all"}
         >
-          <SelectTrigger>
+          <SelectTrigger className={selectTriggerClassName}>
             <SelectValue placeholder="Filter by gender" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="all">All Genders</SelectItem>
-            <SelectItem value="men">Men</SelectItem>
-            <SelectItem value="women">Women</SelectItem>
-            <SelectItem value="unisex">Unisex</SelectItem>
+          <SelectContent className="bg-white text-center">
+            <SelectItem value="all" className="justify-center">
+              All Genders
+            </SelectItem>
+            <SelectItem value="men" className="justify-center">
+              Men
+            </SelectItem>
+            <SelectItem value="women" className="justify-center">
+              Women
+            </SelectItem>
+            <SelectItem value="unisex" className="justify-center">
+              Unisex
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div>
-        <h3 className="mb-2 text-lg font-semibold">Category</h3>
+        <h3 className={titleClassName}>Category</h3>
         <Select
           onValueChange={(value) => handleFilterChange("category", value)}
           defaultValue={searchParams.get("category") ?? "all"}
         >
-          <SelectTrigger>
+          <SelectTrigger className={selectTriggerClassName}>
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+          <SelectContent className="text-center">
+            <SelectItem value="all" className="justify-center">
+              All Categories
+            </SelectItem>
             {categories.map((category) => (
-              <SelectItem key={category} value={category}>
+              <SelectItem
+                key={category}
+                value={category}
+                className="justify-center"
+              >
                 {category}
               </SelectItem>
             ))}

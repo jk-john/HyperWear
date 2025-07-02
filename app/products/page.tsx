@@ -1,7 +1,16 @@
 import ProductGrid from "@/components/ProductGrid";
 import ProductSidebar from "@/components/ProductSidebar";
 import StylishTitle from "@/components/ProductsTitle";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/server";
+import { SlidersHorizontal } from "lucide-react";
 
 type ProductsPageProps = {
   searchParams: {
@@ -47,8 +56,33 @@ export default async function ProductsPage({
         <div className="mb-12 text-center">
           <StylishTitle />
         </div>
+
+        {/* Mobile Filters */}
+        <div className="mb-8 flex justify-center md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="bg-primary text-secondary hover:bg-primary/90 flex items-center gap-2 px-6">
+                <SlidersHorizontal className="h-5 w-5" />
+                <span>Filters</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="text-primary bg-white">
+              <SheetHeader className="text-center">
+                <SheetTitle className="text-primary text-xl font-bold">
+                  Filters
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <ProductSidebar categories={categories} isMobile />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <ProductSidebar categories={categories} />
+          <div className="hidden md:block">
+            <ProductSidebar categories={categories} />
+          </div>
           <main className="md:col-span-3">
             <ProductGrid
               products={products}
