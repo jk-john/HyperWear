@@ -25,7 +25,21 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const supabase = createClient();
-  const { gender, category, sortBy, order } = await searchParams;
+  const { gender, category, sortBy, order } = searchParams;
+
+  // Fetch all products to derive categories
+  const { data: allProducts, error: allProductsError } = await supabase
+    .from("products")
+    .select("category");
+
+  if (allProductsError) {
+    console.error("Error fetching products for categories:", allProductsError);
+    return <div>Error loading products.</div>;
+  }
+
+  const categories = allProducts
+    ? [...new Set(allProducts.map((p) => p.category).filter(Boolean))]
+    : [];
 
   let query = supabase.from("products").select("*");
 
@@ -49,7 +63,6 @@ export default async function ProductsPage({
     return <div>Error loading products.</div>;
   }
 
-  const categories = ["T-shirts", "Cups", "Caps", "Phone Cases", "Plushes"];
   return (
     <section className="bg-white py-20">
       <div className="container mx-auto">
