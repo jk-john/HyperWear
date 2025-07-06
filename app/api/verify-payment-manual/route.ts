@@ -129,8 +129,8 @@ async function processPaymentsForOrder(
   }
 
   const newRemainingAmount = order.total_token_amount - currentPaidAmount;
-  const newStatus =
-    currentPaidAmount >= order.total_token_amount ? "completed" : "underpaid";
+  const lowerBound = order.total_token_amount * 0.98;
+  const newStatus = currentPaidAmount >= lowerBound ? "completed" : "underpaid";
 
   const { error } = await supabase
     .from("orders")

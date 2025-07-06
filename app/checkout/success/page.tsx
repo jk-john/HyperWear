@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
 import {
@@ -191,9 +192,7 @@ function SuccessContent() {
                   <div className="flex items-start gap-4">
                     <div className="aspect-square w-20 overflow-hidden rounded-lg border">
                       <Image
-                        src={
-                          item.products.images?.[0] || "/placeholder-image.png"
-                        }
+                        src={getPublicImageUrl(item.products.images?.[0] || "")}
                         alt={item.products.name}
                         width={80}
                         height={80}

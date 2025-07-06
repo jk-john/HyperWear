@@ -39,77 +39,122 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.metadata?.orderId;
 
     try {
       const supabase = createClient();
-      const shippingDetails = session.metadata?.shipping
-        ? JSON.parse(session.metadata.shipping)
-        : {};
-      const cartItems: CartItem[] = session.metadata?.cartItems
-        ? JSON.parse(session.metadata.cartItems)
-        : [];
 
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({
-          user_id: session.client_reference_id ?? undefined,
-          total: (session.amount_total ?? 0) / 100,
-          delivery_name: shippingDetails.name,
-          delivery_email: shippingDetails.email,
-          address_line1: shippingDetails.street,
-          city: shippingDetails.city,
-          postal_code: shippingDetails.zip,
-          country: shippingDetails.country,
-          status: "paid",
-          payment_method: "Stripe",
-        })
-        .select()
-        .single();
+      if (orderId) {
+        // If orderId is in metadata, update the existing order
+        const { data: updatedOrder, error: updateError } = await supabase
+          .from("orders")
+          .update({ status: "paid" })
+          .eq("id", orderId)
+          .select()
+          .single();
 
-      if (error) {
-        throw new Error(`Supabase order creation failed: ${error.message}`);
-      }
-
-      if (order && cartItems.length > 0) {
-        const orderItems = cartItems.map((item) => ({
-          order_id: order.id,
-          product_id: item.id,
-          variant_id: item.variant_id,
-          quantity: item.quantity,
-          price_at_purchase: item.price,
-        }));
-
-        const { error: itemsError } = await supabase
-          .from("order_items")
-          .insert(orderItems);
-
-        if (itemsError) {
-          throw new Error(
-            `Supabase order items creation failed: ${itemsError.message}`,
-          );
+        if (updateError) {
+          throw new Error(`Supabase order update failed: ${updateError.message}`);
         }
-      }
 
-      const customerEmail = session.customer_details?.email;
-      if (customerEmail) {
-        const items = cartItems.map((item) => ({
-          name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
-          quantity: item.quantity ?? 0,
-          price: item.price ?? 0,
-        }));
+        // Send confirmation email for the updated order
+        const customerEmail = session.customer_details?.email;
+        if (customerEmail) {
+          const cartItems: CartItem[] = session.metadata?.cartItems
+            ? JSON.parse(session.metadata.cartItems)
+            : [];
+          const items = cartItems.map((item) => ({
+            name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
+            quantity: item.quantity ?? 0,
+            price: item.price ?? 0,
+          }));
 
-        await resend.emails.send({
-          from: "Hyperwear <noreply@hyperwear.com>",
-          to: customerEmail,
-          subject: "Your Hyperwear Order Confirmation",
-          react: OrderConfirmationEmail({
-            customerName: session.customer_details?.name ?? "Valued Customer",
-            orderId: order.id.toString(),
-            orderDate: new Date(order.created_at).toLocaleDateString(),
-            items,
+          await resend.emails.send({
+            from: "Hyperwear <noreply@hyperwear.com>",
+            to: customerEmail,
+            subject: "Your Hyperwear Order Confirmation",
+            react: OrderConfirmationEmail({
+              customerName:
+                session.customer_details?.name ?? "Valued Customer",
+              orderId: updatedOrder.id.toString(),
+              orderDate: new Date(updatedOrder.created_at).toLocaleDateString(),
+              items,
+              total: (session.amount_total ?? 0) / 100,
+            }),
+          });
+        }
+      } else {
+        // Fallback: create a new order if orderId is not in metadata
+        const shippingDetails = session.metadata?.shipping
+          ? JSON.parse(session.metadata.shipping)
+          : {};
+        const cartItems: CartItem[] = session.metadata?.cartItems
+          ? JSON.parse(session.metadata.cartItems)
+          : [];
+
+        const { data: order, error } = await supabase
+          .from("orders")
+          .insert({
+            user_id: session.client_reference_id ?? undefined,
             total: (session.amount_total ?? 0) / 100,
-          }),
-        });
+            delivery_name: shippingDetails.name,
+            delivery_email: shippingDetails.email,
+            address_line1: shippingDetails.street,
+            city: shippingDetails.city,
+            postal_code: shippingDetails.zip,
+            country: shippingDetails.country,
+            status: "paid",
+            payment_method: "Stripe",
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(`Supabase order creation failed: ${error.message}`);
+        }
+
+        if (order && cartItems.length > 0) {
+          const orderItems = cartItems.map((item) => ({
+            order_id: order.id,
+            product_id: item.id,
+            variant_id: item.variant_id,
+            quantity: item.quantity,
+            price_at_purchase: item.price,
+          }));
+
+          const { error: itemsError } = await supabase
+            .from("order_items")
+            .insert(orderItems);
+
+          if (itemsError) {
+            throw new Error(
+              `Supabase order items creation failed: ${itemsError.message}`,
+            );
+          }
+        }
+
+        const customerEmail = session.customer_details?.email;
+        if (customerEmail) {
+          const items = cartItems.map((item) => ({
+            name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
+            quantity: item.quantity ?? 0,
+            price: item.price ?? 0,
+          }));
+
+          await resend.emails.send({
+            from: "Hyperwear <noreply@hyperwear.com>",
+            to: customerEmail,
+            subject: "Your Hyperwear Order Confirmation",
+            react: OrderConfirmationEmail({
+              customerName:
+                session.customer_details?.name ?? "Valued Customer",
+              orderId: order.id.toString(),
+              orderDate: new Date(order.created_at).toLocaleDateString(),
+              items,
+              total: (session.amount_total ?? 0) / 100,
+            }),
+          });
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";

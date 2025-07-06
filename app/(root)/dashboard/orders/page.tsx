@@ -37,9 +37,9 @@ export default async function OrdersPage() {
 
   if (!session) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="mt-4">Please log in to see your orders.</p>
+      <div className="container mx-auto bg-white px-4 py-8 text-black">
+        <h1 className="text-2xl font-bold text-black">My Orders</h1>
+        <p className="mt-4 text-black">Please log in to see your orders.</p>
       </div>
     );
   }
@@ -60,9 +60,9 @@ export default async function OrdersPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="text-destructive mt-4">
+      <div className="container mx-auto bg-white px-4 py-8 text-black">
+        <h1 className="text-2xl font-bold text-black">My Orders</h1>
+        <p className="mt-4 text-red-600">
           Could not fetch orders. Please try again later.
         </p>
       </div>
@@ -72,36 +72,47 @@ export default async function OrdersPage() {
   const typedOrders = orders as OrderWithItems[];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold">My Orders</h1>
+    <div className="container mx-auto mt-10 rounded-lg bg-white px-4 py-8 text-black">
+      <h1 className="mb-8 text-center text-2xl font-bold text-black">
+        My Orders
+      </h1>
       <div className="space-y-8">
         {typedOrders.map((order) => (
-          <Card key={order.id}>
-            <CardHeader>
-              <CardTitle>Order #{order.id.substring(0, 8)}</CardTitle>
-              <CardDescription>
+          <Card key={order.id} className="border-gray-200 bg-white">
+            <CardHeader className="bg-white">
+              <CardTitle className="text-black">
+                Order #{order.id.substring(0, 8)}
+              </CardTitle>
+              <CardDescription className="text-gray-600">
                 Placed on {new Date(order.created_at!).toLocaleDateString()}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="bg-white">
+              <Table className="bg-white">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Total</TableHead>
+                  <TableRow className="border-gray-200 bg-white">
+                    <TableHead className="text-black">Product</TableHead>
+                    <TableHead className="text-black">Quantity</TableHead>
+                    <TableHead className="text-black">Price</TableHead>
+                    <TableHead className="text-black">Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {order.order_items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.products?.name}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>
+                    <TableRow
+                      key={item.id}
+                      className="border-gray-200 bg-white"
+                    >
+                      <TableCell className="text-black">
+                        {item.products?.name}
+                      </TableCell>
+                      <TableCell className="text-black">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-black">
                         ${item.price_at_purchase?.toFixed(2)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-black">
                         $
                         {(
                           (item.price_at_purchase ?? 0) * (item.quantity ?? 0)
@@ -111,13 +122,15 @@ export default async function OrdersPage() {
                   ))}
                 </TableBody>
               </Table>
-              <div className="mt-4 text-right font-bold">
+              <div className="mt-4 text-right font-bold text-black">
                 Total: ${order.total?.toFixed(2)}
               </div>
             </CardContent>
           </Card>
         ))}
-        {orders.length === 0 && <p>You have no orders yet.</p>}
+        {orders.length === 0 && (
+          <p className="text-black">You have no orders yet.</p>
+        )}
       </div>
     </div>
   );

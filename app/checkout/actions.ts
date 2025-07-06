@@ -54,7 +54,6 @@ export async function createCheckoutSession(
 ) {
   const supabase = getServerSupabase();
 
-  // Check order count
   const { count, error: countError } = await supabase
     .from("orders")
     .select("*", { count: "exact", head: true });
@@ -71,6 +70,89 @@ export async function createCheckoutSession(
     };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    // This should be handled by page-level auth, but as a safeguard:
+    return { error: "User not authenticated." };
+  }
+
+  // Find-or-update logic for the order
+  let order;
+  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const { data: existingOrder } = await supabase
+    .from("orders")
+    .select("id")
+    .eq("user_id", user.id)
+    .in("status", ["pending", "underpaid"])
+    .maybeSingle();
+
+  const orderPayload = {
+    user_id: user.id,
+    total,
+    status: "pending" as const,
+    payment_method: "Stripe",
+    shipping_first_name: shippingAddress.first_name,
+    shipping_last_name: shippingAddress.last_name,
+    shipping_street: shippingAddress.street,
+    shipping_city: shippingAddress.city,
+    shipping_postal_code: shippingAddress.postal_code,
+    shipping_country: shippingAddress.country,
+    shipping_phone_number: shippingAddress.phone_number,
+    shipping_email: email,
+  };
+
+  if (existingOrder) {
+    // Clear out old items before updating
+    await supabase.from("order_items").delete().eq("order_id", existingOrder.id);
+
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from("orders")
+      .update(orderPayload)
+      .eq("id", existingOrder.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error("Error updating existing order:", updateError);
+      return { error: "Could not update your order." };
+    }
+    order = updatedOrder;
+  } else {
+    const { data: newOrder, error: createError } = await supabase
+      .from("orders")
+      .insert(orderPayload)
+      .select()
+      .single();
+
+    if (createError) {
+      console.error("Error creating new order:", createError);
+      return { error: "Could not create your order." };
+    }
+    order = newOrder;
+  }
+
+  // Add the current cart items to the order
+  const orderItemsData = cartItems.map((item) => ({
+    order_id: order.id,
+    product_id: item.id,
+    quantity: item.quantity,
+    price_at_purchase: item.price,
+    size: item.size,
+  }));
+
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(orderItemsData);
+
+  if (itemsError) {
+    console.error("Error inserting order items:", itemsError);
+    return { error: "Could not save items for your order." };
+  }
+
   const lineItems = cartItems.map((item) => ({
     price_data: {
       currency: "usd",
@@ -83,10 +165,6 @@ export async function createCheckoutSession(
     quantity: item.quantity,
   }));
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: lineItems,
@@ -94,11 +172,12 @@ export async function createCheckoutSession(
     customer_email: email,
     client_reference_id: user?.id,
     metadata: {
+      orderId: order.id,
       shipping: JSON.stringify(shippingAddress),
       cartItems: JSON.stringify(cartItems),
     },
-    success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout/cancel`,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?orderId=${order.id}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout/cancel?orderId=${order.id}`,
   });
 
   if (session.url) {
@@ -125,39 +204,67 @@ export async function finalizeHypeOrder(
     return { success: false, error: "User not authenticated." };
   }
 
-  // 1. Insert into orders table
-  const { data: order, error: orderError } = await supabase
+  // Find-or-update logic for the order
+  let order;
+  const { data: existingOrder } = await supabase
     .from("orders")
-    .insert({
-      user_id: user.id,
-      total: totalUsd,
-      total_token_amount: tokenAmount,
-      status: "pending",
-      payment_method: formValues.paymentMethod.toUpperCase(),
-      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      tx_hashes: txHash ? [txHash] : [],
-      wallet_address: walletAddress,
-      paid_amount: 0,
-      remaining_amount: tokenAmount,
-      // Shipping details
-      shipping_email: formValues.email,
-      shipping_first_name: formValues.firstName,
-      shipping_last_name: formValues.lastName,
-      shipping_street: formValues.street,
-      shipping_city: formValues.city,
-      shipping_postal_code: formValues.zip,
-      shipping_country: formValues.country,
-      shipping_phone_number: formValues.phoneNumber,
-    })
-    .select()
-    .single();
+    .select("id")
+    .eq("user_id", user.id)
+    .in("status", ["pending", "underpaid"])
+    .maybeSingle();
 
-  if (orderError) {
-    console.error("Error creating order:", orderError);
-    return { success: false, error: "Failed to create order." };
+  const orderPayload = {
+    user_id: user.id,
+    total: totalUsd,
+    total_token_amount: tokenAmount,
+    status: "pending" as const,
+    payment_method: formValues.paymentMethod.toUpperCase(),
+    expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    tx_hashes: txHash ? [txHash] : [],
+    wallet_address: walletAddress,
+    paid_amount: 0,
+    remaining_amount: tokenAmount,
+    shipping_email: formValues.email,
+    shipping_first_name: formValues.firstName,
+    shipping_last_name: formValues.lastName,
+    shipping_street: formValues.street,
+    shipping_city: formValues.city,
+    shipping_postal_code: formValues.zip,
+    shipping_country: formValues.country,
+    shipping_phone_number: formValues.phoneNumber,
+  };
+
+  if (existingOrder) {
+    // Clear out old items before updating
+    await supabase.from("order_items").delete().eq("order_id", existingOrder.id);
+
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from("orders")
+      .update(orderPayload)
+      .eq("id", existingOrder.id)
+      .select()
+      .single();
+    
+    if (updateError) {
+      console.error("Error updating HYPE order:", updateError);
+      return { success: false, error: "Failed to update your order." };
+    }
+    order = updatedOrder;
+  } else {
+    const { data: newOrder, error: createError } = await supabase
+      .from("orders")
+      .insert(orderPayload)
+      .select()
+      .single();
+
+    if (createError) {
+      console.error("Error creating HYPE order:", createError);
+      return { success: false, error: "Failed to create your order." };
+    }
+    order = newOrder;
   }
 
-  // 2. Insert into order_items table
+  // Insert current cart items
   const orderItemsData = cartItems.map((item) => ({
     order_id: order.id,
     product_id: item.id,
@@ -171,7 +278,7 @@ export async function finalizeHypeOrder(
     .insert(orderItemsData);
 
   if (itemsError) {
-    console.error("Error creating order items:", itemsError);
+    console.error("Error creating order items for HYPE order:", itemsError);
     return { success: false, error: "Failed to save order items." };
   }
 

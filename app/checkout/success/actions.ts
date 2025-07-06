@@ -30,17 +30,5 @@ export async function getOrderDetails(orderId: string) {
     };
   }
 
-  if (order && order.order_items) {
-    // @ts-expect-error
-    order.order_items.forEach((item) => {
-      if (item.products && item.products.images) {
-        item.products.images = item.products.images.map(
-          (image: string) =>
-            image.startsWith("/") ? image : `/products-img/${image}`,
-        );
-      }
-    });
-  }
-
   return { order };
 }
