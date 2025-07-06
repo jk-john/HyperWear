@@ -64,5 +64,7 @@ public/.cache/
 *.dmp
 .vercel
 
-# Sentry Config File
-.env.sentry-build-plugin
+# sops
+.sops.yaml
+
+# svn
