@@ -5,11 +5,12 @@ export const metadata = {
   title: "Search • HyperWear",
 };
 
-export default async function Search({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function Search(
+  props: {
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = createClient();
   const query = searchParams?.q as string;
 

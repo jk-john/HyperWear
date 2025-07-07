@@ -13,19 +13,25 @@ import { createClient } from "@/utils/supabase/server";
 import { SlidersHorizontal } from "lucide-react";
 
 type ProductsPageProps = {
-  searchParams: {
+  searchParams: Promise<{
     gender?: string;
     category?: string;
     sortBy?: string;
     order?: string;
-  };
+  }>;
 };
 
-export default async function ProductsPage({
-  searchParams,
-}: ProductsPageProps) {
+export default async function ProductsPage(props: ProductsPageProps) {
+  const searchParams = await props.searchParams;
+
+  const {
+    gender,
+    category,
+    sortBy,
+    order
+  } = searchParams;
+
   const supabase = createClient();
-  const { gender, category, sortBy, order } = searchParams;
 
   // Fetch all products to derive categories
   const { data: allProducts, error: allProductsError } = await supabase

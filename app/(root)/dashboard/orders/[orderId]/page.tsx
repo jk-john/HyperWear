@@ -16,11 +16,17 @@ type Product = Tables<"products">;
 type OrderItem = Tables<"order_items"> & { products: Product | null };
 type OrderWithItems = Tables<"orders"> & { order_items: OrderItem[] };
 
-export default async function OrderDetailsPage({
-  params: { orderId },
-}: {
-  params: { orderId: string };
-}) {
+export default async function OrderDetailsPage(
+  props: {
+    params: Promise<{ orderId: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    orderId
+  } = params;
+
   const supabase = createClient();
 
   const { data, error } = await supabase

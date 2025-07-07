@@ -1,10 +1,11 @@
 import { SignInForm } from "@/components/ui/SignInForm";
 
-export default function SignInPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function SignInPage(
+  props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const callbackUrl = searchParams.callbackUrl as string;
 
   return (
