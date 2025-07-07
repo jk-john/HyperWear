@@ -70,10 +70,10 @@ export function ProfileSummary({
               className="border-secondary mx-auto mr-15 ml-10 rounded-full border-4 object-cover"
             />
           </div>
-          <div className="grid flex-grow grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid flex-grow grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
             <InfoItem label="First Name" value={firstName} />
             <InfoItem label="Last Name" value={lastName} />
-            <InfoItem label="Email Address" value={userEmail} />
+            <InfoItem label="Email Address" value={userEmail} fullWidth />
             <InfoItem label="Phone Number" value={phoneNumber} />
             <InfoItem label="Birthday" value={birthday} />
             <InfoItem label="Street Address" value={street} />
@@ -108,9 +108,9 @@ interface InfoItemProps {
 
 function InfoItem({ label, value, fullWidth = false }: InfoItemProps) {
   return (
-    <div className={fullWidth ? "sm:col-span-2 lg:col-span-3" : ""}>
+    <div className={fullWidth ? "col-span-2 lg:col-span-3" : ""}>
       <p className="text-sm font-semibold text-gray-400">{label}</p>
-      <p className="text-lg text-white">{value || "–"}</p>
+      <p className="text-lg break-words text-white">{value || "–"}</p>
     </div>
   );
 }

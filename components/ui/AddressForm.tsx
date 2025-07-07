@@ -128,22 +128,27 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 pb-8 sm:space-y-6 sm:pb-6"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           <FormField
             control={form.control}
             name="first_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm text-white">First Name</FormLabel>
+                <FormLabel className="text-sm font-medium text-white">
+                  First Name
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="John"
-                    className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                    className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-400" />
               </FormItem>
             )}
           />
@@ -152,15 +157,17 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm text-white">Last Name</FormLabel>
+                <FormLabel className="text-sm font-medium text-white">
+                  Last Name
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="Doe"
-                    className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                    className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-400" />
               </FormItem>
             )}
           />
@@ -171,15 +178,19 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           name="phone_number"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-white">Phone Number</FormLabel>
+              <FormLabel className="text-sm font-medium text-white">
+                Phone Number
+              </FormLabel>
               <FormControl>
-                <PhoneInput
-                  {...field}
-                  defaultCountry="US"
-                  placeholder="+1 (555) 555-5555"
-                />
+                <div className="h-10 sm:h-12">
+                  <PhoneInput
+                    {...field}
+                    defaultCountry="US"
+                    placeholder="+1 (555) 555-5555"
+                  />
+                </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-400" />
             </FormItem>
           )}
         />
@@ -189,17 +200,17 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           name="company_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-white">
+              <FormLabel className="text-sm font-medium text-white">
                 Company (Optional)
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="ACME Inc."
-                  className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                  className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-400" />
             </FormItem>
           )}
         />
@@ -209,55 +220,58 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           name="street"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-white">
+              <FormLabel className="text-sm font-medium text-white">
                 Street Address
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="123 Main St"
-                  className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                  className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-400" />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="address_complement"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-white">
+              <FormLabel className="text-sm font-medium text-white">
                 Apartment, suite, etc. (Optional)
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="Apt #4B"
-                  className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                  className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-400" />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           <FormField
             control={form.control}
             name="city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm text-white">City</FormLabel>
+                <FormLabel className="text-sm font-medium text-white">
+                  City
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="New York"
-                    className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                    className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-400" />
               </FormItem>
             )}
           />
@@ -266,15 +280,17 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
             name="postal_code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm text-white">ZIP Code</FormLabel>
+                <FormLabel className="text-sm font-medium text-white">
+                  ZIP Code
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="10001"
-                    className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                    className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-400" />
               </FormItem>
             )}
           />
@@ -282,16 +298,18 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
             control={form.control}
             name="country"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm text-white">Country</FormLabel>
+              <FormItem className="sm:col-span-2 lg:col-span-1">
+                <FormLabel className="text-sm font-medium text-white">
+                  Country
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="USA"
-                    className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                    className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-400" />
               </FormItem>
             )}
           />
@@ -302,17 +320,17 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           name="delivery_instructions"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm text-white">
+              <FormLabel className="text-sm font-medium text-white">
                 Delivery Instructions (Optional)
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="Leave at front door"
-                  className="border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)]"
+                  className="h-10 border-2 border-[var(--color-secondary)] bg-[var(--color-primary)] text-[var(--color-light)] placeholder:text-[var(--color-accent)] focus:border-[var(--color-mint)] focus:ring-2 focus:ring-[var(--color-mint)]/20 sm:h-12"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-400" />
             </FormItem>
           )}
         />
@@ -321,16 +339,16 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           control={form.control}
           name="is_default"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center space-y-0 space-x-3 rounded-md border border-[var(--color-primary)] p-3 shadow-sm">
+            <FormItem className="flex flex-row items-center space-y-0 space-x-3 rounded-lg border-2 border-[var(--color-primary)] p-3 shadow-sm sm:space-x-4 sm:p-4">
               <FormControl>
                 <Checkbox
                   checked={field.value}
                   onCheckedChange={field.onChange}
-                  className="border-[var(--color-secondary)] data-[state=checked]:bg-[var(--color-secondary)] data-[state=checked]:text-[var(--color-primary)]"
+                  className="h-4 w-4 border-2 border-[var(--color-secondary)] data-[state=checked]:bg-[var(--color-secondary)] data-[state=checked]:text-[var(--color-primary)] sm:h-5 sm:w-5"
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel className="text-white">
+                <FormLabel className="cursor-pointer text-sm font-medium text-white">
                   Set as default shipping address
                 </FormLabel>
               </div>
@@ -338,12 +356,27 @@ export function AddressForm({ address, onSuccess }: AddressFormProps) {
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full bg-[var(--color-secondary)] text-lg font-bold text-[var(--color-jungle)] hover:bg-[var(--color-mint)] hover:text-white"
-        >
-          {address ? "Update Address" : "Save Address"}
-        </Button>
+        <div className="pt-4 sm:pt-6">
+          <Button
+            type="submit"
+            className="h-12 w-full text-base font-bold transition-all duration-200 hover:scale-[1.02] sm:h-14 sm:text-lg"
+            style={{
+              backgroundColor: "var(--color-secondary)",
+              color: "var(--color-jungle)",
+              border: "2px solid var(--color-secondary)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--color-mint)";
+              e.currentTarget.style.color = "var(--color-white)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--color-secondary)";
+              e.currentTarget.style.color = "var(--color-jungle)";
+            }}
+          >
+            {address ? "Update Address" : "Save Address"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
