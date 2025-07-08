@@ -17,8 +17,8 @@ export default async function AllProducts() {
   }
 
   return (
-    <section className="rounded-lg bg-white px-2 py-8 sm:px-6 sm:py-10 md:px-8">
-      <div className="container mx-auto">
+    <section className="w-full bg-white">
+      <div className="container mx-auto px-2 py-8 sm:px-6 sm:py-10 md:px-8">
         <div className="mb-8 text-center sm:mb-12">
           <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
             All Products

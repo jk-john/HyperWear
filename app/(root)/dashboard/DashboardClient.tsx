@@ -286,11 +286,7 @@ export default function DashboardClient({
                               variant="outline"
                               size="sm"
                               asChild
-                              style={{
-                                borderColor: "var(--color-secondary)",
-                                color: "var(--color-secondary)",
-                              }}
-                              className="hover:bg-[var(--color-secondary)] hover:text-[var(--color-dark)]"
+                              className="bg-secondary text-dark hover:bg-secondary/80 hover:text-jungle"
                             >
                               <Link href={`/dashboard/orders/${order.id}`}>
                                 View Details
@@ -562,22 +558,14 @@ export default function DashboardClient({
               <CardContent className="space-y-4">
                 <Button
                   variant="outline"
-                  className="w-full hover:bg-[var(--color-secondary)] hover:text-[var(--color-dark)]"
-                  style={{
-                    borderColor: "var(--color-secondary)",
-                    color: "var(--color-secondary)",
-                  }}
+                  className="hover:bg-mint bg-mint/40 w-full text-white hover:text-white"
                   asChild
                 >
                   <Link href="/password-update">Change Password</Link>
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full hover:bg-red-600 hover:text-white"
-                  style={{
-                    borderColor: "#ff6b6b",
-                    color: "#ff6b6b",
-                  }}
+                  className="w-full bg-red-600/40 hover:bg-red-600 hover:text-white"
                   asChild
                 >
                   <Link href="/support">Request Account Deletion</Link>
@@ -585,11 +573,7 @@ export default function DashboardClient({
                 <Button
                   onClick={handleSignOut}
                   variant="outline"
-                  className="w-full hover:bg-[var(--color-accent)] hover:text-[var(--color-dark)]"
-                  style={{
-                    borderColor: "var(--color-accent)",
-                    color: "var(--color-accent)",
-                  }}
+                  className="bg-primary hover:bg-primary/40 w-full text-white hover:text-white"
                 >
                   Sign Out
                 </Button>
