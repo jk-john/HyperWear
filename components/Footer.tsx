@@ -157,7 +157,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-dark1 flex flex-col items-center justify-between border-t pt-8 md:flex-row">
           <p className="mb-4 text-sm text-white/50 md:mb-0">
-            © 2025 HyperWear. All rights reserved.
+            2025 HyperWear Shop. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm text-white/50">
             <Link
