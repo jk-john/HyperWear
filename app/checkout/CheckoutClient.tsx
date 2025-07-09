@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -115,7 +116,7 @@ export function CheckoutClient({
       country: defaultAddress?.country || "",
       companyName: defaultAddress?.company_name || "",
       deliveryInstructions: defaultAddress?.delivery_instructions || "",
-      paymentMethod: "stripe",
+      paymentMethod: "usdt0",
       evmAddress: walletAddress || "",
     },
   });
@@ -473,17 +474,30 @@ export function CheckoutClient({
                         <SelectContent>
                           <SelectItem
                             value="stripe"
-                            className="border-b-2 border-black bg-white"
+                            className="relative cursor-not-allowed overflow-hidden border-b-2 border-black bg-gradient-to-r from-gray-100 to-gray-200"
+                            disabled
                           >
-                            <div className="flex w-full items-center justify-between">
-                              <span>Credit Card (Stripe)</span>
-                              <Image
-                                src="/stripe.png"
-                                alt="Stripe"
-                                width={24}
-                                height={24}
-                                className="ml-2"
-                              />
+                            <div className="relative flex w-full items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="text-gray-500">
+                                  Credit Card (Stripe)
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-[--color-secondary] px-3 py-1 text-sm font-bold text-[--color-primary] shadow-lg"
+                                >
+                                  Coming Soon
+                                </Badge>
+                                <Image
+                                  src="/stripe.png"
+                                  alt="Stripe"
+                                  width={24}
+                                  height={24}
+                                  className="ml-2 opacity-50"
+                                />
+                              </div>
                             </div>
                           </SelectItem>
                           <SelectItem
