@@ -107,11 +107,12 @@ const Footer = () => {
             {
               title: "Products",
               links: [
-                "Performance Shirts",
-                "Athletic Caps",
-                "Training Hoodies",
-                "Sport Accessories",
-                "New Arrivals",
+                "Classic Unisex T-Shirt",
+                "Classic Cap",
+                "Women's Tank Top",
+                "Men's Tank Top",
+                "Mug",
+                "iPhone Case",
               ],
             },
             {
@@ -120,7 +121,8 @@ const Footer = () => {
                 "Size Guide",
                 "Shipping Info",
                 "Care Instructions",
-                "Returns & Refunds Policy",
+                "Returns and Refunds Policy",
+                "Taxes and Duties",
                 "FAQ",
               ],
             },
@@ -137,7 +139,10 @@ const Footer = () => {
                 {column.links.map((link) => (
                   <li key={link}>
                     <Link
-                      href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
+                      href={`/${link
+                        .toLowerCase()
+                        .replace(/'/g, "")
+                        .replace(/\s+/g, "-")}`}
                       className="text-white/70 transition-colors duration-200 hover:text-white"
                     >
                       {link}
@@ -155,13 +160,22 @@ const Footer = () => {
             © 2025 HyperWear. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm text-white/50">
-            <Link href="#" className="transition-colors hover:text-white">
+            <Link
+              href="/terms-of-service"
+              className="transition-colors hover:text-white"
+            >
               Terms of Service
             </Link>
-            <Link href="#" className="transition-colors hover:text-white">
+            <Link
+              href="/privacy-policy"
+              className="transition-colors hover:text-white"
+            >
               Privacy Policy
             </Link>
-            <Link href="#" className="transition-colors hover:text-white">
+            <Link
+              href="/cookie-policy"
+              className="transition-colors hover:text-white"
+            >
               Cookie Policy
             </Link>
           </div>
