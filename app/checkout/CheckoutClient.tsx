@@ -31,6 +31,10 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { createCheckoutSession } from "./actions";
 
+const getShippingCost = (cartTotal: number): number => {
+  return cartTotal >= 60 ? 0 : 9.99;
+};
+
 const isValidE164 = (phoneNumber: string | undefined | null): boolean => {
   if (!phoneNumber) return false;
   const e164Regex = /^\+\d{6,15}$/;
@@ -99,6 +103,10 @@ export function CheckoutClient({
 }: CheckoutClientProps) {
   const { cartItems, totalPrice, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const cartTotal = totalPrice();
+  const shippingCost = getShippingCost(cartTotal);
+  const finalTotal = cartTotal + shippingCost;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
@@ -609,9 +617,29 @@ export function CheckoutClient({
                 ))}
               </div>
               <div className="my-8 h-px bg-white/20" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between font-semibold">
+                  <p>Subtotal</p>
+                  <p>${cartTotal.toFixed(2)}</p>
+                </div>
+                <div className="flex items-center justify-between font-semibold">
+                  <p>Shipping</p>
+                  <p>
+                    {shippingCost === 0
+                      ? "Free"
+                      : `$${shippingCost.toFixed(2)}`}
+                  </p>
+                </div>
+                {shippingCost === 0 && (
+                  <p className="text-sm text-green-400">
+                    Free shipping on orders over $60!
+                  </p>
+                )}
+              </div>
+              <div className="my-8 h-px bg-white/20" />
               <div className="flex items-center justify-between text-xl font-bold">
                 <p>Total</p>
-                <p>${totalPrice().toFixed(2)}</p>
+                <p>${finalTotal.toFixed(2)}</p>
               </div>
               <Button
                 type="submit"
