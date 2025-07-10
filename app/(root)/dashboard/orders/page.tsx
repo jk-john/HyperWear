@@ -1,17 +1,17 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
@@ -88,6 +88,24 @@ export default async function OrdersPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="bg-white">
+              <div className="mb-4">
+                <h3 className="font-bold text-black">Shipping To:</h3>
+                <p className="text-sm text-gray-700">
+                  {order.shipping_first_name} {order.shipping_last_name}
+                </p>
+                <p className="text-sm text-gray-700">{order.shipping_street}</p>
+                {order.shipping_address_complement && (
+                  <p className="text-sm text-gray-700">
+                    {order.shipping_address_complement}
+                  </p>
+                )}
+                <p className="text-sm text-gray-700">
+                  {order.shipping_city}, {order.shipping_postal_code}
+                </p>
+                <p className="text-sm text-gray-700">
+                  {order.shipping_country}
+                </p>
+              </div>
               <Table className="bg-white">
                 <TableHeader>
                   <TableRow className="border-gray-200 bg-white">

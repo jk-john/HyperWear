@@ -1,17 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
-    createClient,
-    SupabaseClient,
+  createClient,
+  SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-    createPublicClient,
-    formatUnits,
-    http,
-    Log,
-    Transaction,
+  createPublicClient,
+  formatUnits,
+  http,
+  Log,
+  Transaction,
 } from "https://esm.sh/viem@2.7.1";
 import { defineChain } from "https://esm.sh/viem@2.7.1/utils";
-import { sendOrderConfirmationEmail } from "../../../app/actions/send-order-confirmation.ts";
+
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const FROM_EMAIL = "HyperWear <noreply@hyperwear.io>";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -198,126 +200,242 @@ async function processPaymentsForOrder(
       }
 
       const customerEmail = order.shipping_email;
-      if (customerEmail) {
-        await sendOrderConfirmationEmail({
-          to: customerEmail,
-          customerName: `${order.shipping_first_name} ${order.shipping_last_name}`,
-          orderId: order.id.toString(),
-          orderDate: new Date(order.created_at).toLocaleDateString(),
-          items: orderItems.map((item) => ({
-            name: item.size
-              ? `${item.products.name} (Size: ${item.size})`
-              : item.products.name,
-            quantity: item.quantity ?? 0,
-            price: item.price_at_purchase ?? 0,
-          })),
-          total: order.total ?? 0,
-          userId: order.user_id,
-        });
+      if (customerEmail && RESEND_API_KEY) {
+        try {
+          const emailSent = await sendConfirmationEmailDeno({
+            to: customerEmail,
+            customerName: `${order.shipping_first_name} ${order.shipping_last_name}`,
+            orderId: order.id.toString(),
+            orderDate: new Date(order.created_at).toLocaleDateString(),
+            items: orderItems.map((item) => ({
+              name: item.size
+                ? `${item.products.name} (Size: ${item.size})`
+                : item.products.name,
+              quantity: item.quantity ?? 0,
+              price: item.price_at_purchase ?? 0,
+            })),
+            total: order.total ?? 0,
+          });
+
+          if (emailSent) {
+            await supabase.from('orders').update({ email_sent_status: 'Sent' }).eq('id', order.id);
+          } else {
+            await supabase.from('orders').update({ email_sent_status: 'Failed' }).eq('id', order.id);
+          }
+        } catch (e) {
+            await supabase.from('orders').update({ email_sent_status: `Error: ${e.message}` }).eq('id', order.id);
+        }
       }
     }
   }
 }
 
-// --- Main Cron Job Logic ---
-async function verifyPayments() {
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+// --- Deno-native Email Sending ---
+async function sendConfirmationEmailDeno(emailData: {
+  to: string;
+  customerName: string;
+  orderId: string;
+  orderDate: string;
+  items: { name: string; quantity: number; price: number }[];
+  total: number;
+}) {
+  const { to, customerName, orderId, orderDate, items, total } = emailData;
 
-  const { data: orders, error: ordersError } = await supabase
+  const subject = `Order Confirmed: #${orderId}`;
+  const itemsHtml = items
+    .map(
+      (item) => `
+    <tr>
+      <td>${item.name} (x${item.quantity})</td>
+      <td style="text-align: right;">$${(item.price * item.quantity).toFixed(
+        2,
+      )}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  const html = `
+    <h1>Thanks for your order, ${customerName}!</h1>
+    <p>Your order #${orderId} from ${orderDate} has been confirmed.</p>
+    <table style="width: 100%;">
+      ${itemsHtml}
+      <tr>
+        <td style="font-weight: bold;">Total</td>
+        <td style="text-align: right; font-weight: bold;">$${total.toFixed(
+          2,
+        )}</td>
+      </tr>
+    </table>
+    <p>We'll notify you when it ships.</p>
+  `;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: to,
+        subject: subject,
+        html: html,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.json();
+      console.error(
+        `Failed to send confirmation email for order ${orderId}:`,
+        errorBody,
+      );
+      return false;
+    } else {
+      console.log(`Confirmation email sent for order ${orderId} to ${to}`);
+      return true;
+    }
+  } catch (error) {
+    console.error("Error sending Resend API request:", error);
+    return false;
+  }
+}
+
+
+// --- Main Cron Job Logic ---
+async function verifyPayments(supabase: SupabaseClient, orderId?: string) {
+  console.log(`Starting payment verification. Order ID: ${orderId || "All"}`);
+
+  const isCronRun = !orderId;
+  let ordersQuery = supabase
     .from("orders")
     .select("*")
     .in("status", ["pending", "underpaid"])
-    .not("wallet_address", "is", null)
-    .gt("expires_at", new Date().toISOString());
+    .not("wallet_address", "is", null);
+
+  if (orderId) {
+    ordersQuery = ordersQuery.eq("id", orderId);
+  } else {
+    ordersQuery = ordersQuery.gt("expires_at", new Date().toISOString());
+  }
+
+  const { data: orders, error: ordersError } = await ordersQuery;
 
   if (ordersError) {
     throw new Error(`Failed to fetch orders: ${ordersError.message}`);
   }
 
   if (!orders || orders.length === 0) {
+    console.log("No pending orders to check.");
     return { message: "No pending orders to check." };
   }
 
-  // --- Block Scanning with Confirmation Delay ---
-  const latestBlock = await viemClient.getBlock();
-  const confirmationDelay = 6n; // Wait for 6 blocks before processing
-  const toBlock = latestBlock.number > confirmationDelay
-    ? latestBlock.number - confirmationDelay
-    : 1n;
-  const scanRange = 500n; // Scan the last 500 blocks
-  const fromBlock = toBlock > scanRange ? toBlock - scanRange : 1n;
+  console.log(`Found ${orders.length} pending order(s).`);
 
-  if (fromBlock > toBlock) {
-    return { message: "Not enough new blocks to scan." };
+  // --- Block Scanning ---
+  const latestBlock = await viemClient.getBlock();
+  const confirmationDelay = 6n;
+  const toBlock = latestBlock.number > confirmationDelay ? latestBlock.number - confirmationDelay : 0n;
+
+  const scanWindow = isCronRun ? 2000n : 120n; // Cron: ~33 mins, On-demand: ~2 mins
+  const fromBlock = toBlock > scanWindow ? toBlock - scanWindow : 0n;
+
+  if (fromBlock >= toBlock) {
+      console.log("Not enough new blocks to scan since last run.");
+      return { message: "Not enough new blocks to scan." };
   }
 
   console.log(`Scanning from block ${fromBlock} to ${toBlock}`);
 
-  // --- Transaction Fetching ---
-  const ordersByWallet = new Map(
-    orders.map((o) => [o.wallet_address!.toLowerCase(), o as Order]),
-  );
+  // Group orders by the sender's wallet address for efficient lookup
+  const ordersByWallet = new Map<string, Order>();
+  orders.forEach(o => {
+      if(o.wallet_address) {
+          ordersByWallet.set(o.wallet_address.toLowerCase(), o as Order)
+      }
+  });
+
+  if (ordersByWallet.size === 0) {
+      console.log("No pending orders with wallet addresses found.");
+      return { message: "No orders to process." };
+  }
+
+  // Map to store found transactions for each wallet address
   const transactionsByUser = new Map<string, ProcessableTransaction[]>();
 
-  // Fetch native HYPE transactions
-  const hypeOrdersExist = orders.some((o) => o.payment_method === "HYPE");
-  if (hypeOrdersExist) {
-    const blockNumbersToScan = Array.from(
-      { length: Number(toBlock - fromBlock) + 1 },
-      (_, i) => fromBlock + BigInt(i),
-    );
+  // --- Fetch ERC20 Transfers ---
+  const usdt0Transfers: Erc20TransferLog[] = [];
+  const usdhlTransfers: Erc20TransferLog[] = [];
+  const maxBlockRange = 1000n;
 
-    const batchSize = 20;
-    for (let i = 0; i < blockNumbersToScan.length; i += batchSize) {
-      const batch = blockNumbersToScan.slice(i, i + batchSize);
-      const blockPromises = batch.map((blockNumber) =>
-        viemClient.getBlock({ blockNumber, includeTransactions: true })
-      );
+  for (let currentFrom = fromBlock; currentFrom <= toBlock; currentFrom += maxBlockRange) {
+      const currentTo = BigInt(Math.min(Number(currentFrom + maxBlockRange - 1n), Number(toBlock)));
+      
+      console.log(`Scanning ERC20 from ${currentFrom} to ${currentTo}`);
 
-      const blocks = await Promise.all(blockPromises);
+      const [usdt0Chunk, usdhlChunk] = await Promise.all([
+          getErc20Transfers("USDT0", currentFrom, currentTo),
+          getErc20Transfers("USDHL", currentFrom, currentTo)
+      ]);
+      
+      usdt0Transfers.push(...usdt0Chunk);
+      usdhlTransfers.push(...usdhlChunk);
+  }
 
-      for (const block of blocks) {
-        if (!block || ordersByWallet.size === 0) continue;
+
+  console.log(`Found ${usdt0Transfers.length} USDT0 transfers and ${usdhlTransfers.length} USDHL transfers.`);
+
+  [...usdt0Transfers, ...usdhlTransfers].forEach((log) => {
+      const fromAddress = log.from.toLowerCase();
+      if (ordersByWallet.has(fromAddress)) {
+          if (!transactionsByUser.has(fromAddress)) {
+              transactionsByUser.set(fromAddress, []);
+          }
+          transactionsByUser.get(fromAddress)!.push({ log });
+      }
+  });
+
+  // --- Fetch Native HYPE Transactions ---
+  const hasHypeOrder = orders.some(o => o.payment_method === 'HYPE');
+
+  if (hasHypeOrder) {
+    // This is less efficient as we have to check each transaction in each block
+    for (let blockNum = fromBlock; blockNum <= toBlock; blockNum++) {
+        const block = await viemClient.getBlock({ blockNumber: blockNum, includeTransactions: true });
+        if (!block) continue;
 
         for (const tx of block.transactions) {
-          const fromAddress = tx.from.toLowerCase();
-          if (
-            tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase() &&
-            ordersByWallet.has(fromAddress) &&
-            ordersByWallet.get(fromAddress)?.payment_method === "HYPE"
-          ) {
-            if (!transactionsByUser.has(fromAddress)) {
-              transactionsByUser.set(fromAddress, []);
+            if (tx.to?.toLowerCase() === RECEIVING_WALLET.toLowerCase()) {
+                const fromAddress = tx.from.toLowerCase();
+                if (ordersByWallet.has(fromAddress) && ordersByWallet.get(fromAddress)?.payment_method === 'HYPE') {
+                    if (!transactionsByUser.has(fromAddress)) {
+                        transactionsByUser.set(fromAddress, []);
+                    }
+                    transactionsByUser.get(fromAddress)!.push({ tx });
+                }
             }
-            transactionsByUser.get(fromAddress)!.push({ tx });
-          }
         }
-      }
     }
   }
 
-  // Fetch ERC20 transfers (USDT0 and USDHL)
-  const usdt0Transfers = await getErc20Transfers("USDT0", fromBlock, toBlock);
-  const usdhlTransfers = await getErc20Transfers("USDHL", fromBlock, toBlock);
-
-  [...usdt0Transfers, ...usdhlTransfers].forEach((log) => {
-    const fromAddress = log.from.toLowerCase();
-    if (ordersByWallet.has(fromAddress)) {
-      if (!transactionsByUser.has(fromAddress)) {
-        transactionsByUser.set(fromAddress, []);
-      }
-      transactionsByUser.get(fromAddress)!.push({ log });
-    }
-  });
-
   // --- Process and Update Orders ---
+  console.log(`Processing transactions for ${transactionsByUser.size} users.`);
   for (const [walletAddress, order] of ordersByWallet.entries()) {
-    const userTransactions = transactionsByUser.get(walletAddress.toLowerCase());
-    if (userTransactions) {
-      await processPaymentsForOrder(supabase, order, userTransactions);
+    try {
+      const userTransactions = transactionsByUser.get(walletAddress.toLowerCase());
+      if (userTransactions && userTransactions.length > 0) {
+          console.log(`Found ${userTransactions.length} transaction(s) for order ${order.id}`);
+          await processPaymentsForOrder(supabase, order, userTransactions);
+      } else {
+          console.log(`No new transactions found for order ${order.id}`);
+      }
+    } catch (error) {
+        console.error(`Error processing order ${order.id}:`, error);
+        await supabase
+          .from('orders')
+          .update({ verification_error: error.message })
+          .eq('id', order.id);
     }
   }
 
@@ -332,13 +450,24 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
   try {
-    const result = await verifyPayments();
+    const payload = await req.json().catch(() => ({}));
+    const orderId = payload.orderId;
+
+    const result = await verifyPayments(supabase, orderId);
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
+    console.error("Caught top-level error:", error);
+    await supabase.from('function_errors').insert({ error_message: error.message });
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

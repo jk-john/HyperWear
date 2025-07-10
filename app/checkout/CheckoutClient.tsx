@@ -29,7 +29,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { createCheckoutSession, initiateHypePayment } from "./actions";
+import {
+  cancelOrder,
+  createCheckoutSession,
+  initiateHypePayment,
+} from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
   return cartTotal >= 60 ? 0 : 9.99;
@@ -96,13 +100,34 @@ interface CheckoutClientProps {
   walletAddress: string | null;
 }
 
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
 export function CheckoutClient({
   user,
   defaultAddress,
   walletAddress,
 }: CheckoutClientProps) {
-  const { cartItems, totalPrice, clearCart } = useCartStore();
+  const {
+    cartItems,
+    totalPrice,
+    clearCart,
+    pendingOrder,
+    timeLeft,
+    checkPendingOrder,
+  } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasChecked, setHasChecked] = useState(false);
+
+  useEffect(() => {
+    if (user && !hasChecked) {
+      checkPendingOrder(user.id);
+      setHasChecked(true);
+    }
+  }, [user, hasChecked, checkPendingOrder]);
 
   const cartTotal = totalPrice();
   const shippingCost = getShippingCost(cartTotal);
@@ -149,6 +174,66 @@ export function CheckoutClient({
     }
   }, [walletAddress, form]);
 
+  const handleGoToPayment = () => {
+    if (pendingOrder) {
+      router.push(
+        `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
+          pendingOrder.id
+        }`,
+      );
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (pendingOrder) {
+      const result = await cancelOrder(pendingOrder.id);
+      if (result.success) {
+        toast.success("Your order has been cancelled.");
+        // The cart store will update automatically via its own logic
+      } else {
+        toast.error(result.error || "Failed to cancel order.");
+      }
+    }
+  };
+
+  if (pendingOrder) {
+    return (
+      <div className="bg-jungle mt-10 min-h-screen text-white">
+        <div className="container mx-auto flex h-full flex-col items-center justify-center p-4 text-center">
+          <div className="w-full max-w-md rounded-2xl bg-[--color-primary] p-8 shadow-2xl shadow-black/40">
+            <h1 className="font-display text-3xl font-bold text-white">
+              You Have a Pending Order
+            </h1>
+            <p className="text-primary/60 mt-2">
+              Your previous order has not been completed yet. Please complete or
+              cancel it before creating a new one.
+            </p>
+            {timeLeft !== null && (
+              <div className="mt-4 text-2xl font-bold text-red-500">
+                Time left: {formatTime(timeLeft)}
+              </div>
+            )}
+            <div className="mt-8 space-y-3">
+              <Button
+                onClick={handleGoToPayment}
+                className="bg-secondary hover:bg-mint w-full rounded-full py-3 text-lg font-bold text-white shadow-lg transition-all hover:scale-105"
+              >
+                Complete Payment
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                variant="outline"
+                className="w-full rounded-full border-red-500/50 text-red-500/80 hover:bg-red-500/10 hover:text-red-500"
+              >
+                Cancel Order
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   async function onSubmit(values: CheckoutFormValues) {
     setIsSubmitting(true);
     try {
@@ -187,13 +272,15 @@ export function CheckoutClient({
           return;
         }
 
-        const result = await initiateHypePayment(cartItems, values);
+        const paymentResult = await initiateHypePayment(cartItems, values);
 
-        if (result.success && result.orderId) {
+        if (paymentResult.success && paymentResult.orderId) {
           clearCart();
-          router.push(`/checkout/hype-confirmation?orderId=${result.orderId}`);
+          router.push(
+            `/checkout/confirmation/${values.paymentMethod}?orderId=${paymentResult.orderId}`,
+          );
         } else {
-          toast.error(result.error || "Could not start your payment process.");
+          toast.error(paymentResult.error || "Failed to initiate payment.");
         }
       } else if (values.paymentMethod === "nowpayments") {
         toast.error("NowPayments is not yet implemented.");

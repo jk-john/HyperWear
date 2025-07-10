@@ -317,7 +317,7 @@ s3_access_key = "env(S3_ACCESS_KEY)"
 s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.cleanup-expired-orders]
-entrypoint = "supabase/functions/cleanup-expired-orders/index.ts"
+  entrypoint = "functions/cleanup-expired-orders/index.ts"
 
 [functions.verify-payments-cron]
-entrypoint = "supabase/functions/verify-payments-cron/index.ts"
+  entrypoint = "functions/verify-payments-cron/index.ts"

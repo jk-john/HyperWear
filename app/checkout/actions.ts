@@ -193,6 +193,51 @@ export async function createCheckoutSession(
   }
 }
 
+export async function cancelOrder(orderId: string) {
+  const supabase = getServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "User not authenticated." };
+  }
+
+  const { data: order, error: fetchError } = await supabase
+    .from("orders")
+    .select("id, user_id, status")
+    .eq("id", orderId)
+    .single();
+
+  if (fetchError || !order) {
+    return { success: false, error: "Order not found." };
+  }
+
+  if (order.user_id !== user.id) {
+    return { success: false, error: "You are not authorized to cancel this order." };
+  }
+
+  if (order.status !== "pending" && order.status !== "underpaid") {
+    return {
+      success: false,
+      error: `Cannot cancel an order with status: ${order.status}.`,
+    };
+  }
+
+  const { error: updateError } = await supabase
+    .from("orders")
+    .update({ status: "cancelled" })
+    .eq("id", order.id);
+
+  if (updateError) {
+    console.error("Error cancelling order:", updateError);
+    return { success: false, error: "Failed to cancel the order." };
+  }
+
+  revalidatePath("/checkout");
+  return { success: true };
+}
+
 export async function initiateHypePayment(
   cartItems: CartItem[],
   formValues: FormValues,

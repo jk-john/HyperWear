@@ -11,20 +11,59 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/stores/cart";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+
+const supabase = createClient();
+
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
 
 export const Cart = ({
   displayMode = "icon",
 }: {
   displayMode?: "icon" | "button";
 }) => {
-  const { cartItems, updateQuantity, removeFromCart, totalPrice } =
-    useCartStore();
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    totalPrice,
+    pendingOrder,
+    timeLeft,
+    checkPendingOrder,
+    cancelPendingOrder,
+  } = useCartStore();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [hasChecked, setHasChecked] = useState(false);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (user && !hasChecked) {
+      checkPendingOrder(user.id);
+      setHasChecked(true);
+    }
+  }, [user, hasChecked, checkPendingOrder]);
+
   const totalCartItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
@@ -37,6 +76,27 @@ export const Cart = ({
     setIsOpen(false);
   };
 
+  const handleGoToPayment = () => {
+    if (pendingOrder) {
+      router.push(
+        `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
+          pendingOrder.id
+        }`,
+      );
+      setIsOpen(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    await cancelPendingOrder();
+  };
+
+  const hasPendingCryptoOrder =
+    pendingOrder &&
+    (pendingOrder.payment_method === "HYPE" ||
+      pendingOrder.payment_method === "USDT0" ||
+      pendingOrder.payment_method === "USDHL");
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -47,9 +107,9 @@ export const Cart = ({
           >
             <ShoppingBag className="h-5 w-5" />
             <span>Cart</span>
-            {totalCartItems > 0 && (
+            {(totalCartItems > 0 || hasPendingCryptoOrder) && (
               <Badge className="bg-accent text-primary ml-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
-                {totalCartItems}
+                {hasPendingCryptoOrder ? "!" : totalCartItems}
               </Badge>
             )}
           </Button>
@@ -60,9 +120,9 @@ export const Cart = ({
             className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
           >
             <ShoppingBag className="h-8 w-8" />
-            {totalCartItems > 0 && (
+            {(totalCartItems > 0 || hasPendingCryptoOrder) && (
               <Badge className="bg-accent text-primary absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
-                {totalCartItems}
+                {hasPendingCryptoOrder ? "!" : totalCartItems}
               </Badge>
             )}
           </Button>
@@ -71,7 +131,9 @@ export const Cart = ({
       <SheetContent className="flex w-[400px] flex-col bg-white/95 backdrop-blur-xl sm:w-[540px]">
         <SheetHeader className="px-6 pt-6">
           <SheetTitle className="font-display text-primary text-2xl font-bold">
-            Shopping Cart ({totalCartItems})
+            {hasPendingCryptoOrder
+              ? "Pending Payment"
+              : `Shopping Cart (${totalCartItems})`}
           </SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-6">
@@ -109,6 +171,7 @@ export const Cart = ({
                         onClick={() =>
                           updateQuantity(item.cartItemId, item.quantity - 1)
                         }
+                        disabled={!!hasPendingCryptoOrder}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -122,6 +185,7 @@ export const Cart = ({
                         onClick={() =>
                           updateQuantity(item.cartItemId, item.quantity + 1)
                         }
+                        disabled={!!hasPendingCryptoOrder}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -136,6 +200,7 @@ export const Cart = ({
                       size="icon"
                       className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
                       onClick={() => removeFromCart(item.cartItemId)}
+                      disabled={!!hasPendingCryptoOrder}
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -162,8 +227,35 @@ export const Cart = ({
             </div>
           )}
         </div>
-        {cartItems.length > 0 && (
-          <SheetFooter className="rounded-t-2xl bg-gray-50/80 px-6 py-6">
+        <SheetFooter className="rounded-t-2xl bg-gray-50/80 px-6 py-6">
+          {hasPendingCryptoOrder ? (
+            <div className="w-full">
+              <div className="text-primary mb-2 flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span>${pendingOrder?.total?.toFixed(2)}</span>
+              </div>
+              {timeLeft !== null && (
+                <div className="mb-3 text-center text-lg font-bold text-red-500">
+                  Time left: {formatTime(timeLeft)}
+                </div>
+              )}
+              <div className="w-full space-y-3">
+                <Button
+                  onClick={handleGoToPayment}
+                  className="bg-primary hover:bg-secondary font-body h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
+                >
+                  Complete Payment
+                </Button>
+                <Button
+                  onClick={handleCancelOrder}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Cancel Order
+                </Button>
+              </div>
+            </div>
+          ) : cartItems.length > 0 ? (
             <div className="w-full">
               <div className="text-primary flex justify-between text-lg font-bold">
                 <span>Subtotal</span>
@@ -179,8 +271,8 @@ export const Cart = ({
                 Proceed to Checkout
               </Button>
             </div>
-          </SheetFooter>
-        )}
+          ) : null}
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

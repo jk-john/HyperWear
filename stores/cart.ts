@@ -1,5 +1,8 @@
+import { cancelOrder } from "@/app/checkout/actions";
 import { getPublicImageUrl } from "@/lib/utils";
 import { Product } from "@/types";
+import { Tables } from "@/types/supabase";
+import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -11,22 +14,148 @@ interface CartItem extends Product {
   imageUrl: string; // Full URL for the product image
 }
 
+type Order = Tables<"orders">;
+
 interface CartState {
   cartItems: CartItem[];
+  pendingOrder: Order | null;
+  timeLeft: number | null;
   addToCart: (product: Product, size?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   totalPrice: () => number;
   clearCart: () => void;
+  checkPendingOrder: (userId: string) => Promise<void>;
+  cancelPendingOrder: () => Promise<void>;
+  setPendingOrder: (order: Order | null) => void;
 }
+
+const supabase = createClient();
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       cartItems: [],
+      pendingOrder: null,
+      timeLeft: null,
+      setPendingOrder: (order) => {
+        set({ pendingOrder: order });
+        if (order && order.expires_at) {
+          const expiryTime = new Date(order.expires_at).getTime();
+          const updateTimer = () => {
+            const now = new Date().getTime();
+            const distance = expiryTime - now;
+            if (distance < 0) {
+              set({ timeLeft: 0 });
+              if (get().pendingOrder?.status === "pending") {
+                get().cancelPendingOrder();
+              }
+            } else {
+              set({ timeLeft: Math.floor(distance / 1000) });
+              requestAnimationFrame(updateTimer);
+            }
+          };
+          updateTimer();
+        } else {
+          set({ timeLeft: null });
+        }
+      },
+
+      checkPendingOrder: async (userId: string) => {
+        const { data: order, error } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("user_id", userId)
+          .in("status", ["pending", "underpaid"])
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error checking for pending order:", error);
+          get().setPendingOrder(null);
+          return;
+        }
+
+        if (order) {
+          const { data: orderItems, error: itemsError } = await supabase
+            .from("order_items")
+            .select("*, products(*)")
+            .eq("order_id", order.id);
+
+          if (itemsError) {
+            console.error(
+              "Error fetching items for pending order:",
+              itemsError,
+            );
+            get().setPendingOrder(order);
+            set({ cartItems: [] }); // Fallback to old behavior if items can't be fetched
+            return;
+          }
+
+          const newCartItems: CartItem[] = orderItems
+            .filter((item) => item.products)
+            .map((item) => {
+              const product = item.products as Product;
+              return {
+                ...product,
+                price: Number(item.price_at_purchase),
+                quantity: item.quantity,
+                size: item.size ?? undefined,
+                cartItemId: `${product.id!}-${item.size || "nosize"}`,
+                imageUrl: getPublicImageUrl(product.images?.[0] || ""),
+              };
+            });
+
+          set({ cartItems: newCartItems });
+          get().setPendingOrder(order);
+        } else {
+          // If no pending order is found, we should not clear the cart,
+          // as the user might be returning to a cart they built previously.
+          get().setPendingOrder(null);
+        }
+      },
+      cancelPendingOrder: async () => {
+        const orderToCancel = get().pendingOrder;
+        if (!orderToCancel) return;
+
+        // Use the new server action
+        const result = await cancelOrder(orderToCancel.id);
+
+        if (result.success) {
+          toast.success("Your pending order has been cancelled.");
+          get().setPendingOrder(null);
+          set({ cartItems: [] });
+        } else {
+          toast.error(result.error || "Failed to cancel your order.");
+          console.error("Error cancelling order:", result.error);
+        }
+      },
       addToCart: (product, size) => {
-        const cartItemId = `${product.id}-${size || "nosize"}`;
-        const imageUrl = getPublicImageUrl(product.images?.[0]);
+        if (get().pendingOrder) {
+          toast.error(
+            "You have a pending payment. Please complete or cancel it before adding new items.",
+          );
+          return;
+        }
+
+        const cartItemId = `${product.id!}-${size || "nosize"}`;
+
+        // Simple workaround to find a better image based on product name
+        let bestImageUrl = product.images?.[0] || ""; // Default to first image
+        if (product.images && product.images.length > 1) {
+          const variantName = product.name.split(" - ")[1]?.toLowerCase();
+          if (variantName) {
+            const foundImage = product.images.find((img) =>
+              img.toLowerCase().includes(variantName.trim()),
+            );
+            if (foundImage) {
+              bestImageUrl = foundImage;
+            }
+          }
+        }
+        const imageUrl = getPublicImageUrl(bestImageUrl);
 
         set((state) => {
           const itemInCart = state.cartItems.find(
@@ -87,7 +216,7 @@ export const useCartStore = create<CartState>()(
         );
       },
       clearCart: () => {
-        set({ cartItems: [] });
+        set({ cartItems: [], pendingOrder: null, timeLeft: null });
       },
     }),
     {
