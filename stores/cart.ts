@@ -20,6 +20,7 @@ interface CartState {
   cartItems: CartItem[];
   pendingOrder: Order | null;
   timeLeft: number | null;
+  timerId: number | null;
   addToCart: (product: Product, size?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
@@ -38,26 +39,39 @@ export const useCartStore = create<CartState>()(
       cartItems: [],
       pendingOrder: null,
       timeLeft: null,
+      timerId: null,
       setPendingOrder: (order) => {
-        set({ pendingOrder: order });
+        // Clear existing timer
+        const currentTimerId = get().timerId;
+        if (currentTimerId) {
+          clearInterval(currentTimerId);
+        }
+        
+        set({ pendingOrder: order, timerId: null });
+        
         if (order && order.expires_at) {
           const expiryTime = new Date(order.expires_at).getTime();
           const updateTimer = () => {
             const now = new Date().getTime();
             const distance = expiryTime - now;
             if (distance < 0) {
-              set({ timeLeft: 0 });
+              set({ timeLeft: 0, timerId: null });
               if (get().pendingOrder?.status === "pending") {
                 get().cancelPendingOrder();
               }
             } else {
               set({ timeLeft: Math.floor(distance / 1000) });
-              requestAnimationFrame(updateTimer);
             }
           };
+          
+          // Initial call
           updateTimer();
+          
+          // Set up interval (update every second)
+          const newTimerId = window.setInterval(updateTimer, 1000);
+          set({ timerId: newTimerId });
         } else {
-          set({ timeLeft: null });
+          set({ timeLeft: null, timerId: null });
         }
       },
 
@@ -125,8 +139,11 @@ export const useCartStore = create<CartState>()(
 
         if (result.success) {
           toast.success("Your pending order has been cancelled.");
-          get().setPendingOrder(null);
-          set({ cartItems: [] });
+          const currentTimerId = get().timerId;
+          if (currentTimerId) {
+            clearInterval(currentTimerId);
+          }
+          set({ pendingOrder: null, timeLeft: null, timerId: null, cartItems: [] });
         } else {
           toast.error(result.error || "Failed to cancel your order.");
           console.error("Error cancelling order:", result.error);
@@ -216,7 +233,11 @@ export const useCartStore = create<CartState>()(
         );
       },
       clearCart: () => {
-        set({ cartItems: [], pendingOrder: null, timeLeft: null });
+        const currentTimerId = get().timerId;
+        if (currentTimerId) {
+          clearInterval(currentTimerId);
+        }
+        set({ cartItems: [], pendingOrder: null, timeLeft: null, timerId: null });
       },
     }),
     {

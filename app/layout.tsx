@@ -2,11 +2,15 @@ import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { assertEnvVars } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
+
+// Validate environment variables at startup
+assertEnvVars();
 
 // Load fonts from Google Fonts with all weights
 const inter = Inter({

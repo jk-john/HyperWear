@@ -70,9 +70,9 @@ export async function POST(req: Request) {
           }));
 
           await resend.emails.send({
-            from: "Hyperwear <noreply@hyperwear.com>",
+            from: "HyperWear <noreply@hyperwear.io>",
             to: customerEmail,
-            subject: "Your Hyperwear Order Confirmation",
+            subject: "Your HyperWear Order Confirmation",
             react: OrderConfirmationEmail({
               customerName:
                 session.customer_details?.name ?? "Valued Customer",
@@ -142,9 +142,9 @@ export async function POST(req: Request) {
           }));
 
           await resend.emails.send({
-            from: "Hyperwear <noreply@hyperwear.com>",
+            from: "HyperWear <noreply@hyperwear.io>",
             to: customerEmail,
-            subject: "Your Hyperwear Order Confirmation",
+            subject: "Your HyperWear Order Confirmation",
             react: OrderConfirmationEmail({
               customerName:
                 session.customer_details?.name ?? "Valued Customer",
