@@ -31,7 +31,7 @@ function HypeConfirmation() {
   const receivingAddress = LEDGER_RECEIVING_ADDRESS;
 
   const tokenImages: { [key: string]: string } = {
-    hype: "/hyperliquid-logo.png",
+    hype: "/HYPE.svg",
     usdt0: "/USDT0.svg",
     usdhl: "/USDHL.svg",
   };
