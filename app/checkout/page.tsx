@@ -1,6 +1,26 @@
 import { createClient } from "@/utils/supabase/server";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CheckoutClient } from "./CheckoutClient";
+
+export const metadata: Metadata = {
+  title: "Checkout",
+  description:
+    "Complete your purchase securely at HyperWear.io. Enter your shipping and payment details to get your Web3 fashion and HyperLiquid merch.",
+  alternates: {
+    canonical: "/checkout",
+  },
+  openGraph: {
+    title: "Checkout | HyperWear.io",
+    description:
+      "Complete your purchase securely at HyperWear.io. Enter your shipping and payment details to get your Web3 fashion and HyperLiquid merch.",
+    url: "/checkout",
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function CheckoutPage() {
   const supabase = createClient();

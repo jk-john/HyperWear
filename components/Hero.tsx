@@ -23,6 +23,7 @@ export default function Hero() {
       <div className="relative z-10 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
         <div className="h-20 w-full overflow-hidden sm:h-28 md:h-36">
           <VelocityScroll
+            tag="h1"
             defaultVelocity={2}
             className="font-display text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
           >
@@ -52,17 +53,17 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeInOut" }}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row"
         >
           <Button
             asChild
-            className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
+            className="bg-secondary text-primary hover:bg-primary w-48 rounded-full border border-white transition-all hover:text-white sm:w-auto"
           >
             <Link href="/products">Shop Now</Link>
           </Button>
           <Button
             asChild
-            className="bg-secondary text-primary hover:bg-primary rounded-full border border-white transition-all hover:text-white"
+            className="bg-secondary text-primary hover:bg-primary w-48 rounded-full border border-white transition-all hover:text-white sm:w-auto"
           >
             <Link href="/about-us">About Us</Link>
           </Button>

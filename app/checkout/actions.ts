@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 
+const getShippingCost = (cartTotal: number): number => {
+  return cartTotal >= 60 ? 0 : 9.99;
+};
+
 // TODO: Add your Stripe secret key to your environment variables.
 // You can find your secret key in the Stripe dashboard.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -40,10 +44,13 @@ type FormValues = {
   email: string;
   phoneNumber: string;
   street: string;
+  addressComplement?: string;
   city: string;
   zip: string;
   country: string;
-  paymentMethod: "stripe" | "nowpayments" | "hype" | "usdhl";
+  companyName?: string;
+  deliveryInstructions?: string;
+  paymentMethod: "stripe" | "nowpayments" | "hype" | "usdhl" | "usdt0";
   evmAddress?: string;
 };
 
@@ -186,13 +193,9 @@ export async function createCheckoutSession(
   }
 }
 
-export async function finalizeHypeOrder(
+export async function initiateHypePayment(
   cartItems: CartItem[],
-  txHash: string | null,
   formValues: FormValues,
-  tokenAmount: number,
-  totalUsd: number,
-  walletAddress?: string,
 ) {
   const supabase = getServerSupabase();
 
@@ -202,6 +205,43 @@ export async function finalizeHypeOrder(
 
   if (!user) {
     return { success: false, error: "User not authenticated." };
+  }
+
+  const cartTotal = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+  const shippingCost = getShippingCost(cartTotal);
+  const finalTotalUsd = cartTotal + shippingCost;
+
+  let tokenAmount: number;
+
+  if (formValues.paymentMethod === "hype") {
+    try {
+      // Ensure you have NEXT_PUBLIC_URL in your environment variables
+      const hypePriceResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/hype-price`,
+        { cache: "no-store" },
+      );
+      if (!hypePriceResponse.ok) {
+        const errorData = await hypePriceResponse.json();
+        throw new Error(errorData.error || "Failed to fetch HYPE price");
+      }
+      const priceData = await hypePriceResponse.json();
+      if (!priceData.hypeToUsd) {
+        throw new Error("Invalid price data received.");
+      }
+      tokenAmount = finalTotalUsd / priceData.hypeToUsd;
+    } catch (error) {
+      console.error("Could not fetch HYPE price:", error);
+      return {
+        success: false,
+        error: "Could not fetch current HYPE price. Please try again later.",
+      };
+    }
+  } else {
+    // For USDHL and USDT0, assume 1:1 with USD
+    tokenAmount = finalTotalUsd;
   }
 
   // Find-or-update logic for the order
@@ -215,13 +255,13 @@ export async function finalizeHypeOrder(
 
   const orderPayload = {
     user_id: user.id,
-    total: totalUsd,
+    total: finalTotalUsd,
     total_token_amount: tokenAmount,
     status: "pending" as const,
     payment_method: formValues.paymentMethod.toUpperCase(),
     expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-    tx_hashes: txHash ? [txHash] : [],
-    wallet_address: walletAddress,
+    tx_hashes: [],
+    wallet_address: formValues.evmAddress,
     paid_amount: 0,
     remaining_amount: tokenAmount,
     shipping_email: formValues.email,
@@ -242,9 +282,9 @@ export async function finalizeHypeOrder(
       .from("orders")
       .update(orderPayload)
       .eq("id", existingOrder.id)
-      .select()
+      .select("id")
       .single();
-    
+
     if (updateError) {
       console.error("Error updating HYPE order:", updateError);
       return { success: false, error: "Failed to update your order." };
@@ -254,7 +294,7 @@ export async function finalizeHypeOrder(
     const { data: newOrder, error: createError } = await supabase
       .from("orders")
       .insert(orderPayload)
-      .select()
+      .select("id")
       .single();
 
     if (createError) {

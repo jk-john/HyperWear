@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import ProductGrid from "./ProductGrid";
 
-const VISIBLE_PRODUCTS = 4;
+const VISIBLE_PRODUCTS = 6;
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);

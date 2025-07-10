@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { createCheckoutSession } from "./actions";
+import { createCheckoutSession, initiateHypePayment } from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
   return cartTotal >= 60 ? 0 : 9.99;
@@ -183,52 +183,17 @@ export function CheckoutClient({
       ) {
         if (!values.evmAddress) {
           toast.error("Please enter your EVM address.");
+          setIsSubmitting(false);
           return;
         }
 
-        const shippingInfo = {
-          firstName: values.firstName,
-          lastName: values.lastName,
-          email: values.email,
-          phoneNumber: values.phoneNumber,
-          street: values.street,
-          city: values.city,
-          zip: values.zip,
-          country: values.country,
-        };
-        localStorage.setItem("shippingAddress", JSON.stringify(shippingInfo));
+        const result = await initiateHypePayment(cartItems, values);
 
-        let amount: string | undefined;
-        try {
-          if (values.paymentMethod === "hype") {
-            const hypePriceResponse = await fetch("/api/hype-price", {
-              cache: "no-store",
-            });
-            if (!hypePriceResponse.ok) {
-              const errorData = await hypePriceResponse.json();
-              throw new Error(errorData.error || "Failed to fetch HYPE price");
-            }
-            const priceData = await hypePriceResponse.json();
-            if (!priceData.hypeToUsd) {
-              throw new Error("Invalid price data received.");
-            }
-            amount = (totalPrice() / priceData.hypeToUsd).toString();
-          } else {
-            // For USDHL, 1:1 conversion
-            amount = totalPrice().toString();
-          }
-
-          router.push(
-            `/checkout/hype-confirmation?cartTotal=${totalPrice()}&amount=${amount}&evmAddress=${values.evmAddress}&paymentMethod=${values.paymentMethod}`,
-          );
-        } catch (error) {
-          console.error("Could not fetch HYPE price:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "An unknown error occurred.";
-          toast.error(`Could not proceed with HYPE payment: ${errorMessage}`);
-          return;
+        if (result.success && result.orderId) {
+          clearCart();
+          router.push(`/checkout/hype-confirmation?orderId=${result.orderId}`);
+        } else {
+          toast.error(result.error || "Could not start your payment process.");
         }
       } else if (values.paymentMethod === "nowpayments") {
         toast.error("NowPayments is not yet implemented.");

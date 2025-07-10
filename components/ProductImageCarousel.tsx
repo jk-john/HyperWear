@@ -69,7 +69,7 @@ export const ProductImageCarousel = ({
                 >
                   <Image
                     src={getPublicImageUrl(image)}
-                    alt={`${productName} image ${index + 1}`}
+                    alt={`${productName} - Web3 clothing by HyperWear`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -116,7 +116,11 @@ export const ProductImageCarousel = ({
         >
           <Image
             src={getPublicImageUrl(images?.[0])}
-            alt={hasImages ? `${productName} image 1` : "Placeholder image"}
+            alt={
+              hasImages
+                ? `${productName} - Web3 clothing by HyperWear`
+                : "Placeholder image for HyperWear product"
+            }
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -1,5 +1,21 @@
 import { Socials } from "@/components/Socials";
+import { Metadata } from "next";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "New Arrivals",
+  description:
+    "Check out the latest Web3 clothing and crypto fashion at HyperWear.io. Fresh drops of HyperLiquid merch and more.",
+  alternates: {
+    canonical: "/new-arrivals",
+  },
+  openGraph: {
+    title: "New Arrivals | HyperWear.io",
+    description:
+      "Check out the latest Web3 clothing and crypto fashion at HyperWear.io. Fresh drops of HyperLiquid merch and more.",
+    url: "/new-arrivals",
+  },
+};
 
 export default function NewArrivalsPage() {
   return (

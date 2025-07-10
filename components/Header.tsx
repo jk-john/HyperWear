@@ -75,11 +75,12 @@ export const Header = () => {
         </div>
 
         {/* Mobile Menu */}
-        <div className="md:hidden">
+        <div className="flex items-center space-x-4 md:hidden">
+          <Cart />
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <button>
-                <Menu className="h-6 w-6" />
+                <Menu className="h-8 w-8" />
               </button>
             </SheetTrigger>
             <SheetContent className="w-full bg-white sm:w-3/4">
@@ -93,11 +94,12 @@ export const Header = () => {
                 <div className="w-full">
                   <SearchBar />
                 </div>
-                <UserAccountNav user={user} displayMode="button" />
-                <Cart displayMode="button" />
-                <Link href="/products" className="w-full">
-                  <ShimmerButton className="w-full">Shop Now</ShimmerButton>
-                </Link>
+                <div className="flex w-full gap-4">
+                  <UserAccountNav user={user} displayMode="button" />
+                  <Link href="/products" className="w-full">
+                    <ShimmerButton className="w-full">Shop Now</ShimmerButton>
+                  </Link>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

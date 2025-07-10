@@ -1,9 +1,23 @@
-"use client";
-
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Metadata } from "next";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "Collections",
+  description:
+    "Discover our carefully curated collections of Web3 streetwear and crypto fashion, each with a unique style and story. Made for the HyperLiquid community, created by the HyperLiquid community.",
+  alternates: {
+    canonical: "/collections",
+  },
+  openGraph: {
+    title: "Collections | HyperWear.io",
+    description:
+      "Discover our carefully curated collections of Web3 streetwear and crypto fashion, each with a unique style and story.",
+    url: "/collections",
+  },
+};
 
 const CollectionsPage = () => {
   const carouselImages = [
@@ -86,9 +100,9 @@ const CollectionsPage = () => {
                 alt={collection.title}
               />
               <div className="p-6">
-                <h3 className="font-display text-xl font-bold text-gray-900">
+                <h2 className="font-display text-xl font-bold text-gray-900">
                   {collection.title}
-                </h3>
+                </h2>
                 <p className="font-body mt-2 text-gray-600">
                   {collection.description}
                 </p>

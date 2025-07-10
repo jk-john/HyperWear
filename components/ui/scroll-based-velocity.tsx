@@ -17,6 +17,7 @@ interface VelocityScrollProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultVelocity?: number;
   className?: string;
   numRows?: number;
+  tag?: React.ElementType;
 }
 
 interface ParallaxProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -105,10 +106,11 @@ export function VelocityScroll({
   numRows = 2,
   children,
   className,
+  tag: Tag = "div",
   ...props
 }: VelocityScrollProps) {
   return (
-    <div
+    <Tag
       className={cn(
         "relative w-full text-4xl font-bold tracking-[-0.02em] md:text-7xl md:leading-[5rem]",
         className,
@@ -123,6 +125,6 @@ export function VelocityScroll({
           {children}
         </ParallaxText>
       ))}
-    </div>
+    </Tag>
   );
 }

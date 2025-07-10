@@ -59,7 +59,7 @@ export const Cart = ({
             size="icon"
             className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="h-8 w-8" />
             {totalCartItems > 0 && (
               <Badge className="bg-accent text-primary absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white p-0 text-xs font-bold">
                 {totalCartItems}
