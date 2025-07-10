@@ -43,6 +43,7 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(receivingAddress);
     setCopiedAddress(true);
+    toast.success("Address copied to clipboard!");
     setTimeout(() => setCopiedAddress(false), 2000);
   };
 
@@ -52,6 +53,7 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
         order.remaining_amount.toFixed(18).toString(),
       );
       setCopiedAmount(true);
+      toast.success("Amount copied to clipboard!");
       setTimeout(() => setCopiedAmount(false), 2000);
     }
   };
@@ -67,16 +69,22 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
     switch (status) {
       case "underpaid":
         return (
-          <div className="mt-4 rounded-md bg-yellow-900/50 p-3 text-center text-sm text-yellow-300">
-            <p className="font-bold">Underpayment Detected</p>
-            <p>Please send the remaining balance to complete your order.</p>
+          <div className="mb-4 rounded-lg bg-amber-50 p-3 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+              <p className="font-semibold text-amber-800 text-sm">Underpayment Detected</p>
+            </div>
+            <p className="text-amber-700 text-xs">Please send the remaining balance to complete your order.</p>
           </div>
         );
       case "paid":
       case "completed":
         return (
-          <div className="mt-6 animate-pulse text-center text-lg font-semibold text-green-400">
-            Verifying payment on the blockchain...
+          <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <p className="text-sm font-semibold text-emerald-800">Verifying payment on the blockchain...</p>
+            </div>
           </div>
         );
       default:
@@ -210,8 +218,11 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
-        <div className="text-white">Loading order details...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-[--color-light] font-medium">Loading order details...</div>
+        </div>
       </div>
     );
   }
@@ -229,12 +240,19 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
 
   if (isCancelled) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
-        <div className="w-full max-w-md rounded-2xl bg-[--color-primary] p-8 text-center shadow-2xl shadow-black/40">
-          <h1 className="font-display text-3xl font-bold text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[--color-dark] p-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl">
+          <div className="mb-4">
+            <div className="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="font-display text-xl font-bold text-gray-900 mb-2">
             Order Cancelled
           </h1>
-          <p className="mt-2 text-white/80">
+          <p className="text-gray-600 text-sm leading-relaxed">
             This order has been successfully cancelled. You will be redirected
             to the homepage shortly.
           </p>
@@ -245,8 +263,11 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
 
   if (!orderId) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
-        <p className="text-white">Loading order...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[--color-light]">Loading order...</p>
+        </div>
       </div>
     );
   }
@@ -254,134 +275,182 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
-          <p className="text-white">Loading confirmation...</p>
+        <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[--color-light]">Loading confirmation...</p>
+          </div>
         </div>
       }
     >
-      <div className="font-body flex min-h-screen items-center justify-center bg-[--color-jungle] p-4 text-white">
-        <div className="w-full max-w-md rounded-2xl bg-[--color-primary] p-8 shadow-2xl shadow-black/40">
-          {isPaid ? (
-            <div className="text-center">
-              <h1 className="font-display text-3xl font-bold text-[--color-secondary]">
-                Payment Received!
-              </h1>
-              <p className="mt-2 text-[--color-accent]">
-                Your order has been confirmed.
-              </p>
-              <p className="mt-4 text-sm text-[--color-light]">
-                Thank you for your purchase! You will receive an email
-                confirmation shortly with your order details.
-              </p>
-              <Button
-                onClick={() => router.push(`/dashboard/orders`)}
-                className="mt-8 w-full rounded-full bg-[--color-secondary] py-3 text-lg font-bold text-[--color-primary] shadow-lg transition-all hover:scale-105 hover:bg-[--color-secondary]/90"
-              >
-                View Your Orders
-              </Button>
-            </div>
-          ) : isExpired ? (
-            <div className="text-center">
-              <h1 className="font-display text-3xl font-bold text-red-500">
-                Order Expired
-              </h1>
-              <p className="mt-4 text-[--color-accent]">
-                This payment request has expired.
-              </p>
-              <Button
-                onClick={() => router.push("/checkout")}
-                className="mt-6 w-full rounded-full bg-gray-600 py-3 text-lg font-bold text-white shadow-lg transition-all hover:scale-105 hover:bg-gray-500"
-              >
-                Create a New Order
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="text-center">
-                <h1 className="font-display text-3xl font-bold text-white">
-                  Complete Your Payment
-                </h1>
-                {timeLeft !== null && (
-                  <div className="mt-2 text-lg font-semibold text-red-500">
-                    {formatTime(timeLeft)}
+      <div className="font-body min-h-screen bg-[--color-dark] p-4">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            {isPaid ? (
+              <div className="text-center space-y-4">
+                <div className="mb-4">
+                  <div className="w-16 h-16 mx-auto bg-emerald-100 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                )}
+                </div>
+                <h1 className="font-display text-2xl font-bold text-gray-900">
+                  Payment Received!
+                </h1>
+                <p className="text-[--color-primary] font-medium">
+                  Your order has been confirmed.
+                </p>
+                <p className="text-gray-600 text-sm leading-relaxed px-2">
+                  Thank you for your purchase! You will receive an email
+                  confirmation shortly with your order details.
+                </p>
+                <Button
+                  onClick={() => router.push(`/dashboard/orders`)}
+                  className="mt-6 w-full bg-[--color-primary] hover:bg-[--color-emerald] text-white rounded-full py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  View Your Orders
+                </Button>
               </div>
+            ) : isExpired ? (
+              <div className="text-center space-y-4">
+                <div className="mb-4">
+                  <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <h1 className="font-display text-2xl font-bold text-gray-900">
+                  Order Expired
+                </h1>
+                <p className="text-gray-600">
+                  This payment request has expired.
+                </p>
+                <Button
+                  onClick={() => router.push("/checkout")}
+                  className="mt-6 w-full bg-gray-800 hover:bg-gray-700 text-white rounded-full py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  Create a New Order
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {/* Header */}
+                <div className="text-center space-y-3">
+                  <h1 className="font-display text-xl font-bold text-gray-900 leading-tight">
+                    Complete Your Payment
+                  </h1>
+                  {timeLeft !== null && (
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-lg font-mono font-bold text-red-700">
+                        {formatTime(timeLeft)}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {getPaymentMessage(order?.status)}
+                {getPaymentMessage(order?.status)}
 
-              <div className="my-6 space-y-4 rounded-lg bg-[--color-jungle] p-4 text-center">
-                <div>
-                  <p className="text-sm text-[--color-accent]">Send exactly</p>
-                  <div
-                    className="mt-2 flex items-center justify-center"
-                    key={order?.remaining_amount}
-                  >
+                {/* Payment Amount */}
+                <div className="text-center space-y-3">
+                  <p className="text-gray-600 text-sm font-medium">Send exactly</p>
+                  <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gray-50">
                     {tokenImage && (
                       <Image
                         src={tokenImage}
                         alt={normalizedPaymentMethod.toUpperCase()}
                         width={28}
                         height={28}
+                        className="flex-shrink-0"
                       />
                     )}
-                    <span className="font-mono text-2xl font-bold text-[--color-secondary]">
+                    <span className="font-mono text-lg font-bold text-[--color-primary] break-all">
                       {amountToPay.toFixed(6)}
                     </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleCopyAmount}
-                      className="flex items-center gap-1.5 text-xs text-[--color-accent] hover:text-white"
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm border ${
+                        copiedAmount 
+                          ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600" 
+                          : "bg-[--color-primary] text-black border-[--color-primary] hover:bg-[--color-emerald] hover:scale-105"
+                      }`}
                     >
-                      {copiedAmount ? "Copied!" : "Copy"}
+                      {copiedAmount ? "✓ Copied" : "Copy"}
                     </Button>
                   </div>
                 </div>
 
-                <div>
-                  <p className="mt-4 text-sm text-[--color-accent]">
-                    To the following address
-                  </p>
-                  <div className="my-4 flex justify-center">
-                    <QRCodeSVG
-                      value={receivingAddress}
-                      size={140}
-                      bgColor="var(--color-jungle)"
-                      fgColor="var(--color-secondary)"
-                    />
+                {/* QR Code and Address in two columns on larger screens */}
+                <div className="space-y-4">
+                  <p className="text-gray-600 text-sm font-medium text-center">To the following address</p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    {/* QR Code */}
+                    <div className="flex-shrink-0">
+                      <div className="p-3 rounded-xl bg-white shadow-md border">
+                        <QRCodeSVG
+                          value={receivingAddress}
+                          size={120}
+                          bgColor="#ffffff"
+                          fgColor="#0f3933"
+                          level="M"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div className="flex-1 space-y-3">
+                      <div className="p-3 rounded-xl bg-gray-50 border">
+                        <div className="font-mono text-xs text-gray-700 break-all leading-relaxed">
+                          {receivingAddress}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={handleCopyAddress}
+                        className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-md ${
+                          copiedAddress 
+                            ? "bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105" 
+                            : "bg-[--color-secondary] text-[--color-primary] hover:bg-[--color-secondary]/90 hover:scale-105"
+                        }`}
+                      >
+                        {copiedAddress ? "✓ Address Copied!" : "Copy Address"}
+                      </Button>
+                    </div>
                   </div>
-                  <div className="font-mono text-sm break-all text-[--color-light]">
-                    {receivingAddress}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyAddress}
-                    className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs text-[--color-accent] hover:text-white"
-                  >
-                    {copiedAddress ? "Copied!" : "Copy Address"}
-                  </Button>
                 </div>
-              </div>
 
-              <div>
-                <p className="text-center text-xs text-[--color-accent]">
-                  Your order will be processed automatically once the payment is
-                  confirmed on the blockchain.
-                </p>
-              </div>
+                {/* Info Message */}
+                <div className="text-center p-3 rounded-xl bg-blue-50 border border-blue-200">
+                  <p className="text-blue-800 text-xs leading-relaxed">
+                    Your order will be processed automatically once the payment is
+                    confirmed on the blockchain.
+                  </p>
+                </div>
 
-              <Button
-                onClick={handleCancel}
-                disabled={isCancelling}
-                variant="outline"
-                className="mt-6 w-full rounded-full border-red-500/50 text-red-500/80 transition-all hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isCancelling ? "Cancelling..." : "Cancel Order"}
-              </Button>
-            </>
-          )}
+                {/* Cancel Button */}
+                <Button
+                  onClick={handleCancel}
+                  disabled={isCancelling}
+                  variant="outline"
+                  className="w-full py-3 rounded-xl border-2 border-red-300 text-red-700 bg-red-50 hover:bg-red-100 hover:border-red-400 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50 font-semibold transition-all duration-300 text-sm shadow-sm hover:scale-105"
+                >
+                  {isCancelling ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 border-2 border-red-700 border-t-transparent rounded-full animate-spin"></div>
+                      Cancelling...
+                    </div>
+                  ) : (
+                    "Cancel Order"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Suspense>
@@ -394,8 +463,11 @@ export default function HypeConfirmationPage({
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
-          <p className="text-white">Loading confirmation...</p>
+        <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[--color-light]">Loading confirmation...</p>
+          </div>
         </div>
       }
     >
