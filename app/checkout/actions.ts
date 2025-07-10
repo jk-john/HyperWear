@@ -218,9 +218,9 @@ export async function initiateHypePayment(
 
   if (formValues.paymentMethod === "hype") {
     try {
-      // Ensure you have NEXT_PUBLIC_URL in your environment variables
+      // Ensure you have NEXT_PUBLIC_SITE_URL in your environment variables
       const hypePriceResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/hype-price`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/hype-price`,
         { cache: "no-store" },
       );
       if (!hypePriceResponse.ok) {

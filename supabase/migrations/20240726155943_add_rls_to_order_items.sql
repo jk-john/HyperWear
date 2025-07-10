@@ -2,6 +2,7 @@
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Allow users to view their own order items
+DROP POLICY IF EXISTS "Allow users to view their own order items" ON public.order_items;
 CREATE POLICY "Allow users to view their own order items"
 ON public.order_items FOR SELECT
 TO authenticated
@@ -13,6 +14,7 @@ USING (
 );
 
 -- Policy: Allow users to add items to their own pending orders
+DROP POLICY IF EXISTS "Allow users to add items to their own pending orders" ON public.order_items;
 CREATE POLICY "Allow users to add items to their own pending orders"
 ON public.order_items FOR INSERT
 TO authenticated
@@ -24,6 +26,7 @@ WITH CHECK (
 );
 
 -- Policy: Allow users to delete items from their own pending orders
+DROP POLICY IF EXISTS "Allow users to delete items from their own pending orders" ON public.order_items;
 CREATE POLICY "Allow users to delete items from their own pending orders"
 ON public.order_items FOR DELETE
 TO authenticated

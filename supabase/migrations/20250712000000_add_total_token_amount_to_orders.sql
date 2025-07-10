@@ -1,6 +1,6 @@
 -- Add the total_token_amount column to the orders table
 ALTER TABLE public.orders
-ADD COLUMN total_token_amount numeric;
+ADD COLUMN IF NOT EXISTS total_token_amount numeric;
 
 -- Backfill existing HYPE orders where total_token_amount might be null
 -- This is a safe operation; it will only update if the value is currently NULL.

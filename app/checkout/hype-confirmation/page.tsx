@@ -39,6 +39,7 @@ function HypeConfirmation() {
   const tokenImage = tokenImages[normalizedPaymentMethod];
 
   const isExpired = timeLeft !== null && timeLeft <= 0;
+  const isPaid = orderStatus === "paid" || orderStatus === "completed";
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(receivingAddress);
@@ -60,44 +61,18 @@ function HypeConfirmation() {
 
   const getPaymentMessage = () => {
     if (isExpired) {
-      return (
-        <div className="rounded-md bg-red-100 p-4 text-center text-red-700">
-          <p className="font-bold">Order Expired</p>
-          <p>
-            Your payment window has closed. Please go back to checkout to start
-            over.
-          </p>
-        </div>
-      );
+      return null;
     }
     switch (orderStatus) {
-      case "paid":
-        return (
-          <div className="rounded-md bg-green-100 p-4 text-center text-green-700">
-            <p className="font-bold">Payment Complete!</p>
-            <p>Your order has been successfully paid.</p>
-          </div>
-        );
       case "underpaid":
         return (
-          <div className="rounded-md bg-yellow-100 p-4 text-center text-yellow-700">
+          <div className="mt-4 rounded-md bg-yellow-900/50 p-3 text-center text-sm text-yellow-300">
             <p className="font-bold">Underpayment Detected</p>
-            <p>
-              We received a payment, but it was less than the required amount.
-              Please send the remaining balance to complete your order.
-            </p>
+            <p>Please send the remaining balance to complete your order.</p>
           </div>
         );
       default:
-        return (
-          <p className="text-md text-primary mt-2 text-center">
-            Please send the exact amount of{" "}
-            <span className="font-bold">
-              {normalizedPaymentMethod.toUpperCase()}
-            </span>{" "}
-            to the address below.
-          </p>
-        );
+        return null;
     }
   };
 
@@ -127,7 +102,7 @@ function HypeConfirmation() {
       setExpiresAt(order.expires_at);
       setAmountToPay(order.remaining_amount ?? order.total_token_amount ?? 0);
 
-      if (order.status === "paid") {
+      if (order.status === "paid" || order.status === "completed") {
         clearCart();
       }
     } catch (error) {
@@ -183,12 +158,12 @@ function HypeConfirmation() {
           setAmountToPay(updatedOrder.remaining_amount);
           setPaidAmount(updatedOrder.paid_amount);
 
-          if (updatedOrder.status === "paid") {
-            toast.success("✅ Payment received! You'll be redirected shortly.");
+          if (
+            updatedOrder.status === "paid" ||
+            updatedOrder.status === "completed"
+          ) {
+            toast.success("✅ Payment received!");
             clearCart();
-            setTimeout(() => {
-              router.push(`/dashboard/orders/${orderId}`);
-            }, 3000);
           } else if (updatedOrder.status === "underpaid") {
             toast.warning("Partial payment received. Please send the rest.");
           }
@@ -203,8 +178,8 @@ function HypeConfirmation() {
 
   if (!orderId) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
+        <p className="text-white">Loading order...</p>
       </div>
     );
   }
@@ -212,91 +187,120 @@ function HypeConfirmation() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          Loading...
+        <div className="flex min-h-screen items-center justify-center bg-[--color-jungle]">
+          <p className="text-white">Loading confirmation...</p>
         </div>
       }
     >
-      <div className="bg-primary flex min-h-screen items-center justify-center p-4">
-        <div className="bg-primary w-full max-w-md rounded-lg p-8 shadow-lg">
-          {orderStatus === "paid" ? (
+      <div className="font-body flex min-h-screen items-center justify-center bg-[--color-jungle] p-4 text-white">
+        <div className="w-full max-w-md rounded-2xl bg-[--color-primary] p-8 shadow-2xl shadow-black/40">
+          {isPaid ? (
             <div className="text-center">
-              <h1 className="mb-4 text-2xl font-bold">Payment Successful!</h1>
-              <p>Your order has been confirmed.</p>
+              <h1 className="font-display text-3xl font-bold text-[--color-secondary]">
+                Payment Received!
+              </h1>
+              <p className="mt-2 text-[--color-accent]">
+                Your order has been confirmed.
+              </p>
+              <p className="mt-4 text-sm text-[--color-light]">
+                Thank you for your purchase! You will receive an email
+                confirmation shortly with your order details.
+              </p>
               <Button
-                onClick={() => router.push(`/dashboard/orders/${orderId}`)}
-                className="mt-6"
+                onClick={() => router.push(`/dashboard/orders`)}
+                className="mt-8 w-full rounded-full bg-[--color-secondary] py-3 text-lg font-bold text-[--color-primary] shadow-lg transition-all hover:scale-105 hover:bg-[--color-secondary]/90"
               >
-                View Your Order
+                View Your Orders
+              </Button>
+            </div>
+          ) : isExpired ? (
+            <div className="text-center">
+              <h1 className="font-display text-3xl font-bold text-red-500">
+                Order Expired
+              </h1>
+              <p className="mt-4 text-[--color-accent]">
+                This payment request has expired.
+              </p>
+              <Button
+                onClick={() => router.push("/checkout")}
+                className="mt-6 w-full rounded-full bg-gray-600 py-3 text-lg font-bold text-white shadow-lg transition-all hover:scale-105 hover:bg-gray-500"
+              >
+                Create a New Order
               </Button>
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Complete Your Payment</h1>
+              <div className="text-center">
+                <h1 className="font-display text-3xl font-bold text-white">
+                  Complete Your Payment
+                </h1>
                 {timeLeft !== null && (
-                  <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                  <div className="mt-2 text-lg font-semibold text-red-500">
                     {formatTime(timeLeft)}
                   </div>
                 )}
               </div>
+
               {getPaymentMessage()}
-              <div className="text-primary my-2 mt-6 mb-6 flex items-center justify-center space-x-2 text-lg font-bold">
-                <span className="flex items-center gap-2">
-                  {amountToPay.toFixed(4)}{" "}
-                  {tokenImage && (
-                    <Image
-                      src={tokenImage}
-                      alt={normalizedPaymentMethod.toUpperCase()}
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                </span>
-                <Button
-                  onClick={handleCopyAmount}
-                  size="sm"
-                  variant="ghost"
-                  className="bg-primary hover:bg-secondary/80 ml-9 px-6 py-3 text-xs text-white hover:text-black"
-                >
-                  {copiedAmount ? "Copied!" : "Copy"}
-                </Button>
-              </div>
-              <p className="text-primary">to the following address:</p>
-              <div className="my-4 flex justify-center">
-                <QRCodeSVG value={receivingAddress} size={128} />
-              </div>
-              <div className="flex flex-col items-center space-y-2">
-                <div className="font-mono text-sm break-all">
-                  {receivingAddress}
+
+              <div className="my-6 space-y-4 rounded-lg bg-[--color-jungle] p-4 text-center">
+                <div>
+                  <p className="text-sm text-[--color-accent]">Send exactly</p>
+                  <div className="mt-2 flex items-center justify-center gap-3">
+                    {tokenImage && (
+                      <Image
+                        src={tokenImage}
+                        alt={normalizedPaymentMethod.toUpperCase()}
+                        width={28}
+                        height={28}
+                      />
+                    )}
+                    <span className="font-mono text-2xl font-bold text-[--color-secondary]">
+                      {amountToPay.toFixed(6)}
+                    </span>
+                    <Button
+                      onClick={handleCopyAmount}
+                      size="sm"
+                      variant="ghost"
+                      className="px-3 py-1 text-xs hover:bg-[--color-primary]"
+                    >
+                      {copiedAmount ? "Copied!" : "Copy"}
+                    </Button>
+                  </div>
                 </div>
-                <Button
-                  onClick={handleCopyAddress}
-                  size="sm"
-                  variant="ghost"
-                  className="bg-primary hover:bg-secondary/80 px-10 text-white hover:text-black"
-                >
-                  {copiedAddress ? "Copied!" : "Copy"}
-                </Button>
+
+                <div className="border-t border-[--color-emerald] pt-4">
+                  <p className="text-sm text-[--color-accent]">
+                    To the following address
+                  </p>
+                  <div className="my-4 flex justify-center">
+                    <QRCodeSVG
+                      value={receivingAddress}
+                      size={140}
+                      bgColor="var(--color-jungle)"
+                      fgColor="#FFFFFF"
+                    />
+                  </div>
+                  <div className="font-mono text-sm break-all text-[--color-light]">
+                    {receivingAddress}
+                  </div>
+                  <Button
+                    onClick={handleCopyAddress}
+                    size="sm"
+                    variant="ghost"
+                    className="mt-2 px-3 py-1 text-xs hover:bg-[--color-primary]"
+                  >
+                    {copiedAddress ? "Copied!" : "Copy"}
+                  </Button>
+                </div>
               </div>
 
-              <div className="mt-6 text-center text-sm text-gray-500">
+              <div className="mt-4 text-center text-xs text-[--color-accent]">
                 <p>
-                  Send exactly this amount. Do not send from an exchange.
-                  Underpayments will delay your order.
-                </p>
-                <p className="mt-2">
-                  Your order will be processed once the payment is confirmed on
-                  the blockchain.
+                  Your order will be processed automatically once the payment is
+                  confirmed on the blockchain.
                 </p>
               </div>
-              <Button
-                onClick={() => router.push("/checkout")}
-                variant="outline"
-                className="mt-6 w-full"
-              >
-                Cancel and Return to Checkout
-              </Button>
             </>
           )}
         </div>
