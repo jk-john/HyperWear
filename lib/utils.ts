@@ -93,3 +93,54 @@ export function assertEnvVars() {
     );
   }
 }
+
+// Free error logging utility for production
+export function logError(error: Error, context?: string, metadata?: Record<string, unknown>) {
+  const errorData = {
+    timestamp: new Date().toISOString(),
+    error: {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    },
+    context,
+    metadata,
+    url: typeof window !== 'undefined' ? window.location.href : 'server',
+    userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'server',
+  };
+  
+  // In development, just console.error
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Error:', errorData);
+    return;
+  }
+  
+  // In production, log to console AND your database
+  console.error('PRODUCTION_ERROR:', JSON.stringify(errorData));
+  
+  // Send to your own database for tracking (completely free!)
+  try {
+    fetch('/api/log-error', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(errorData) 
+    }).catch(err => console.error('Failed to log error to database:', err));
+  } catch (err) {
+    console.error('Error logging to database:', err);
+  }
+}
+
+export function logInfo(message: string, metadata?: Record<string, unknown>) {
+  const logData = {
+    timestamp: new Date().toISOString(),
+    level: 'info',
+    message,
+    metadata,
+  };
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Info:', logData);
+  } else {
+    console.log('PRODUCTION_INFO:', JSON.stringify(logData));
+  }
+}
