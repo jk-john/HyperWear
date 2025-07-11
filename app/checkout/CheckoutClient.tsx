@@ -3,21 +3,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PhoneInput from "@/components/ui/phone-input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
@@ -30,9 +30,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import {
-  cancelOrder,
-  createCheckoutSession,
-  initiateHypePayment,
+    cancelOrder,
+    createCheckoutSession,
+    initiateHypePayment,
 } from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
@@ -114,7 +114,6 @@ export function CheckoutClient({
   const {
     cartItems,
     totalPrice,
-    clearCart,
     pendingOrder,
     timeLeft,
     checkPendingOrder,
@@ -199,31 +198,53 @@ export function CheckoutClient({
   if (pendingOrder) {
     return (
       <div className="bg-jungle mt-10 min-h-screen text-white">
-        <div className="container mx-auto flex h-full flex-col items-center justify-center p-4 text-center">
-          <div className="w-full max-w-md rounded-2xl bg-[--color-primary] p-8 shadow-2xl shadow-black/40">
-            <h1 className="font-display text-3xl font-bold text-white">
-              You Have a Pending Order
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <div className="bg-card mb-8 rounded-2xl border-5 border-white p-6 shadow-lg">
+            <h1 className="font-display mb-4 text-center text-3xl font-bold text-white">
+              Payment Pending
             </h1>
-            <p className="text-primary/60 mt-2">
-              Your previous order has not been completed yet. Please complete or
-              cancel it before creating a new one.
+            <p className="mb-6 text-center text-white">
+              You have a pending order. Please complete the payment or cancel
+              the order to proceed.
             </p>
-            {timeLeft !== null && (
-              <div className="mt-4 text-2xl font-bold text-red-500">
-                Time left: {formatTime(timeLeft)}
+
+            <div className="mb-6 rounded-lg bg-white/10 p-4">
+              <div className="mb-2 flex justify-between">
+                <span className="font-semibold">Order Total:</span>
+                <span className="font-bold">
+                  ${pendingOrder.total?.toFixed(2)}
+                </span>
               </div>
-            )}
-            <div className="mt-8 space-y-3">
+              <div className="mb-2 flex justify-between">
+                <span className="font-semibold">Payment Method:</span>
+                <span className="font-bold">
+                  {pendingOrder.payment_method}
+                </span>
+              </div>
+              {timeLeft !== null && (
+                <div className="mt-4 text-center">
+                  <div className="text-lg font-bold text-red-400">
+                    Time Remaining: {formatTime(timeLeft)}
+                  </div>
+                  <p className="text-sm text-white/70">
+                    This order will be automatically cancelled if not completed
+                    in time.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
               <Button
                 onClick={handleGoToPayment}
-                className="bg-secondary hover:bg-mint w-full rounded-full py-3 text-lg font-bold text-white shadow-lg transition-all hover:scale-105"
+                className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
               >
                 Complete Payment
               </Button>
               <Button
                 onClick={handleCancelOrder}
                 variant="outline"
-                className="w-full rounded-full border-red-500/50 text-red-500/80 hover:bg-red-500/10 hover:text-red-500"
+                className="w-full rounded-full border-white py-6 text-lg font-bold text-white hover:bg-white hover:text-black"
               >
                 Cancel Order
               </Button>
@@ -235,471 +256,490 @@ export function CheckoutClient({
   }
 
   async function onSubmit(values: CheckoutFormValues) {
-    setIsSubmitting(true);
-    try {
-      const shippingAddress = {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        phone_number: values.phoneNumber,
-        street: values.street,
-        address_complement: values.addressComplement || null,
-        city: values.city,
-        postal_code: values.zip,
-        country: values.country,
-        company_name: values.companyName || null,
-        delivery_instructions: values.deliveryInstructions || null,
-      };
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
 
-      if (values.paymentMethod === "stripe") {
+    if (!user) {
+      toast.error("You must be signed in to place an order");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      if (values.paymentMethod === "hype") {
+        const result = await initiateHypePayment(cartItems, values);
+        if (result.success && result.orderId) {
+          router.push(
+            `/checkout/confirmation/hype?orderId=${result.orderId}`,
+          );
+        } else {
+          toast.error(result.error || "Failed to initiate payment");
+        }
+      } else if (
+        values.paymentMethod === "usdt0" ||
+        values.paymentMethod === "usdhl"
+      ) {
+        // Convert form values to ShippingAddress format
+        const shippingAddress = {
+          first_name: values.firstName,
+          last_name: values.lastName,
+          phone_number: values.phoneNumber,
+          street: values.street,
+          address_complement: values.addressComplement || null,
+          city: values.city,
+          postal_code: values.zip,
+          country: values.country,
+          company_name: values.companyName || null,
+          delivery_instructions: values.deliveryInstructions || null,
+        };
+
         const result = await createCheckoutSession(
           cartItems,
           shippingAddress,
-          values.email,
+          user.email!,
         );
-        if (result?.error) {
-          toast.error(result.error);
+        if (result && !result.error) {
+          // createCheckoutSession redirects on success, so this shouldn't be reached
+          // But if it does, we can handle it here
+          toast.success("Redirecting to checkout...");
         } else {
-          clearCart();
+          toast.error(result?.error || "Failed to create checkout session");
         }
-      } else if (
-        values.paymentMethod === "hype" ||
-        values.paymentMethod === "usdhl" ||
-        values.paymentMethod === "usdt0"
-      ) {
-        if (!values.evmAddress) {
-          toast.error("Please enter your EVM address.");
-          setIsSubmitting(false);
-          return;
-        }
-
-        const paymentResult = await initiateHypePayment(cartItems, values);
-
-        if (paymentResult.success && paymentResult.orderId) {
-          clearCart();
-          router.push(
-            `/checkout/confirmation/${values.paymentMethod}?orderId=${paymentResult.orderId}`,
-          );
-        } else {
-          toast.error(paymentResult.error || "Failed to initiate payment.");
-        }
-      } else if (values.paymentMethod === "nowpayments") {
-        toast.error("NowPayments is not yet implemented.");
+      } else {
+        toast.error("Payment method not yet supported");
       }
     } catch (error) {
-      console.error("Submission error:", error);
-      toast.error("An unexpected error occurred during checkout.");
+      console.error("Checkout error:", error);
+      toast.error("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="bg-jungle mt-10 min-h-screen text-white">
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="font-display mb-12 text-center text-5xl font-bold text-[--color-secondary]">
-          Checkout
-        </h1>
+    <div className="bg-jungle min-h-screen text-white">
+      <div className="mx-auto max-w-7xl px-4 py-8">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-1 gap-16 lg:grid-cols-2"
-          >
-            <div className="bg-primary rounded-lg p-8 shadow-lg">
-              <h2 className="font-display mb-6 text-3xl font-semibold text-white">
-                Shipping Information
-              </h2>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="bg-card rounded-lg p-8 shadow-lg">
+                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+                  Shipping Information
+                </h2>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        {" "}
-                        <FormLabel>
-                          <p className="mb-2 text-white">First Name</p>
-                        </FormLabel>{" "}
+                        <FormLabel className="text-white">First Name</FormLabel>
                         <FormControl>
-                          {" "}
-                          <Input {...field} placeholder="John" />{" "}
-                        </FormControl>{" "}
-                        <FormMessage />{" "}
+                          <Input
+                            {...field}
+                            placeholder="Enter your first name"
+                            className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        {" "}
-                        <FormLabel>
-                          <p className="mb-2 text-white">Last Name</p>
-                        </FormLabel>{" "}
+                        <FormLabel className="text-white">Last Name</FormLabel>
                         <FormControl>
-                          {" "}
-                          <Input {...field} placeholder="Doe" />{" "}
-                        </FormControl>{" "}
-                        <FormMessage />{" "}
+                          <Input
+                            {...field}
+                            placeholder="Enter your last name"
+                            className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
                 </div>
+
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      {" "}
-                      <FormLabel>
-                        <p className="mb-2 text-white">Email Address</p>
-                      </FormLabel>{" "}
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">Email</FormLabel>
                       <FormControl>
-                        {" "}
                         <Input
-                          type="email"
                           {...field}
-                          placeholder="john.doe@example.com"
-                        />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
+                          type="email"
+                          placeholder="Enter your email"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                          disabled
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="phoneNumber"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <p className="mb-4 ml-4 text-white">Phone Number</p>
-                      </FormLabel>
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">Phone Number</FormLabel>
                       <FormControl>
-                        <PhoneInput {...field} defaultCountry="US" />
+                        <PhoneInput
+                          {...field}
+                          placeholder="Enter your phone number"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      {" "}
-                      <FormLabel>
-                        <p className="mb-2 text-white">Company (Optional)</p>
-                      </FormLabel>{" "}
-                      <FormControl>
-                        {" "}
-                        <Input {...field} placeholder="ACME Inc." />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="street"
                   render={({ field }) => (
-                    <FormItem>
-                      {" "}
-                      <FormLabel>
-                        <p className="mb-2 text-white">Street Address</p>
-                      </FormLabel>{" "}
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">Street Address</FormLabel>
                       <FormControl>
-                        {" "}
-                        <Input {...field} placeholder="123 Main St" />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
+                        <Input
+                          {...field}
+                          placeholder="Enter your street address"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="addressComplement"
                   render={({ field }) => (
-                    <FormItem>
-                      {" "}
-                      <FormLabel>
-                        <p className="mb-2 text-white">
-                          Apartment, suite, etc. (Optional)
-                        </p>
-                      </FormLabel>{" "}
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">
+                        Address Complement (Optional)
+                      </FormLabel>
                       <FormControl>
-                        {" "}
-                        <Input {...field} placeholder="Apt #4B" />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
+                        <Input
+                          {...field}
+                          placeholder="Apartment, suite, etc."
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        {" "}
-                        <FormLabel>
-                          <p className="mb-2 text-white">City</p>
-                        </FormLabel>{" "}
+                        <FormLabel className="text-white">City</FormLabel>
                         <FormControl>
-                          {" "}
-                          <Input {...field} placeholder="New York" />{" "}
-                        </FormControl>{" "}
-                        <FormMessage />{" "}
+                          <Input
+                            {...field}
+                            placeholder="Enter your city"
+                            className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="zip"
                     render={({ field }) => (
                       <FormItem>
-                        {" "}
-                        <FormLabel>
-                          <p className="mb-2 text-white">ZIP Code</p>
-                        </FormLabel>{" "}
+                        <FormLabel className="text-white">ZIP Code</FormLabel>
                         <FormControl>
-                          {" "}
-                          <Input {...field} placeholder="10001" />{" "}
-                        </FormControl>{" "}
-                        <FormMessage />{" "}
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        {" "}
-                        <FormLabel>
-                          <p className="mb-2 text-white">Country</p>
-                        </FormLabel>{" "}
-                        <FormControl>
-                          {" "}
-                          <Input {...field} placeholder="USA" />{" "}
-                        </FormControl>{" "}
-                        <FormMessage />{" "}
+                          <Input
+                            {...field}
+                            placeholder="Enter your ZIP code"
+                            className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">Country</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your country"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">
+                        Company Name (Optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your company name"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="deliveryInstructions"
                   render={({ field }) => (
-                    <FormItem>
-                      {" "}
-                      <FormLabel>
-                        <p className="mb-2 text-white">
-                          Delivery Instructions (Optional)
-                        </p>
-                      </FormLabel>{" "}
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-white">
+                        Delivery Instructions (Optional)
+                      </FormLabel>
                       <FormControl>
-                        {" "}
                         <Input
                           {...field}
-                          placeholder="Leave at front door"
-                        />{" "}
-                      </FormControl>{" "}
-                      <FormMessage />{" "}
+                          placeholder="Any special delivery instructions"
+                          className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
               </div>
-            </div>
 
-            <div className="bg-primary rounded-lg p-8 shadow-lg">
-              <h2 className="font-display mb-6 text-3xl font-semibold text-white">
-                Payment Method
-              </h2>
-              <div className="pt-2">
-                <FormField
-                  control={form.control}
-                  name="paymentMethod"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a payment method" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem
-                            value="stripe"
-                            className="relative cursor-not-allowed overflow-hidden border-b-2 border-black bg-gradient-to-r from-gray-100 to-gray-200"
-                            disabled
-                          >
-                            <div className="relative flex w-full items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <span className="text-gray-500">
-                                  Credit Card (Stripe)
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-[--color-secondary] px-3 py-1 text-sm font-bold text-[--color-primary] shadow-lg"
-                                >
-                                  Coming Soon
-                                </Badge>
-                                <Image
-                                  src="/stripe.png"
-                                  alt="Stripe"
-                                  width={24}
-                                  height={24}
-                                  className="ml-2 opacity-50"
-                                />
-                              </div>
-                            </div>
-                          </SelectItem>
-                          <SelectItem
-                            value="usdt0"
-                            className="border-b-2 border-black bg-white"
-                          >
-                            <div className="flex w-full items-center justify-between">
-                              <span>Pay with USDT0 on HyperEVM</span>
-                              <div className="ml-2 flex items-center gap-2">
-                                <Image
-                                  src="/USDT0.svg"
-                                  alt="USDT0"
-                                  width={24}
-                                  height={24}
-                                />
-                              </div>
-                            </div>
-                          </SelectItem>
-                          <SelectItem
-                            value="usdhl"
-                            className="border-b-2 border-black bg-white"
-                          >
-                            <div className="flex w-full items-center justify-between">
-                              <span>Pay with USDHL on HyperEVM</span>
-                              <div className="ml-2 flex items-center gap-2">
-                                <Image
-                                  src="/USDHL.svg"
-                                  alt="USDHL"
-                                  width={24}
-                                  height={24}
-                                />
-                              </div>
-                            </div>
-                          </SelectItem>
-                          <SelectItem
-                            value="hype"
-                            className="border-b-2 border-black bg-white"
-                          >
-                            <div className="flex w-full items-center justify-between">
-                              <span>Pay with $HYPE on HyperEVM</span>
-                              <Image
-                                src="/HYPE.svg"
-                                alt="HYPE"
-                                width={24}
-                                height={24}
-                                className="ml-2"
-                              />
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {(form.watch("paymentMethod") === "hype" ||
-                  form.watch("paymentMethod") === "usdhl" ||
-                  form.watch("paymentMethod") === "usdt0") && (
+              <div className="bg-primary rounded-lg p-8 shadow-lg">
+                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+                  Payment Method
+                </h2>
+                <div className="pt-2">
                   <FormField
                     control={form.control}
-                    name="evmAddress"
+                    name="paymentMethod"
                     render={({ field }) => (
-                      <FormItem className="mt-4">
-                        <FormLabel>Your EVM Address (HyperEVM)</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="0x..."
-                            readOnly={!!walletAddress}
-                          />
-                        </FormControl>
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a payment method" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem
+                              value="stripe"
+                              className="relative cursor-not-allowed overflow-hidden border-b-2 border-black bg-gradient-to-r from-gray-100 to-gray-200"
+                              disabled
+                            >
+                              <div className="relative flex w-full items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-gray-500">
+                                    Credit Card (Stripe)
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant="secondary"
+                                    className="bg-[--color-secondary] px-3 py-1 text-sm font-bold text-[--color-primary] shadow-lg"
+                                  >
+                                    Coming Soon
+                                  </Badge>
+                                  <Image
+                                    src="/stripe.png"
+                                    alt="Stripe payment logo"
+                                    width={24}
+                                    height={24}
+                                    className="ml-2 opacity-50"
+                                    quality={90}
+                                  />
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem
+                              value="usdt0"
+                              className="border-b-2 border-black bg-white"
+                            >
+                              <div className="flex w-full items-center justify-between">
+                                <span>Pay with USDT0 on HyperEVM</span>
+                                <div className="ml-2 flex items-center gap-2">
+                                  <Image
+                                    src="/USDT0.svg"
+                                    alt="USDT0 cryptocurrency logo"
+                                    width={24}
+                                    height={24}
+                                    quality={90}
+                                  />
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem
+                              value="usdhl"
+                              className="border-b-2 border-black bg-white"
+                            >
+                              <div className="flex w-full items-center justify-between">
+                                <span>Pay with USDHL on HyperEVM</span>
+                                <div className="ml-2 flex items-center gap-2">
+                                  <Image
+                                    src="/USDHL.svg"
+                                    alt="USDHL cryptocurrency logo"
+                                    width={24}
+                                    height={24}
+                                    quality={90}
+                                  />
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem
+                              value="hype"
+                              className="border-b-2 border-black bg-white"
+                            >
+                              <div className="flex w-full items-center justify-between">
+                                <span>Pay with $HYPE on HyperEVM</span>
+                                <Image
+                                  src="/HYPE.svg"
+                                  alt="HYPE cryptocurrency logo"
+                                  width={24}
+                                  height={24}
+                                  className="ml-2"
+                                  quality={90}
+                                />
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
-              </div>
+                  {(form.watch("paymentMethod") === "hype" ||
+                    form.watch("paymentMethod") === "usdhl" ||
+                    form.watch("paymentMethod") === "usdt0") && (
+                    <FormField
+                      control={form.control}
+                      name="evmAddress"
+                      render={({ field }) => (
+                        <FormItem className="mt-4">
+                          <FormLabel>Your EVM Address (HyperEVM)</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="0x..."
+                              readOnly={!!walletAddress}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
 
-              <h2 className="font-display mt-4 mb-6 text-3xl font-semibold text-white">
-                Order Summary
-              </h2>
-              <div className="space-y-6">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.cartItemId}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        width={64}
-                        height={64}
-                        className="rounded-md"
-                      />
-                      <div>
-                        <p className="font-semibold">
-                          {item.name} {item.size && `(${item.size})`}
-                        </p>
-                        <p className="text-sm text-white/70">
-                          Qty: {item.quantity}
-                        </p>
+                <h2 className="font-display mt-4 mb-6 text-3xl font-semibold text-white">
+                  Order Summary
+                </h2>
+                <div className="space-y-6">
+                  {cartItems.map((item, index) => (
+                    <div
+                      key={item.cartItemId}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="relative h-16 w-16 flex-shrink-0">
+                          <Image
+                            src={item.imageUrl}
+                            alt={`${item.name} product image`}
+                            fill
+                            sizes="64px"
+                            className="rounded-md object-cover"
+                            // Prioritize first few items for better UX
+                            priority={index < 3}
+                            loading={index < 3 ? "eager" : "lazy"}
+                            quality={85}
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold truncate">
+                            {item.name} {item.size && `(${item.size})`}
+                          </p>
+                          <p className="text-sm text-white/70">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
                       </div>
+                      <p className="font-semibold flex-shrink-0">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
-                    <p className="font-semibold">
-                      ${(item.price * item.quantity).toFixed(2)}
+                  ))}
+                </div>
+                <div className="my-8 h-px bg-white/20" />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between font-semibold">
+                    <p>Subtotal</p>
+                    <p>${cartTotal.toFixed(2)}</p>
+                  </div>
+                  <div className="flex items-center justify-between font-semibold">
+                    <p>Shipping</p>
+                    <p>
+                      {shippingCost === 0
+                        ? "Free"
+                        : `$${shippingCost.toFixed(2)}`}
                     </p>
                   </div>
-                ))}
-              </div>
-              <div className="my-8 h-px bg-white/20" />
-              <div className="space-y-4">
-                <div className="flex items-center justify-between font-semibold">
-                  <p>Subtotal</p>
-                  <p>${cartTotal.toFixed(2)}</p>
+                  {shippingCost === 0 && (
+                    <p className="text-sm text-green-400">
+                      Free shipping on orders over $60!
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center justify-between font-semibold">
-                  <p>Shipping</p>
-                  <p>
-                    {shippingCost === 0
-                      ? "Free"
-                      : `$${shippingCost.toFixed(2)}`}
-                  </p>
+                <div className="my-8 h-px bg-white/20" />
+                <div className="flex items-center justify-between text-xl font-bold">
+                  <p>Total</p>
+                  <p>${finalTotal.toFixed(2)}</p>
                 </div>
-                {shippingCost === 0 && (
-                  <p className="text-sm text-green-400">
-                    Free shipping on orders over $60!
-                  </p>
-                )}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || cartItems.length === 0}
+                  className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
+                >
+                  {isSubmitting ? "Processing..." : "Place Order"}
+                </Button>
               </div>
-              <div className="my-8 h-px bg-white/20" />
-              <div className="flex items-center justify-between text-xl font-bold">
-                <p>Total</p>
-                <p>${finalTotal.toFixed(2)}</p>
-              </div>
-              <Button
-                type="submit"
-                disabled={isSubmitting || cartItems.length === 0}
-                className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
-              >
-                {isSubmitting ? "Processing..." : "Place Order"}
-              </Button>
             </div>
           </form>
         </Form>

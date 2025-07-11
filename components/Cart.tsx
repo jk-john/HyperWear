@@ -2,13 +2,13 @@
 
 import { Badge } from "@/components/ui/badge";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/stores/cart";
 import { createClient } from "@/utils/supabase/client";
@@ -42,6 +42,7 @@ export const Cart = ({
     timeLeft,
     checkPendingOrder,
     cancelPendingOrder,
+    clearCart,
   } = useCartStore();
 
   const [user, setUser] = useState<User | null>(null);
@@ -91,6 +92,10 @@ export const Cart = ({
     await cancelPendingOrder();
   };
 
+  const handleClearCart = () => {
+    clearCart();
+  };
+
   const hasPendingCryptoOrder =
     pendingOrder &&
     (pendingOrder.payment_method === "HYPE" ||
@@ -135,24 +140,58 @@ export const Cart = ({
               ? "Pending Payment"
               : `Shopping Cart (${totalCartItems})`}
           </SheetTitle>
+          {/* Temporary debug and clear cart button - Remove after migration */}
+          {cartItems.length > 0 && process.env.NODE_ENV === "development" && (
+            <div className="mt-2">
+              <Button
+                onClick={handleClearCart}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                Clear Cart (Fix Images)
+              </Button>
+            </div>
+          )}
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-6">
           {cartItems.length > 0 ? (
             <div className="divide-y divide-gray-200">
-              {cartItems.map((item) => (
+              {cartItems.map((item, index) => (
                 <div
                   key={item.cartItemId}
                   className="flex items-center gap-4 py-6"
                 >
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.name}
-                    width={80}
-                    height={80}
-                    className="rounded-lg border border-gray-200"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-body text-primary font-semibold">
+                  <div className="relative h-20 w-20 flex-shrink-0">
+                    <Image
+                      src={item.imageUrl}
+                      alt={`${item.name} product image`}
+                      fill
+                      sizes="80px"
+                      className="rounded-lg border border-gray-200 object-cover"
+                      // Prioritize first few images for better UX
+                      priority={index < 3}
+                      // Optimized loading
+                      loading={index < 3 ? "eager" : "lazy"}
+                      // Handle errors gracefully
+                      onError={() => {
+                        console.error("Image failed to load:", item.imageUrl);
+                      }}
+                      onLoad={() => {
+                        console.log("Image loaded successfully:", item.imageUrl);
+                      }}
+                      // Quality optimization
+                      quality={85}
+                    />
+                    {/* Debug info - only in development */}
+                    {process.env.NODE_ENV === "development" && (
+                      <div className="absolute -bottom-6 left-0 text-xs text-gray-500 truncate w-20">
+                        {item.imageUrl.startsWith("http") ? "✅" : "❌"}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-body text-primary font-semibold truncate">
                       {item.name}
                     </h3>
                     {item.size && (
@@ -172,10 +211,11 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity - 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
+                        aria-label={`Decrease quantity for ${item.name}`}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
-                      <span className="w-8 text-center font-bold">
+                      <span className="w-8 text-center font-bold" aria-label={`Quantity: ${item.quantity}`}>
                         {item.quantity}
                       </span>
                       <Button
@@ -186,6 +226,7 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity + 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
+                        aria-label={`Increase quantity for ${item.name}`}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -201,6 +242,7 @@ export const Cart = ({
                       className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
                       onClick={() => removeFromCart(item.cartItemId)}
                       disabled={!!hasPendingCryptoOrder}
+                      aria-label={`Remove ${item.name} from cart`}
                     >
                       <X className="h-5 w-5" />
                     </Button>
