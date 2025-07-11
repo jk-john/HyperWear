@@ -3,11 +3,11 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 
 type ProductFiltersProps = {
@@ -58,14 +58,17 @@ export function ProductFilters({
     router.push(`${pathname}${query}`);
   };
 
-  const selectTriggerClassName = isMobile ? "h-10" : "h-12";
+  const selectTriggerClassName = isMobile 
+    ? "h-12 border-2 border-gray-200 bg-white hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all duration-200" 
+    : "h-14 border-2 border-gray-200 bg-white hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all duration-200";
+
   const titleClassName = isMobile
-    ? "mb-2 text-center text-lg font-semibold"
-    : "mb-2 text-lg font-semibold";
+    ? "mb-4 text-center text-lg font-bold text-gray-900"
+    : "mb-4 text-lg font-bold text-gray-900";
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div>
+    <div className="space-y-8">
+      <div className="space-y-4">
         <h3 className={titleClassName}>Sort by</h3>
         <Select
           onValueChange={handleSortChange}
@@ -76,68 +79,92 @@ export function ProductFilters({
           }
         >
           <SelectTrigger className={selectTriggerClassName}>
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Select sorting" />
           </SelectTrigger>
-          <SelectContent className="bg-white text-center">
-            <SelectItem value="none" className="justify-center">
+          <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+            <SelectItem 
+              value="none" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Default
             </SelectItem>
-            <SelectItem value="price-asc" className="justify-center">
+            <SelectItem 
+              value="price-asc" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Price: Low to High
             </SelectItem>
-            <SelectItem value="price-desc" className="justify-center">
+            <SelectItem 
+              value="price-desc" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Price: High to Low
             </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div>
+      <div className="space-y-4">
         <h3 className={titleClassName}>Gender</h3>
         <Select
           onValueChange={(value) => handleFilterChange("gender", value)}
           defaultValue={searchParams.get("gender") ?? "all"}
         >
           <SelectTrigger className={selectTriggerClassName}>
-            <SelectValue placeholder="Filter by gender" />
+            <SelectValue placeholder="Select gender" />
           </SelectTrigger>
-          <SelectContent className="bg-white text-center">
-            <SelectItem value="all" className="justify-center">
+          <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+            <SelectItem 
+              value="all" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               All Genders
             </SelectItem>
-            <SelectItem value="men" className="justify-center">
+            <SelectItem 
+              value="men" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Men
             </SelectItem>
-            <SelectItem value="women" className="justify-center">
+            <SelectItem 
+              value="women" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Women
             </SelectItem>
-            <SelectItem value="unisex" className="justify-center">
+            <SelectItem 
+              value="unisex" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               Unisex
             </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div>
+      <div className="space-y-4">
         <h3 className={titleClassName}>Category</h3>
         <Select
           onValueChange={(value) => handleFilterChange("category", value)}
           defaultValue={searchParams.get("category") ?? "all"}
         >
           <SelectTrigger className={selectTriggerClassName}>
-            <SelectValue placeholder="Filter by category" />
+            <SelectValue placeholder="Select category" />
           </SelectTrigger>
-          <SelectContent className="text-center">
-            <SelectItem value="all" className="justify-center">
+          <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+            <SelectItem 
+              value="all" 
+              className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
+            >
               All Categories
             </SelectItem>
             {categories.map((category) => (
               <SelectItem
                 key={category}
                 value={category}
-                className="justify-center"
+                className="focus:bg-gray-100 hover:bg-gray-50 text-gray-900 font-medium py-3"
               >
-                {category}
+                {category.charAt(0).toUpperCase() + category.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>

@@ -99,6 +99,14 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               HyperLiquid Mugs
             </Link>
           </li>
+          <li>
+            <Link
+              href="/hyperliquid-caps"
+              className="flex items-center gap-x-1 hover:underline font-medium text-primary"
+            >
+              HyperLiquid Caps
+            </Link>
+          </li>
         </ul>
         <h3 className="text-lg font-bold">Products</h3>
         <ul className="flex flex-col space-y-2 pl-4">
@@ -162,13 +170,13 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               {/* Featured SEO Pages */}
               <div className="col-span-2 mb-4">
                 <h4 className="mb-3 text-sm font-semibold text-primary uppercase tracking-wider">Featured Collections</h4>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-3">
                   <Link
                     href="/hyperliquid-merchandise"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Merchandise</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Complete collection of official merchandise</p>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Complete collection of merchandise</p>
                   </Link>
                   <Link
                     href="/hyperliquid-tshirts"
@@ -183,6 +191,13 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Mugs</div>
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">High-quality ceramic drinkware</p>
+                  </Link>
+                  <Link
+                    href="/hyperliquid-caps"
+                    className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Caps</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium headwear for HyperLiquid fans</p>
                   </Link>
                 </div>
               </div>

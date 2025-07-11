@@ -32,11 +32,11 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyperwear.io"),
   title: {
-    default: "HyperWear.io — Official HyperLiquid Merchandise | T-Shirts, Mugs & More",
+    default: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     template: `%s | HyperWear.io`,
   },
   description:
-    "Shop official HyperLiquid merchandise at HyperWear.io. Premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community, for the community. ✓ Free shipping over $60 ✓ High-quality materials ✓ Exclusive designs",
+    "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! ⭐ Premium quality ⭐ Free shipping $60+ ⭐ Exclusive designs ⭐ Fast worldwide delivery. Shop now at HyperWear.io!",
   keywords: [
     "HyperLiquid merchandise",
     "HyperLiquid t-shirts", 
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     "HyperLiquid caps",
     "HyperLiquid apparel",
     "HyperLiquid clothing",
-    "HyperLiquid official merch",
+    "HyperLiquid community merch",
     "crypto merchandise",
     "blockchain apparel",
     "DeFi merchandise",
@@ -68,15 +68,15 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "HyperWear.io — Official HyperLiquid Merchandise Store",
+    title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "Shop premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community. Official HyperLiquid merchandise with free shipping over $60.",
+      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
     images: [
       {
         url: "/og-preview.png",
         width: 1200,
         height: 630,
-        alt: "HyperWear.io - Official HyperLiquid Merchandise Store",
+        alt: "HyperWear.io - HyperLiquid Community Merchandise Store",
       },
     ],
     url: "https://hyperwear.io",
@@ -88,9 +88,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@wear_hyper",
     creator: "@wear_hyper",
-    title: "HyperWear.io — Official HyperLiquid Merchandise",
+    title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "Shop premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community. Official HyperLiquid merchandise store.",
+      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
     images: ["/og-preview.png"],
   },
   alternates: {

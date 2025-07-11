@@ -1,16 +1,15 @@
 import ProductGrid from "@/components/ProductGrid";
 import ProductSidebar from "@/components/ProductSidebar";
-import StylishTitle from "@/components/ProductsTitle";
-import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/server";
 import { SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
 
 type ProductsPageProps = {
   searchParams: Promise<{
@@ -69,26 +68,32 @@ export default async function ProductsPage(props: ProductsPageProps) {
     return <div>Error loading products.</div>;
   }
 
-  return (
-    <section className="bg-white py-20">
-      <div className="container mx-auto">
+    return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-12">
+        {/* Header Section */}
         <div className="mb-12 text-center">
-          <StylishTitle />
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+            All Products
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Discover our complete collection of HyperLiquid merchandise designed by the community, for the community.
+          </p>
         </div>
 
         {/* Mobile Filters */}
-        <div className="mb-8 flex justify-center md:hidden">
+        <div className="mb-8 flex justify-center lg:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button className="bg-primary text-secondary hover:bg-primary/90 flex items-center gap-2 px-6">
+              <button className="bg-[var(--color-primary)] hover:bg-[var(--color-emerald)] text-white flex items-center gap-3 px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
                 <SlidersHorizontal className="h-5 w-5" />
-                <span>Filters</span>
-              </Button>
+                <span>Filters & Sort</span>
+              </button>
             </SheetTrigger>
-            <SheetContent className="text-primary bg-white">
-              <SheetHeader className="text-center">
-                <SheetTitle className="text-primary text-xl font-bold">
-                  Filters
+            <SheetContent className="bg-white border-gray-200">
+              <SheetHeader className="text-center pb-6">
+                <SheetTitle className="text-xl font-bold text-gray-900">
+                  Filters & Sort
                 </SheetTitle>
               </SheetHeader>
               <div className="mt-6">
@@ -98,18 +103,56 @@ export default async function ProductsPage(props: ProductsPageProps) {
           </Sheet>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div className="hidden md:block">
-            <ProductSidebar categories={categories} />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 sticky top-6">
+              <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b border-gray-100 pb-4">
+                Filters
+              </h2>
+              <ProductSidebar categories={categories} />
+            </div>
           </div>
-          <main className="md:col-span-3">
-            <ProductGrid
-              products={products}
-              className="md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
-            />
+
+          {/* Products Grid */}
+          <main className="lg:col-span-3">
+            {products && products.length > 0 ? (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <p className="text-gray-600 font-medium">
+                    Showing {products.length} {products.length === 1 ? 'product' : 'products'}
+                  </p>
+                </div>
+                <ProductGrid
+                  products={products}
+                  className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10 lg:gap-12"
+                />
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-20 text-center">
+                <div className="max-w-md mx-auto">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                    <SlidersHorizontal className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">
+                    No Products Found
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                    We couldn&apos;t find any products matching your current filters. Try adjusting your search criteria.
+                  </p>
+                  <Link 
+                    href="/products"
+                    className="inline-block bg-[var(--color-primary)] hover:bg-[var(--color-emerald)] text-white px-10 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Clear All Filters
+                  </Link>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

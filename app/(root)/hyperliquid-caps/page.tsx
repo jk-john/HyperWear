@@ -6,71 +6,71 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "HyperLiquid T-Shirts | HyperLiquid Community Merchandise | HyperWear.io",
-  description: "Shop premium HyperLiquid t-shirts and tees designed by the community, for the community. HyperLiquid merchandise featuring exclusive designs. ✓ High-quality fabric ✓ Free shipping over $60 ✓ Perfect for crypto fans",
+  title: "HyperLiquid Caps | HyperLiquid Community Hats | HyperWear.io",
+  description: "Shop premium HyperLiquid caps and hats designed by the community, for the community. HyperLiquid merchandise featuring exclusive designs. ✓ High-quality materials ✓ Free shipping over $60 ✓ Perfect for crypto fans",
   keywords: [
-    "HyperLiquid t-shirts",
-    "HyperLiquid tees", 
+    "HyperLiquid caps",
+    "HyperLiquid hats", 
     "HyperLiquid merchandise",
-    "HyperLiquid clothing",
-    "crypto t-shirts",
-    "blockchain apparel",
+    "HyperLiquid headwear",
+    "crypto caps",
+    "blockchain hats",
     "HyperLiquid community",
     "Web3 fashion",
     "HyperLiquid community merch",
-    "DeFi t-shirts"
+    "DeFi caps"
   ].join(', '),
   alternates: {
-    canonical: "/hyperliquid-tshirts",
+    canonical: "/hyperliquid-caps",
   },
   openGraph: {
-    title: "HyperLiquid T-Shirts | HyperLiquid Community Merchandise",
-    description: "Shop premium HyperLiquid t-shirts designed by the community, for the community. High-quality fabric, exclusive designs, free shipping over $60.",
+    title: "HyperLiquid Caps | HyperLiquid Community Hats",
+    description: "Shop premium HyperLiquid caps designed by the community, for the community. High-quality materials, exclusive designs, free shipping over $60.",
     images: [
       {
-        url: "/products-img/tee-shirt.webp",
+        url: "/products-img/caps-2.jpg",
         width: 1200,
         height: 630,
-        alt: "HyperLiquid T-Shirts Collection - Premium HyperLiquid Merchandise",
+        alt: "HyperLiquid Caps Collection - Premium HyperLiquid Merchandise",
       },
     ],
     type: 'website',
     siteName: 'HyperWear.io',
-    url: 'https://hyperwear.io/hyperliquid-tshirts',
+    url: 'https://hyperwear.io/hyperliquid-caps',
   },
   twitter: {
     card: "summary_large_image",
-    title: "HyperLiquid T-Shirts | HyperLiquid Community Merchandise",
-    description: "Shop premium HyperLiquid t-shirts designed by the community, for the community.",
-    images: ["/products-img/tee-shirt.webp"],
+    title: "HyperLiquid Caps | HyperLiquid Community Hats",
+    description: "Shop premium HyperLiquid caps designed by the community, for the community.",
+    images: ["/products-img/caps-2.jpg"],
   },
 };
 
-export default async function HyperLiquidTShirtsPage() {
+export default async function HyperLiquidCapsPage() {
   const supabase = createClient();
   
-  // Fetch t-shirts from the database
-  const { data: tshirts, error } = await supabase
+  // Fetch caps from the database
+  const { data: caps, error } = await supabase
     .from("products")
     .select("*")
-    .ilike("category", "%shirt%")
+    .or("category.ilike.%cap%,category.ilike.%hat%")
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching t-shirts:", error);
+    console.error("Error fetching caps:", error);
   }
 
   // Category page structured data
   const categorySchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "HyperLiquid T-Shirts",
-    description: "Premium HyperLiquid t-shirts and tees designed by the community, for the community. Official HyperLiquid merchandise with exclusive designs.",
-    url: "https://hyperwear.io/hyperliquid-tshirts",
+    name: "HyperLiquid Caps",
+    description: "Premium HyperLiquid caps and hats designed by the community, for the community. HyperLiquid merchandise with exclusive designs.",
+    url: "https://hyperwear.io/hyperliquid-caps",
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: tshirts?.length || 0,
-      itemListElement: tshirts?.map((product, index) => ({
+      numberOfItems: caps?.length || 0,
+      itemListElement: caps?.map((product, index) => ({
         "@type": "Product",
         position: index + 1,
         name: product.name,
@@ -96,8 +96,8 @@ export default async function HyperLiquidTShirtsPage() {
         {
           "@type": "ListItem",
           position: 2,
-          name: "HyperLiquid T-Shirts",
-          item: "https://hyperwear.io/hyperliquid-tshirts"
+          name: "HyperLiquid Caps",
+          item: "https://hyperwear.io/hyperliquid-caps"
         }
       ]
     }
@@ -110,34 +110,34 @@ export default async function HyperLiquidTShirtsPage() {
     mainEntity: [
       {
         "@type": "Question",
-        name: "What makes HyperLiquid t-shirts special?",
+        name: "What makes HyperLiquid caps special?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Our HyperLiquid t-shirts are designed by the community, for the community. Made with premium materials and featuring exclusive HyperLiquid designs that showcase your dedication to the ecosystem."
+          text: "Our HyperLiquid caps are designed by the community, for the community. Made with premium materials and featuring exclusive HyperLiquid designs that showcase your dedication to the ecosystem."
         }
       },
       {
         "@type": "Question", 
-        name: "Are these official HyperLiquid t-shirts?",
+        name: "Are these HyperLiquid caps?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "HyperWear is a community merchandise store for HyperLiquid fans. Our t-shirts are designed with the HyperLiquid community input and approval."
+          text: "HyperWear is a community merchandise store for HyperLiquid fans. Our caps are designed with the HyperLiquid community input and approval."
         }
       },
       {
         "@type": "Question",
-        name: "What sizes are available for HyperLiquid t-shirts?",
+        name: "What styles are available for HyperLiquid caps?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Our HyperLiquid t-shirts are available in sizes S, M, L, XL, and XXL. Check individual product pages for specific size availability."
+          text: "Our HyperLiquid caps come in various styles including snapback, fitted, and adjustable designs. Check individual product pages for specific style details."
         }
       },
       {
         "@type": "Question",
-        name: "Do you offer free shipping on HyperLiquid t-shirts?",
+        name: "Do you offer free shipping on HyperLiquid caps?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes! We offer free shipping on all orders over $60. Most of our t-shirt bundles qualify for free shipping."
+          text: "Yes! We offer free shipping on all orders over $60. Most of our cap bundles qualify for free shipping."
         }
       }
     ]
@@ -166,7 +166,7 @@ export default async function HyperLiquidTShirtsPage() {
               </Link>
             </li>
             <li className="before:content-['/'] before:mx-2 font-medium" style={{ color: 'var(--color-light)' }}>
-              HyperLiquid T-Shirts
+              HyperLiquid Caps
             </li>
           </ol>
         </div>
@@ -185,13 +185,13 @@ export default async function HyperLiquidTShirtsPage() {
                   WebkitTextFillColor: 'transparent'
                 }}
               >
-                HyperLiquid T-Shirts
+                HyperLiquid Caps
               </span>
             </h1>
             <p className="text-xl leading-relaxed max-w-3xl mx-auto mb-10" style={{ color: 'var(--color-light)' }}>
-              Premium <strong>HyperLiquid t-shirts</strong> designed by the community, for the community. 
+              Premium <strong>HyperLiquid caps</strong> and hats designed by the community, for the community. 
               Show your support for the HyperLiquid ecosystem with our exclusive collection of 
-              high-quality tees featuring unique designs that celebrate the future of DeFi.
+              high-quality headwear featuring unique designs that celebrate the future of DeFi.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
               <span 
@@ -202,7 +202,7 @@ export default async function HyperLiquidTShirtsPage() {
                   color: 'var(--color-secondary)'
                 }}
               >
-                ✓ Premium Quality Fabric
+                ✓ Premium Quality Materials
               </span>
               <span 
                 className="px-4 py-2 rounded-full font-medium border"
@@ -237,16 +237,14 @@ export default async function HyperLiquidTShirtsPage() {
             </div>
           </section>
 
-
-
           {/* Products Grid */}
           <section>
             <h2 className="text-4xl font-bold text-center mb-12">
               <span style={{ color: 'var(--color-light)' }}>Shop </span>
-              <span style={{ color: 'var(--color-secondary)' }}>HyperLiquid T-Shirts</span>
+              <span style={{ color: 'var(--color-secondary)' }}>HyperLiquid Caps</span>
             </h2>
-            {tshirts && tshirts.length > 0 ? (
-              <ProductGrid products={tshirts as Product[]} />
+            {caps && caps.length > 0 ? (
+              <ProductGrid products={caps as Product[]} />
             ) : (
               <div className="text-center py-16">
                 <div className="mb-8 flex justify-center">
@@ -258,8 +256,8 @@ export default async function HyperLiquidTShirtsPage() {
                     }}
                   >
                     <Image
-                      src="/products-img/tee-shirt.webp"
-                      alt="Coming Soon T-Shirts"
+                      src="/products-img/caps-2.jpg"
+                      alt="Coming Soon Caps"
                       width={120}
                       height={120}
                       className="rounded-lg opacity-80"
@@ -270,7 +268,7 @@ export default async function HyperLiquidTShirtsPage() {
                   New Designs Coming Soon!
                 </h3>
                 <p className="text-lg leading-relaxed mb-8 max-w-2xl mx-auto" style={{ color: 'var(--color-accent)' }}>
-                  {`We're working on exclusive HyperLiquid t-shirt designs. Check back soon!`}
+                  {`We're working on exclusive HyperLiquid cap designs. Check back soon!`}
                 </p>
                 <Link 
                   href="/products" 
@@ -300,10 +298,10 @@ export default async function HyperLiquidTShirtsPage() {
                 }}
               >
                 <h3 className="font-bold mb-4 text-lg" style={{ color: 'var(--color-light)' }}>
-                  What makes HyperLiquid t-shirts special?
+                  What makes HyperLiquid caps special?
                 </h3>
                 <p className="leading-relaxed" style={{ color: 'var(--color-accent)' }}>
-                  Our HyperLiquid t-shirts are designed by the community, for the community. Made with premium materials and featuring exclusive HyperLiquid designs that showcase your dedication to the ecosystem.
+                  Our HyperLiquid caps are designed by the community, for the community. Made with premium materials and featuring exclusive HyperLiquid designs that showcase your dedication to the ecosystem.
                 </p>
               </div>
               <div 
@@ -314,10 +312,10 @@ export default async function HyperLiquidTShirtsPage() {
                 }}
               >
                 <h3 className="font-bold mb-4 text-lg" style={{ color: 'var(--color-light)' }}>
-                  Are these HyperLiquid t-shirts?
+                  Are these HyperLiquid caps?
                 </h3>
                 <p className="leading-relaxed" style={{ color: 'var(--color-accent)' }}>
-                  HyperWear is a community merchandise store for HyperLiquid fans. Our t-shirts are designed with the HyperLiquid community input and approval.
+                  HyperWear is a community merchandise store for HyperLiquid fans. Our caps are designed with the HyperLiquid community input and approval.
                 </p>
               </div>
               <div 
@@ -328,10 +326,10 @@ export default async function HyperLiquidTShirtsPage() {
                 }}
               >
                 <h3 className="font-bold mb-4 text-lg" style={{ color: 'var(--color-light)' }}>
-                  What sizes are available for HyperLiquid t-shirts?
+                  What styles are available for HyperLiquid caps?
                 </h3>
                 <p className="leading-relaxed" style={{ color: 'var(--color-accent)' }}>
-                  Our HyperLiquid t-shirts are available in sizes S, M, L, XL, and XXL. Check individual product pages for specific size availability.
+                  Our HyperLiquid caps come in various styles including snapback, fitted, and adjustable designs. Perfect for showing your DeFi pride anywhere.
                 </p>
               </div>
               <div 
@@ -342,10 +340,10 @@ export default async function HyperLiquidTShirtsPage() {
                 }}
               >
                 <h3 className="font-bold mb-4 text-lg" style={{ color: 'var(--color-light)' }}>
-                  Do you offer free shipping on HyperLiquid t-shirts?
+                  Do you offer free shipping on HyperLiquid caps?
                 </h3>
                 <p className="leading-relaxed" style={{ color: 'var(--color-accent)' }}>
-                  Yes! We offer free shipping on all orders over $60. Most of our t-shirt bundles qualify for free shipping.
+                  Yes! We offer free shipping on all orders over $60. Most of our cap bundles qualify for free shipping.
                 </p>
               </div>
             </div>
@@ -363,7 +361,7 @@ export default async function HyperLiquidTShirtsPage() {
               Join the HyperLiquid Community
             </h2>
             <p className="text-lg leading-relaxed mb-10 max-w-3xl mx-auto" style={{ color: 'var(--color-accent)' }}>
-              {`Represent your favorite DeFi protocol with pride. Our HyperLiquid t-shirts are more than just clothing - 
+              {`Top off your crypto style with pride. Our HyperLiquid caps are more than just headwear - 
               they're a statement of your commitment to the future of decentralized finance.`}
             </p>
             <div className="flex flex-wrap justify-center gap-6">
