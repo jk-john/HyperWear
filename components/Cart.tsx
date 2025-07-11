@@ -42,7 +42,6 @@ export const Cart = ({
     timeLeft,
     checkPendingOrder,
     cancelPendingOrder,
-    clearCart,
   } = useCartStore();
 
   const [user, setUser] = useState<User | null>(null);
@@ -92,10 +91,6 @@ export const Cart = ({
     await cancelPendingOrder();
   };
 
-  const handleClearCart = () => {
-    clearCart();
-  };
-
   const hasPendingCryptoOrder =
     pendingOrder &&
     (pendingOrder.payment_method === "HYPE" ||
@@ -140,19 +135,6 @@ export const Cart = ({
               ? "Pending Payment"
               : `Shopping Cart (${totalCartItems})`}
           </SheetTitle>
-          {/* Temporary debug and clear cart button - Remove after migration */}
-          {cartItems.length > 0 && process.env.NODE_ENV === "development" && (
-            <div className="mt-2">
-              <Button
-                onClick={handleClearCart}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Clear Cart (Fix Images)
-              </Button>
-            </div>
-          )}
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-6">
           {cartItems.length > 0 ? (
@@ -169,26 +151,10 @@ export const Cart = ({
                       fill
                       sizes="80px"
                       className="rounded-lg border border-gray-200 object-cover"
-                      // Prioritize first few images for better UX
                       priority={index < 3}
-                      // Optimized loading
                       loading={index < 3 ? "eager" : "lazy"}
-                      // Handle errors gracefully
-                      onError={() => {
-                        console.error("Image failed to load:", item.imageUrl);
-                      }}
-                      onLoad={() => {
-                        console.log("Image loaded successfully:", item.imageUrl);
-                      }}
-                      // Quality optimization
                       quality={85}
                     />
-                    {/* Debug info - only in development */}
-                    {process.env.NODE_ENV === "development" && (
-                      <div className="absolute -bottom-6 left-0 text-xs text-gray-500 truncate w-20">
-                        {item.imageUrl.startsWith("http") ? "✅" : "❌"}
-                      </div>
-                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-body text-primary font-semibold truncate">

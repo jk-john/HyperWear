@@ -38,7 +38,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const needsSizeSelection =
-    product.available_sizes && product.available_sizes.length > 0;
+    product.category === "t-shirts" &&
+    product.available_sizes &&
+    product.available_sizes.length > 0;
 
   const handleAddToCart = () => {
     if (needsSizeSelection && !selectedSize) {

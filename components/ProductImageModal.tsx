@@ -10,18 +10,18 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "./ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "./ui/select";
 
 interface ProductImageModalProps {
@@ -53,7 +53,7 @@ export const ProductImageModal = ({
   }, [emblaApi]);
 
   const needsSizeSelection =
-    (product.category === "T-shirts" || product.category === "Shorts") &&
+    product.category === "t-shirts" &&
     product.available_sizes &&
     product.available_sizes.length > 0;
 

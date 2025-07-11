@@ -37,7 +37,7 @@ export default function ProductDetailClient({
   };
 
   const needsSizeSelection =
-    (product.category === "T-shirts" || product.category === "Shorts") &&
+    product.category === "t-shirts" &&
     product.available_sizes &&
     product.available_sizes.length > 0;
 
