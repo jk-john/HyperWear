@@ -3,21 +3,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PhoneInput from "@/components/ui/phone-input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
@@ -30,9 +30,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import {
-    cancelOrder,
-    createCheckoutSession,
-    initiateHypePayment,
+  cancelOrder,
+  createCheckoutSession,
+  initiateHypePayment,
 } from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
@@ -269,19 +269,20 @@ export function CheckoutClient({
     setIsSubmitting(true);
 
     try {
-      if (values.paymentMethod === "hype") {
+      if (
+        values.paymentMethod === "hype" ||
+        values.paymentMethod === "usdt0" ||
+        values.paymentMethod === "usdhl"
+      ) {
         const result = await initiateHypePayment(cartItems, values);
         if (result.success && result.orderId) {
           router.push(
-            `/checkout/confirmation/hype?orderId=${result.orderId}`,
+            `/checkout/confirmation/${values.paymentMethod}?orderId=${result.orderId}`,
           );
         } else {
           toast.error(result.error || "Failed to initiate payment");
         }
-      } else if (
-        values.paymentMethod === "usdt0" ||
-        values.paymentMethod === "usdhl"
-      ) {
+      } else if (values.paymentMethod === "stripe") {
         // Convert form values to ShippingAddress format
         const shippingAddress = {
           first_name: values.firstName,
