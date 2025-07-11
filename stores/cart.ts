@@ -33,6 +33,29 @@ interface CartState {
 
 const supabase = createClient();
 
+// Helper function to ensure we get a valid image URL for the cart
+const getCartImageUrl = (product: Product, variantName?: string): string => {
+  let bestImageUrl = product.images?.[0] || "";
+  
+  // Try to find a better image based on variant name
+  if (product.images && product.images.length > 1 && variantName) {
+    const foundImage = product.images.find((img) =>
+      img.toLowerCase().includes(variantName.toLowerCase().trim()),
+    );
+    if (foundImage) {
+      bestImageUrl = foundImage;
+    }
+  }
+
+  // If we already have a full URL (starts with http), return it directly
+  if (bestImageUrl.startsWith("http")) {
+    return bestImageUrl;
+  }
+
+  // Otherwise, process it through getPublicImageUrl
+  return getPublicImageUrl(bestImageUrl);
+};
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -40,13 +63,8 @@ export const useCartStore = create<CartState>()(
       pendingOrder: null,
       timeLeft: null,
       timerId: null,
+
       setPendingOrder: (order) => {
-        // Clear existing timer
-        const currentTimerId = get().timerId;
-        if (currentTimerId) {
-          clearInterval(currentTimerId);
-        }
-        
         set({ pendingOrder: order, timerId: null });
         
         if (order && order.expires_at) {
@@ -118,7 +136,7 @@ export const useCartStore = create<CartState>()(
                 quantity: item.quantity,
                 size: item.size ?? undefined,
                 cartItemId: `${product.id!}-${item.size || "nosize"}`,
-                imageUrl: getPublicImageUrl(product.images?.[0] || ""),
+                imageUrl: getCartImageUrl(product),
               };
             });
 
@@ -130,6 +148,7 @@ export const useCartStore = create<CartState>()(
           get().setPendingOrder(null);
         }
       },
+
       cancelPendingOrder: async () => {
         const orderToCancel = get().pendingOrder;
         if (!orderToCancel) return;
@@ -149,6 +168,7 @@ export const useCartStore = create<CartState>()(
           console.error("Error cancelling order:", result.error);
         }
       },
+
       addToCart: (product, size) => {
         if (get().pendingOrder) {
           toast.error(
@@ -159,20 +179,9 @@ export const useCartStore = create<CartState>()(
 
         const cartItemId = `${product.id!}-${size || "nosize"}`;
 
-        // Simple workaround to find a better image based on product name
-        let bestImageUrl = product.images?.[0] || ""; // Default to first image
-        if (product.images && product.images.length > 1) {
-          const variantName = product.name.split(" - ")[1]?.toLowerCase();
-          if (variantName) {
-            const foundImage = product.images.find((img) =>
-              img.toLowerCase().includes(variantName.trim()),
-            );
-            if (foundImage) {
-              bestImageUrl = foundImage;
-            }
-          }
-        }
-        const imageUrl = getPublicImageUrl(bestImageUrl);
+        // Get the best image URL for this product variant
+        const variantName = product.name.split(" - ")[1];
+        const imageUrl = getCartImageUrl(product, variantName);
 
         set((state) => {
           const itemInCart = state.cartItems.find(
@@ -200,6 +209,7 @@ export const useCartStore = create<CartState>()(
           }
         });
       },
+
       removeFromCart: (cartItemId) => {
         set((state) => {
           const item = state.cartItems.find(
@@ -215,6 +225,7 @@ export const useCartStore = create<CartState>()(
           };
         });
       },
+
       updateQuantity: (cartItemId, quantity) => {
         if (quantity <= 0) {
           get().removeFromCart(cartItemId);
@@ -226,12 +237,14 @@ export const useCartStore = create<CartState>()(
           ),
         }));
       },
+
       totalPrice: () => {
         return get().cartItems.reduce(
           (total, item) => total + item.price * item.quantity,
           0,
         );
       },
+
       clearCart: () => {
         const currentTimerId = get().timerId;
         if (currentTimerId) {

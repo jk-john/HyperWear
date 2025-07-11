@@ -24,6 +24,22 @@ export function getPublicImageUrl(path: string): string {
   return `${supabaseUrl}product-images/${path}`;
 }
 
+// Utility to clear potentially broken cart data from localStorage
+export function clearBrokenCartData() {
+  if (typeof window !== "undefined") {
+    try {
+      // Clear the cart storage
+      localStorage.removeItem("cart-storage-v2");
+      console.log("Cart data cleared successfully");
+      return true;
+    } catch (error) {
+      console.error("Failed to clear cart data:", error);
+      return false;
+    }
+  }
+  return false;
+}
+
 export const getSiteUrl = () => {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
