@@ -1,148 +1,120 @@
 "use client";
 
-import { Socials } from "@/components/Socials";
-import { Input } from "@/components/ui/input";
-import { Mail } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "./ui/button";
+import { Socials } from "./Socials";
 
-// TODO: The footer is not working
+const currentYear = new Date().getFullYear();
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success(
-          "You're in! Look out for updates from the HyperWear crew.",
-        );
-        setEmail("");
-      } else {
-        toast.error(
-          data.error || "We couldn't send your message. Try again later.",
-        );
-      }
-    } catch {
-      toast.error("We couldn't send your message. Try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <footer className="bg-dark2 font-body text-white">
-      <div className="container mx-auto px-6 py-16">
-        {/* Newsletter Section */}
-        <div className="mb-20 text-center">
-          <h3 className="font-display mb-4 text-4xl font-bold">
-            Stay in the Loop
-          </h3>
-          <p className="mx-auto mb-8 max-w-2xl text-white/70">
-            Crypto was Fragmented. HyperLiquid made it United. Wear the
-            Movement.
-          </p>
-          <form
-            onSubmit={handleSubmit}
-            className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row"
-          >
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-dark1 border-tealMid/50 focus:ring-accent focus:border-accent h-12 rounded-lg text-white transition-all placeholder:text-white/40 focus:ring-2"
-            />
-            <Button
-              type="submit"
-              disabled={loading}
-              className="text-jungle hover:bg-cream/90 shadow-accent/20 h-12 transform rounded-lg bg-white px-8 font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
-            >
-              <Mail className="mr-2 h-5 w-5" />
-              {loading ? "Subscribing..." : "Subscribe"}
-            </Button>
-          </form>
-        </div>
-
+    <footer className="border-t bg-background pt-16 pb-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="mb-12 grid grid-cols-1 gap-10 text-center md:grid-cols-2 md:text-left lg:grid-cols-5">
-          {/* Brand Column */}
-          <div className="lg:col-span-2">
-            <div className="font-display mb-4 text-3xl font-bold">
-              <span>HyperWear</span>
-            </div>
-            <p className="mb-8 pr-0 text-white/70 sm:pr-28 md:text-justify">
-              We&apos;re designing premium merch to reflect and empower the
-              unique spirit of the Hyperliquid community.
-              <br />
-              HyperWear is an independent community project inspired by
-              HyperLiquid. It is not affiliated with or endorsed by HyperLiquid.
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+          {/* Brand Section */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image
+                src="/HYPE.svg"
+                alt="HyperWear Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
+              <span className="text-xl font-bold">HyperWear</span>
+            </Link>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
+              Official HyperLiquid merchandise store designed by the community, for the community. Premium apparel and accessories for HyperLiquid fans worldwide.
             </p>
-
-            <div className="flex justify-center space-x-3 md:justify-start">
+            <div className="mt-6">
               <Socials />
             </div>
           </div>
 
-          {/* Links Columns */}
-
-          {[
-            {
-              title: "Products",
-              links: [
-                "Classic Unisex T-Shirt",
-                "Classic Cap",
-                "Women's Tank Top",
-                "Men's Tank Top",
-                "Mug",
-                "iPhone Case",
-              ],
-            },
-            {
-              title: "Informations",
-              links: [
-                "Size Guide",
-                "Shipping Info",
-                "Care Instructions",
-                "Returns and Refunds Policy",
-                "Taxes and Duties",
-                "FAQ",
-              ],
-            },
-            {
-              title: "Company",
-              links: ["About Us", "Careers", "Support"],
-            },
-          ].map((column) => (
-            <div key={column.title}>
-              <h4 className="mb-5 text-lg font-bold text-white">
-                {column.title}
-              </h4>
+          {/* Links Grid */}
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:col-span-3">
+            {[
+              {
+                title: "Featured Collections",
+                links: [
+                  { name: "HyperLiquid Merchandise", href: "/hyperliquid-merchandise" },
+                  { name: "HyperLiquid T-Shirts", href: "/hyperliquid-tshirts" },
+                  { name: "HyperLiquid Mugs", href: "/hyperliquid-mugs" },
+                  { name: "All Products", href: "/products" },
+                  { name: "Collections", href: "/collections" },
+                ],
+              },
+              {
+                title: "Products",
+                links: [
+                  "Classic Unisex T-Shirt",
+                  "Classic Cap", 
+                  "Women's Tank Top",
+                  "Men's Tank Top",
+                  "Mug",
+                  "iPhone Case",
+                ],
+              },
+              {
+                title: "Informations",
+                links: [
+                  "Size Guide",
+                  "Shipping Info",
+                  "Care Instructions",
+                  "Returns and Refunds Policy",
+                  "Taxes and Duties",
+                  "FAQ",
+                ],
+              },
+            ].map((column) => (
+              <div key={column.title}>
+                <h4 className="mb-5 text-lg font-bold text-white">
+                  {column.title}
+                </h4>
+                <ul className="space-y-3">
+                  {column.links.map((link) => {
+                    // Handle both string links and object links
+                    if (typeof link === 'object') {
+                      return (
+                        <li key={link.name}>
+                          <Link
+                            href={link.href}
+                            className="text-white/70 transition-colors duration-200 hover:text-white font-medium"
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    
+                    // Handle legacy string links
+                    return (
+                      <li key={link}>
+                        <Link
+                          href={`/${link
+                            .toLowerCase()
+                            .replace(/'/g, "")
+                            .replace(/\s+/g, "-")}`}
+                          className="text-white/70 transition-colors duration-200 hover:text-white"
+                        >
+                          {link}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+            
+            {/* Company Section */}
+            <div>
+              <h4 className="mb-5 text-lg font-bold text-white">Company</h4>
               <ul className="space-y-3">
-                {column.links.map((link) => (
+                {["About Us", "Careers", "Support", "Community"].map((link) => (
                   <li key={link}>
                     <Link
-                      href={`/${link
-                        .toLowerCase()
-                        .replace(/'/g, "")
-                        .replace(/\s+/g, "-")}`}
+                      href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
                       className="text-white/70 transition-colors duration-200 hover:text-white"
                     >
                       {link}
@@ -151,33 +123,49 @@ const Footer = () => {
                 ))}
               </ul>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-dark1 flex flex-col items-center justify-between border-t pt-8 md:flex-row">
-          <p className="mb-4 text-sm text-white/50 md:mb-0">
-            2025 HyperWear Shop. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-6 text-sm text-white/50">
-            <Link
-              href="/terms-of-service"
-              className="transition-colors hover:text-white"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href="/privacy-policy"
-              className="transition-colors hover:text-white"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/cookie-policy"
-              className="transition-colors hover:text-white"
-            >
-              Cookie Policy
-            </Link>
+        <div className="border-t border-white/10 pt-8 mt-12">
+          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
+            <div className="flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+              <p className="text-sm text-white/70">
+                © {currentYear} HyperWear.io. All rights reserved.
+              </p>
+              <div className="flex space-x-4 text-sm">
+                <Link
+                  href="/privacy-policy"
+                  className="text-white/70 hover:text-white transition-colors"
+                >
+                  Privacy
+                </Link>
+                <Link
+                  href="/terms-of-service"
+                  className="text-white/70 hover:text-white transition-colors"
+                >
+                  Terms
+                </Link>
+                <Link
+                  href="/cookie-policy"
+                  className="text-white/70 hover:text-white transition-colors"
+                >
+                  Cookies
+                </Link>
+              </div>
+            </div>
+            
+            {/* Trust Badges */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-sm text-white/70">
+                <span>🔒</span>
+                <span>Secure Checkout</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-white/70">
+                <span>🚚</span>
+                <span>Free Shipping $60+</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -32,36 +32,75 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyperwear.io"),
   title: {
-    default: "HyperWear.io — Web3 Shop for HyperLiquid Fans",
+    default: "HyperWear.io — Official HyperLiquid Merchandise | T-Shirts, Mugs & More",
     template: `%s | HyperWear.io`,
   },
   description:
-    "Explore HyperWear, the official Web3 fashion store for HyperLiquid fans. Shop HyperLiquid products and more. Made by the HyperLiquid community, for the HyperLiquid community.",
+    "Shop official HyperLiquid merchandise at HyperWear.io. Premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community, for the community. ✓ Free shipping over $60 ✓ High-quality materials ✓ Exclusive designs",
+  keywords: [
+    "HyperLiquid merchandise",
+    "HyperLiquid t-shirts", 
+    "HyperLiquid mugs",
+    "HyperLiquid caps",
+    "HyperLiquid apparel",
+    "HyperLiquid clothing",
+    "HyperLiquid official merch",
+    "crypto merchandise",
+    "blockchain apparel",
+    "DeFi merchandise",
+    "HyperLiquid community",
+    "Web3 fashion",
+    "HyperLiquid store",
+    "HyperLiquid accessories"
+  ].join(', '),
+  authors: [{ name: "HyperWear Team" }],
+  creator: "HyperLiquid Community",
+  publisher: "HyperWear.io",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
-    title: "HyperWear.io — Web3 Shop for HyperLiquid Fans",
+    title: "HyperWear.io — Official HyperLiquid Merchandise Store",
     description:
-      "Explore HyperWear, the official Web3 fashion store for HyperLiquid fans. Shop HyperLiquid products and more. Made by the HyperLiquid community, for the HyperLiquid community.",
+      "Shop premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community. Official HyperLiquid merchandise with free shipping over $60.",
     images: [
       {
         url: "/og-preview.png",
         width: 1200,
         height: 630,
-        alt: "HyperWear.io - Web3 Shop for HyperLiquid Fans",
+        alt: "HyperWear.io - Official HyperLiquid Merchandise Store",
       },
     ],
     url: "https://hyperwear.io",
     siteName: "HyperWear.io",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "HyperWear.io — Web3 Shop for HyperLiquid Fans",
+    site: "@wear_hyper",
+    creator: "@wear_hyper",
+    title: "HyperWear.io — Official HyperLiquid Merchandise",
     description:
-      "Explore HyperWear, the official Web3 fashion store for HyperLiquid fans. Shop HyperLiquid products and more. Made by the HyperLiquid community, for the HyperLiquid community.",
+      "Shop premium HyperLiquid t-shirts, mugs, caps, and accessories designed by the community. Official HyperLiquid merchandise store.",
     images: ["/og-preview.png"],
   },
   alternates: {
     canonical: "/",
+  },
+  category: "E-commerce",
+  classification: "Business",
+  other: {
+    "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION || "",
+    "msvalidate.01": process.env.BING_SITE_VERIFICATION || "",
   },
 };
 
@@ -72,6 +111,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/HYPE.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/HYPE.svg" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2DD4BF" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+      </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
         <Header />
         <HypePriceProvider>
