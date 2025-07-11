@@ -1,16 +1,17 @@
 "use client";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ImageDebugger } from "./ImageDebugger";
 import { ProductImageCarousel } from "./ProductImageCarousel";
 import { ProductImageModal } from "./ProductImageModal";
 import { Button } from "./ui/button";
@@ -66,14 +67,19 @@ export default function ProductDetailClient({
             onImageClick={handleImageClick}
           />
         </div>
-        <div className="flex flex-col">
-          <h1 className="text-4xl font-bold">{product.name}</h1>
-          <p className="mt-2 text-2xl font-semibold">${product.price}</p>
-          <p className="mt-4 text-zinc-600 dark:text-zinc-300">
-            {product.description}
-          </p>
+        <div className="flex flex-col space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold">{product.name}</h1>
+            <p className="mt-2 text-2xl font-semibold">${product.price}</p>
+            <p className="mt-4 text-zinc-600 dark:text-zinc-300">
+              {product.description}
+            </p>
+          </div>
 
-          <div className="mt-6">
+          {/* Temporary Image Debugger - Remove after debugging */}
+          <ImageDebugger product={product} />
+
+          <div>
             {needsSizeSelection && (
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium">Size</label>
