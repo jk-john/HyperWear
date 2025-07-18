@@ -32,7 +32,7 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const supabase = createClient();
 
-  const handleOAuthSignIn = async (provider: "google" | "twitter") => {
+  const handleOAuthSignIn = async (provider: "google") => {
     setIsLoading(provider);
     try {
       const redirectTo = getSupabaseCallbackUrl(callbackUrl);
@@ -45,10 +45,10 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
       });
 
       if (error) {
-        toast.error(`Failed to sign in with ${provider === "google" ? "Google" : "X"}: ${error.message}`);
+        toast.error(`Failed to sign in with Google: ${error.message}`);
       }
     } catch {
-      toast.error(`An unexpected error occurred while signing in with ${provider === "google" ? "Google" : "X"}`);
+      toast.error(`An unexpected error occurred while signing in with Google`);
     } finally {
       setIsLoading(null);
     }
@@ -87,7 +87,7 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
 
   return (
     <div className="grid gap-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4">
         <Button
           variant="outline"
           className="group/btn relative h-11 w-full border-[var(--color-emerald)] bg-[var(--color-deep)] text-[var(--color-light)] hover:bg-[var(--color-emerald)] hover:text-[var(--color-light)]"
@@ -96,16 +96,6 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
         >
           <Icons.google className="mr-2 h-4 w-4" />
           {isLoading === "google" ? "Signing in..." : "Sign in with Google"}
-        </Button>
-        
-        <Button
-          variant="outline"
-          className="group/btn relative h-11 w-full border-[var(--color-emerald)] bg-[var(--color-deep)] text-[var(--color-light)] hover:bg-[var(--color-emerald)] hover:text-[var(--color-light)]"
-          onClick={() => handleOAuthSignIn("twitter")}
-          disabled={isLoading !== null}
-        >
-          <Icons.twitter className="mr-2 h-4 w-4" />
-          {isLoading === "twitter" ? "Signing in..." : "Sign in with X"}
         </Button>
       </div>
 

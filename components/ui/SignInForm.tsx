@@ -1,12 +1,12 @@
 "use client";
 
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +69,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     setIsLoading(false);
   };
 
-  const handleOAuthSignIn = async (provider: "google" | "twitter") => {
+  const handleOAuthSignIn = async (provider: "google") => {
     const supabase = createClient();
     const redirectTo = getSupabaseCallbackUrl(callbackUrl);
     const { error } = await supabase.auth.signInWithOAuth({
@@ -96,15 +96,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       </CardHeader>
 
       <CardContent className="grid gap-y-4 pb-0">
-        <div className="grid grid-cols-2 gap-x-4">
-          <button
-            className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
-            type="button"
-            onClick={() => handleOAuthSignIn("twitter")}
-          >
-            <Icons.twitter className="h-4 w-4 text-[var(--color-light)]" />
-            <span className="text-sm">X</span>
-          </button>
+        <div className="grid grid-cols-1 gap-x-4">
           <button
             className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
             type="button"

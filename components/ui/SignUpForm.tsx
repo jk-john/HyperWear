@@ -248,7 +248,7 @@ export const SignupForm = () => {
     }
   };
 
-  const handleOAuthSignIn = async (provider: "google" | "twitter") => {
+  const handleOAuthSignIn = async (provider: "google") => {
     const supabase = createClient();
     const redirectTo = getSupabaseCallbackUrl();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -273,15 +273,6 @@ export const SignupForm = () => {
       </p>
 
       <div className="mb-6 flex flex-col space-y-4">
-        <button
-          className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
-          type="button"
-          onClick={() => handleOAuthSignIn("twitter")}
-        >
-          <Icons.twitter className="h-4 w-4 text-[var(--color-light)]" />
-          <span className="text-sm">X</span>
-          <BottomGradient />
-        </button>
         <button
           className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
           type="button"
