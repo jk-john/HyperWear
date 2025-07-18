@@ -252,7 +252,7 @@ export const SignupForm = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `https://auth.hyperwear.io/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/callback`,
       },
     });
 
