@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getSupabaseCallbackUrl } from "@/lib/supabase/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -70,10 +71,11 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
   const handleOAuthSignIn = async (provider: "google" | "twitter") => {
     const supabase = createClient();
+    const redirectTo = getSupabaseCallbackUrl(callbackUrl);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+        redirectTo,
       },
     });
 

@@ -2,21 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getSupabaseCallbackUrl } from "@/lib/supabase/utils";
 import { createClient } from "@/utils/supabase/client";
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
@@ -33,10 +35,12 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
   const handleOAuthSignIn = async (provider: "google" | "twitter") => {
     setIsLoading(provider);
     try {
+      const redirectTo = getSupabaseCallbackUrl(callbackUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+          redirectTo,
         },
       });
 
@@ -59,10 +63,11 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
 
     setIsLoading("email");
     try {
+      const redirectTo = getSupabaseCallbackUrl(callbackUrl);
       const { error } = await supabase.auth.signInWithOtp({
         email: emailValidation.data,
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+          emailRedirectTo: redirectTo,
         },
       });
 

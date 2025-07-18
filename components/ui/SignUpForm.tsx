@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getSupabaseCallbackUrl } from "@/lib/supabase/utils";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -249,10 +250,11 @@ export const SignupForm = () => {
 
   const handleOAuthSignIn = async (provider: "google" | "twitter") => {
     const supabase = createClient();
+    const redirectTo = getSupabaseCallbackUrl();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
+        redirectTo,
       },
     });
 
