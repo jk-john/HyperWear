@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
-const supabaseHostname = new URL(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
-).hostname;
-
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -15,15 +12,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: supabaseHostname,
-        port: "",
-        pathname: "/storage/v1/object/public/**",
+        hostname: "lh3.googleusercontent.com",
       },
       {
         protocol: "https",
-        hostname: "jhxxuhisdypknlvhaklm.supabase.co", // fallback pour anciens assets
-        port: "",
-        pathname: "/storage/v1/object/public/**",
+        hostname: "pbs.twimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "auth.hyperwear.io",
       },
     ],
     formats: ["image/webp", "image/avif"],
