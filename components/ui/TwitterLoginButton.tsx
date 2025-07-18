@@ -12,6 +12,7 @@ export const TwitterLoginButton = () => {
   const supabase = createClient();
 
   const handleTwitterLogin = async () => {
+    console.log("clicked");
     setIsLoading(true);
     try {
       const redirectTo = getSupabaseCallbackUrl();
@@ -26,8 +27,9 @@ export const TwitterLoginButton = () => {
         toast.error("Login failed", {
           description: error.message,
         });
+        setIsLoading(false); // Stop loading only if there's an error
       }
-      // The user will be redirected to Twitter, so we don't need to reset loading state on success.
+      // On success, the user is redirected, so no need to set isLoading to false.
     } catch (error) {
       toast.error("An unexpected error occurred", {
         description:
@@ -35,9 +37,7 @@ export const TwitterLoginButton = () => {
             ? error.message
             : "Please try again later.",
       });
-    } finally {
-      // Only reset loading state if there was an error and no redirect happened.
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading on catch
     }
   };
 
