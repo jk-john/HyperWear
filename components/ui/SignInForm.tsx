@@ -73,7 +73,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
       },
     });
 

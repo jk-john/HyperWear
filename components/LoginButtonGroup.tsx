@@ -36,7 +36,7 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+          redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
         },
       });
 
@@ -62,7 +62,7 @@ export function LoginButtonGroup({ callbackUrl }: LoginButtonGroupProps) {
       const { error } = await supabase.auth.signInWithOtp({
         email: emailValidation.data,
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback${callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : ""}`,
         },
       });
 

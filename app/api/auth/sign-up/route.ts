@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const origin = request.nextUrl.origin;
   const supabase = createClient();
   const {
     data: { user },
@@ -21,7 +20,7 @@ export async function POST(request: NextRequest) {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
       data: {
         first_name: firstName,
         last_name: lastName,

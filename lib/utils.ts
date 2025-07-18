@@ -60,9 +60,9 @@ export const getCallbackUrl = () => {
   if (typeof window === "undefined") {
     // On the server, we can't use window.location.origin
     // We must rely on the environment variable.
-    return `${getSiteUrl()}auth/callback`;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`;
   }
-  return `${window.location.origin}/auth/callback`;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`;
 };
 
 export const formatPrice = (price: number) => {
