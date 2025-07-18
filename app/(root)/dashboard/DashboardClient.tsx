@@ -70,7 +70,7 @@ export default function DashboardClient({
   const [visibleOrdersCount, setVisibleOrdersCount] = useState(5);
   const supabase = createClient();
 
-  const totalSpent = orders?.reduce((acc, order) => acc + order.total, 0) ?? 0;
+  const totalSpent = orders?.reduce((acc, order) => acc + (order.total ?? 0), 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
   const defaultAddress =
     initialAddresses.find((address) => address.is_default) || null;
@@ -279,7 +279,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            ${order.total.toFixed(2)}
+                            ${order.total?.toFixed(2) ?? '0.00'}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -322,7 +322,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            ${order.total.toFixed(2)}
+                            ${order.total?.toFixed(2) ?? '0.00'}
                           </p>
                         </div>
                         <span
