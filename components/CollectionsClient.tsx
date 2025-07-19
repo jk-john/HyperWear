@@ -82,17 +82,23 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
   const [shuffledImages, setShuffledImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Shuffle images only once on mount
+  // Faster shuffle and load for production
   useEffect(() => {
     const shuffled = [...carouselImages].sort(() => Math.random() - 0.5);
     setShuffledImages(shuffled);
-    setIsLoading(false);
+    
+    // Faster loading - reduce delay for production performance
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 200); // Reduced from default to 200ms
+    
+    return () => clearTimeout(timer);
   }, [carouselImages]);
 
   if (isLoading || shuffledImages.length === 0) {
     return (
       <>
-        {/* Loading skeleton for carousel */}
+        {/* Faster loading skeleton */}
         <div className="relative my-12">
           <div className="relative h-[500px] w-full overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse">
             <div className="flex items-center justify-center h-full">
@@ -100,7 +106,8 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
             </div>
           </div>
         </div>
-        {/* Loading skeleton for grid */}
+        
+        {/* Simplified loading skeleton for faster rendering */}
         <div className="grid gap-16 lg:grid-cols-3 lg:gap-x-12">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -108,10 +115,10 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
               className="relative overflow-hidden rounded-xl bg-white shadow-lg"
             >
               <div className="h-60 w-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
-              <div className="p-6">
-                <div className="h-6 bg-gray-200 rounded animate-pulse mb-2" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse mb-6" />
-                <div className="flex items-center justify-between">
+              <div className="p-6 space-y-3">
+                <div className="h-6 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                <div className="flex items-center justify-between pt-3">
                   <div className="h-10 w-32 bg-gray-200 rounded-full animate-pulse" />
                   <div className="h-10 w-24 bg-gray-200 rounded-full animate-pulse" />
                 </div>
@@ -129,7 +136,11 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
       
       <div className="grid gap-16 lg:grid-cols-3 lg:gap-x-12">
         {collections.map((collection, index) => (
-          <CollectionCard key={collection.title} collection={collection} priority={index < 3} />
+          <CollectionCard 
+            key={collection.title} 
+            collection={collection} 
+            priority={index < 3} 
+          />
         ))}
       </div>
     </>

@@ -4,7 +4,7 @@ import {
   animate,
   motion,
   useMotionValue,
-  useTransform
+  useTransform,
 } from "framer-motion";
 import Image from "next/image";
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -80,8 +80,6 @@ function useIntersectionObserver(
   return isIntersecting;
 }
 
-
-
 // Optimized image component with lazy loading
 const CarouselImage = memo(function CarouselImage({ 
   src, 
@@ -134,34 +132,71 @@ const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isVisible = useIntersectionObserver(containerRef, { threshold: 0.1 });
   
-  // State to track which images should be loaded
-  const [visibleImages, setVisibleImages] = useState<Set<number>>(new Set([0, 1, 2])); // Start with first 3 images
+  // More aggressive loading strategy for production
+  const [visibleImages, setVisibleImages] = useState<Set<number>>(() => {
+    // Start with more images for better UX - load first half immediately
+    const initialCount = Math.min(Math.ceil(faceCount / 2), 7);
+    return new Set(Array.from({ length: initialCount }, (_, i) => i));
+  });
 
-  // Progressive loading of images based on rotation
+  // Aggressive progressive loading - load remaining images quickly
+  useEffect(() => {
+    // Load remaining images in batches after initial load
+    const loadRemainingImages = () => {
+      const totalImages = cards.length;
+      const currentlyLoaded = visibleImages.size;
+      
+      if (currentlyLoaded < totalImages) {
+        // Load next batch of images (3-4 at a time)
+        const batchSize = 4;
+        const nextBatch = new Set(visibleImages);
+        
+        for (let i = currentlyLoaded; i < Math.min(currentlyLoaded + batchSize, totalImages); i++) {
+          nextBatch.add(i);
+        }
+        
+        setVisibleImages(nextBatch);
+        
+        // Continue loading if there are more images
+        if (nextBatch.size < totalImages) {
+          setTimeout(loadRemainingImages, 500); // Load next batch after 500ms
+        }
+      }
+    };
+
+    // Start loading remaining images after a short delay
+    const timeoutId = setTimeout(loadRemainingImages, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [cards.length, visibleImages.size]);
+
+  // Fallback: ensure all images are loaded within 4 seconds maximum
+  useEffect(() => {
+    const forceLoadAll = setTimeout(() => {
+      const allImages = new Set(Array.from({ length: cards.length }, (_, i) => i));
+      setVisibleImages(allImages);
+    }, 4000); // Force load all after 4 seconds
+
+    return () => clearTimeout(forceLoadAll);
+  }, [cards.length]);
+
+  // Enhanced rotation-based loading for immediate neighbors
   useEffect(() => {
     const unsubscribe = rotation.on("change", (latest) => {
       const normalizedRotation = ((latest % 360) + 360) % 360;
       const currentIndex = Math.floor((normalizedRotation / 360) * faceCount);
       
-      // Load current image and 2 neighbors
-      const newVisibleImages = new Set<number>();
-      for (let i = -2; i <= 2; i++) {
+      // Always ensure current view and immediate neighbors are loaded
+      const immediateNeighbors = new Set(visibleImages);
+      for (let i = -3; i <= 3; i++) {
         const index = (currentIndex + i + faceCount) % faceCount;
-        newVisibleImages.add(index);
+        immediateNeighbors.add(index);
       }
       
-      setVisibleImages(prev => {
-        // Only update if there are new images to load
-        const hasNewImages = Array.from(newVisibleImages).some(index => !prev.has(index));
-        if (hasNewImages) {
-          return new Set([...prev, ...newVisibleImages]);
-        }
-        return prev;
-      });
+      setVisibleImages(immediateNeighbors);
     });
 
     return unsubscribe;
-  }, [rotation, faceCount]);
+  }, [rotation, faceCount, visibleImages]);
 
   // Control animation based on visibility
   useEffect(() => {
@@ -216,7 +251,7 @@ const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
               src={imgUrl}
               alt={`Collection image ${i + 1}`}
               isVisible={visibleImages.has(i)}
-              priority={i < 3} // Prioritize first 3 images
+              priority={i < 4} // Higher priority for first 4 images
             />
           </motion.div>
         ))}
