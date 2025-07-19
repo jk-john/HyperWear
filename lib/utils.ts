@@ -52,17 +52,11 @@ export const getSiteUrl = () => {
     );
   }
 
-  const url = siteUrl.includes("http") ? siteUrl : `https://${siteUrl}`;
-  return url.endsWith("/") ? url : `${url}/`;
+  return siteUrl;
 };
 
 export const getCallbackUrl = () => {
-  if (typeof window === "undefined") {
-    // On the server, we can't use window.location.origin
-    // We must rely on the environment variable.
-    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`;
-  }
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`;
+  return `${getSiteUrl()}auth/callback`;
 };
 
 export const formatPrice = (price: number) => {

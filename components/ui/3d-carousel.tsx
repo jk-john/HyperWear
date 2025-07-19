@@ -66,7 +66,7 @@ const transition = {
 
 const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
   const isScreenSizeSm = useMediaQuery("(max-width: 640px)");
-  const cylinderWidth = isScreenSizeSm ? 1100 : 1800;
+  const cylinderWidth = isScreenSizeSm ? 1800 : 2800;
   const faceCount = cards.length;
   const faceWidth = cylinderWidth / faceCount;
   const radius = cylinderWidth / (2 * Math.PI);
@@ -136,7 +136,7 @@ function ThreeDPhotoCarousel({ images }: { images: string[] }) {
   const cards = useMemo(() => images, [images]);
 
   return (
-    <motion.div layout className="relative">
+    <motion.div layout className="relative my-12">
       <div className="relative h-[500px] w-full overflow-hidden">
         <Carousel cards={cards} />
       </div>

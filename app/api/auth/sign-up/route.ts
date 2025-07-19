@@ -1,3 +1,4 @@
+import { getCallbackUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { AuthApiError } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
+      emailRedirectTo: getCallbackUrl(),
       data: {
         first_name: firstName,
         last_name: lastName,

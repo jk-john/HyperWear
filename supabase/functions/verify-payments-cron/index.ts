@@ -22,7 +22,7 @@ const corsHeaders = {
 };
 
 // --- Configuration ---
-const RECEIVING_WALLET = "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
+const RECEIVING_WALLET = "0xf5AA547485Bdb2b85492c58CfaDBffAab401185b";
 const TOKEN_ADDRESSES = {
   USDT0: {
     address: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",

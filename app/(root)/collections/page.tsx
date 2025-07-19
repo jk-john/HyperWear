@@ -21,11 +21,22 @@ export const metadata: Metadata = {
 
 const CollectionsPage = () => {
   const carouselImages = [
-    "/persons/girl-front.png",
-    "/persons/men-front.png",
-    "/persons/men-caps-front.png",
-    "/persons/mugs-front.png",
+    "/img-collections/DSC02198.jpg",
+    "/img-collections/DSC02218.jpg",
+    "/img-collections/DSC02232.jpg",
+    "/img-collections/DSC02234.jpg",
+    "/img-collections/DSC02235.jpg",
+    "/img-collections/DSC02268.jpg",
+    "/img-collections/DSC02288.jpg",
+    "/img-collections/DSC02297.jpg",
+    "/img-collections/DSC02300.jpg",
+    "/img-collections/DSC02317.jpg",
+    "/img-collections/DSC02319.jpg",
+    "/img-collections/DSC02325.jpg",
+    "/img-collections/DSC02340.jpg",
   ];
+
+  const shuffledImages = [...carouselImages].sort(() => Math.random() - 0.5);
 
   const collections = [
     {
@@ -69,7 +80,7 @@ const CollectionsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-20 text-center">
+        <div className=" text-center">
           <h1 className="font-display text-5xl font-extrabold tracking-tight text-gray-900">
             Our Collections
           </h1>
@@ -78,9 +89,9 @@ const CollectionsPage = () => {
             and story.
           </p>
         </div>
-        <ThreeDPhotoCarousel images={carouselImages} />
+        <ThreeDPhotoCarousel images={shuffledImages} />
 
-        <div className="mt-20 grid gap-16 lg:grid-cols-3 lg:gap-x-12">
+        <div className="grid gap-16 lg:grid-cols-3 lg:gap-x-12">
           {collections.map((collection) => (
             <div
               key={collection.title}

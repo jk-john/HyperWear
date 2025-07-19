@@ -1,6 +1,7 @@
 import AllProducts from "@/components/AllProducts";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import Hero from "@/components/Hero";
+import { DynamicImageShowcase } from "@/components/ui/dynamic-image-showcase";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -90,6 +91,26 @@ const storeSchema = {
 };
 
 export default function Home() {
+  // Collection images for the 3D carousel
+  const carouselImages = [
+    "/img-collections/DSC02198.jpg",
+    "/img-collections/DSC02218.jpg",
+    "/img-collections/DSC02232.jpg",
+    "/img-collections/DSC02234.jpg",
+    "/img-collections/DSC02235.jpg",
+    "/img-collections/DSC02268.jpg",
+    "/img-collections/DSC02288.jpg",
+    "/img-collections/DSC02297.jpg",
+    "/img-collections/DSC02300.jpg",
+    "/img-collections/DSC02317.jpg",
+    "/img-collections/DSC02319.jpg",
+    "/img-collections/DSC02325.jpg",
+    "/img-collections/DSC02340.jpg",
+  ];
+
+  // Shuffle images for dynamic experience
+  const shuffledImages = [...carouselImages].sort(() => Math.random() - 0.5);
+
   return (
     <>
       <script
@@ -111,12 +132,26 @@ export default function Home() {
       <div className="flex flex-col items-center">
         <Hero />
         
+        {/* Community Showcase Carousel Section */}
+        <section className="w-full bg-gradient-to-b from-gray-50 to-white py-12 relative">
+          <div className="container mx-auto px-4 text-center mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+              Made by the Community,{" "}
+              <span className="text-primary">for the Community</span>
+            </h2>
+          </div>
+          <DynamicImageShowcase images={shuffledImages} />
+        </section>
+
         {/* Trusted by Community Section */}
-        <section className="w-full bg-white py-16">
+        <section className="w-full bg-white py-6">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-12 text-gray-900">
+            <h2 className="text-3xl font-bold mb-6 text-gray-900">
               Trusted by the <span className="text-primary">HyperLiquid Community</span>
             </h2>
+            <p className="text-lg text-gray-500 font-medium mb-12">
+              Join thousands of community members showcasing their HyperWear
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-2">100+</div>

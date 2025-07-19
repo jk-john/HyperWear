@@ -1,5 +1,5 @@
 export const LEDGER_RECEIVING_ADDRESS =
-  "0x526BE41fC4991899dAB6b41368b79686A85c0beC";
+  "0xf5AA547485Bdb2b85492c58CfaDBffAab401185b";
 
 // Token contract addresses on HyperEVM (Chain ID 999)
 export const TOKEN_ADDRESSES = {
