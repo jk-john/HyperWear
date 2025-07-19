@@ -11,7 +11,7 @@ const jsonLd = {
   description: "Community merchandise store for HyperLiquid fans. Premium t-shirts, mugs, caps, and accessories designed by the community, for the community.",
   sameAs: [
     "https://twitter.com/wear_hyper",
-    "https://instagram.com/wear_hyper",
+    "https://www.instagram.com/wear_hyper/",
   ],
   logo: "https://hyperwear.io/HYPE.svg",
   contactPoint: {

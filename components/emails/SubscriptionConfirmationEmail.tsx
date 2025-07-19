@@ -1,15 +1,15 @@
 import { getPublicImageUrl, getSiteUrl } from "@/lib/utils";
 import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
+    Body,
+    Container,
+    Head,
+    Heading,
+    Html,
+    Img,
+    Link,
+    Preview,
+    Section,
+    Text,
 } from "@react-email/components";
 
 const baseUrl = getSiteUrl();
@@ -81,7 +81,7 @@ export default function SubscriptionConfirmationEmail({
                   display: "inline-block",
                   margin: "0 10px",
                 }}
-                href="https://instagram.com/hyperwear"
+                href="https://www.instagram.com/wear_hyper/"
               >
                 <Img
                   className="mx-auto my-0"

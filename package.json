@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "upload:video": "tsx scripts/upload-video.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

@@ -105,7 +105,7 @@ export default function CommunityPageClient() {
 
             <div className="mt-4 flex flex-row items-center justify-center gap-12">
               <a
-                href="https://www.instagram.com/hyperwear_off/"
+                href="https://www.instagram.com/wear_hyper/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

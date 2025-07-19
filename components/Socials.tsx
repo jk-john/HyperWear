@@ -25,7 +25,7 @@ export function Socials() {
         className="text-accent hover:bg-dark1 h-11 w-11 transform rounded-lg transition-all duration-300 hover:scale-110 hover:text-white"
       >
         <a
-          href="https://www.instagram.com/hyperwear_off/"
+          href="https://www.instagram.com/wear_hyper/"
           target="_blank"
           rel="noopener noreferrer"
         >
