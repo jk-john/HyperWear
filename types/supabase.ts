@@ -82,6 +82,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          color: string | null
           created_at: string
           id: string
           order_id: string
@@ -91,6 +92,7 @@ export type Database = {
           size: string | null
         }
         Insert: {
+          color?: string | null
           created_at?: string
           id?: string
           order_id: string
@@ -100,6 +102,7 @@ export type Database = {
           size?: string | null
         }
         Update: {
+          color?: string | null
           created_at?: string
           id?: string
           order_id?: string
@@ -128,11 +131,14 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          email_sent_status: string | null
           expires_at: string | null
           id: string
           paid_amount: number | null
           payment_method: string | null
           remaining_amount: number | null
+          selected_color: string | null
+          selected_size: string | null
           shipping_address_complement: string | null
           shipping_address_complement_from_line2: string | null
           shipping_city: string | null
@@ -150,15 +156,19 @@ export type Database = {
           total_token_amount: number
           tx_hashes: string[] | null
           user_id: string | null
+          verification_error: string | null
           wallet_address: string | null
         }
         Insert: {
           created_at?: string
+          email_sent_status?: string | null
           expires_at?: string | null
           id?: string
           paid_amount?: number | null
           payment_method?: string | null
           remaining_amount?: number | null
+          selected_color?: string | null
+          selected_size?: string | null
           shipping_address_complement?: string | null
           shipping_address_complement_from_line2?: string | null
           shipping_city?: string | null
@@ -176,15 +186,19 @@ export type Database = {
           total_token_amount: number
           tx_hashes?: string[] | null
           user_id?: string | null
+          verification_error?: string | null
           wallet_address?: string | null
         }
         Update: {
           created_at?: string
+          email_sent_status?: string | null
           expires_at?: string | null
           id?: string
           paid_amount?: number | null
           payment_method?: string | null
           remaining_amount?: number | null
+          selected_color?: string | null
+          selected_size?: string | null
           shipping_address_complement?: string | null
           shipping_address_complement_from_line2?: string | null
           shipping_city?: string | null
@@ -202,6 +216,7 @@ export type Database = {
           total_token_amount?: number
           tx_hashes?: string[] | null
           user_id?: string | null
+          verification_error?: string | null
           wallet_address?: string | null
         }
         Relationships: []

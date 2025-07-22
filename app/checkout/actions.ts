@@ -21,6 +21,7 @@ type CartItem = {
   quantity: number;
   imageUrl: string;
   size?: string;
+  color?: string;
   cartItemId: string;
 };
 
@@ -149,6 +150,7 @@ export async function createCheckoutSession(
     quantity: item.quantity,
     price_at_purchase: item.price,
     size: item.size,
+    color: item.color,
   }));
 
   const { error: itemsError } = await supabase
@@ -164,7 +166,9 @@ export async function createCheckoutSession(
     price_data: {
       currency: "usd",
       product_data: {
-        name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
+        name: [item.name, item.size && `Size: ${item.size}`, item.color && `Color: ${item.color}`]
+          .filter(Boolean)
+          .join(" - "),
         images: [item.imageUrl],
       },
       unit_amount: item.price * 100,
@@ -356,6 +360,7 @@ export async function initiateHypePayment(
     quantity: item.quantity,
     price_at_purchase: item.price,
     size: item.size,
+    color: item.color,
   }));
 
   const { error: itemsError } = await supabase

@@ -10,7 +10,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 interface CartItem extends Product {
   quantity: number;
   size?: string;
-  cartItemId: string; // Unique ID for the cart item (product.id + size)
+  color?: string;
+  cartItemId: string; // Unique ID for the cart item (product.id + size + color)
   imageUrl: string; // Full URL for the product image
 }
 
@@ -21,7 +22,7 @@ interface CartState {
   pendingOrder: Order | null;
   timeLeft: number | null;
   timerId: number | null;
-  addToCart: (product: Product, size?: string) => void;
+  addToCart: (product: Product, size?: string, color?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   totalPrice: () => number;
@@ -135,7 +136,8 @@ export const useCartStore = create<CartState>()(
                 price: Number(item.price_at_purchase),
                 quantity: item.quantity,
                 size: item.size ?? undefined,
-                cartItemId: `${product.id!}-${item.size || "nosize"}`,
+                color: item.color ?? undefined,
+                cartItemId: `${product.id!}-${item.size || "nosize"}-${item.color || "nocolor"}`,
                 imageUrl: getCartImageUrl(product),
               };
             });
@@ -169,7 +171,7 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      addToCart: (product, size) => {
+      addToCart: (product, size, color) => {
         if (get().pendingOrder) {
           toast.error(
             "You have a pending payment. Please complete or cancel it before adding new items.",
@@ -177,7 +179,7 @@ export const useCartStore = create<CartState>()(
           return;
         }
 
-        const cartItemId = `${product.id!}-${size || "nosize"}`;
+        const cartItemId = `${product.id!}-${size || "nosize"}-${color || "nocolor"}`;
 
         // Get the best image URL for this product variant
         const variantName = product.name.split(" - ")[1];
@@ -197,13 +199,14 @@ export const useCartStore = create<CartState>()(
               ),
             };
           } else {
+            const sizeColorText = [size, color].filter(Boolean).join(", ");
             toast.success(
-              `Added ${product.name}${size ? ` (${size})` : ""} to your cart.`,
+              `Added ${product.name}${sizeColorText ? ` (${sizeColorText})` : ""} to your cart.`,
             );
             return {
               cartItems: [
                 ...state.cartItems,
-                { ...product, quantity: 1, size, cartItemId, imageUrl },
+                { ...product, quantity: 1, size, color, cartItemId, imageUrl },
               ],
             };
           }

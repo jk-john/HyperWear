@@ -1,11 +1,11 @@
 import ProductGrid from "@/components/ProductGrid";
 import ProductSidebar from "@/components/ProductSidebar";
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/server";
 import { SlidersHorizontal } from "lucide-react";
@@ -96,7 +96,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
                   Filters & Sort
                 </SheetTitle>
               </SheetHeader>
-              <div className="mt-6">
+              <div className="mt-6 mx-auto px-4 w-full max-w-sm pt-6">
                 <ProductSidebar categories={categories} isMobile />
               </div>
             </SheetContent>
@@ -107,8 +107,8 @@ export default async function ProductsPage(props: ProductsPageProps) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
           {/* Desktop Sidebar */}
           <div className="hidden lg:block">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 sticky top-6">
-              <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b border-gray-100 pb-4">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 py-6 px-1 pl-4 sticky top-6 mx-auto w-full max-w-xs">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b border-gray-100 pb-4">
                 Filters
               </h2>
               <ProductSidebar categories={categories} />

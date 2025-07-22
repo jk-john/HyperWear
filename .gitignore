@@ -68,3 +68,19 @@ public/.cache/
 .sops.yaml
 
 # svn
+.cursor/
+.mcp.json
+.claude/        
+mcp.json
+CLAUDE.md
+registry.json
+registry-item.json
+
+
+
+# Claude Code logs
+security.log
+
+
+scripts/validate-command.js
+scripts/README-security-hooks.md
