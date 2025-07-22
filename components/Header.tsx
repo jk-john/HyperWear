@@ -8,6 +8,7 @@ import { UserAccountNav } from "@/components/header/UserAccountNav";
 import ShimmerButton from "@/components/ui/ShimmerButton";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -75,29 +76,37 @@ export const Header = () => {
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex items-center space-x-4 md:hidden">
+        <div className="flex items-center space-x-3 md:hidden">
           <Cart />
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <button>
-                <Menu className="h-8 w-8" />
+              <button className="p-2 -mr-2 touch-manipulation">
+                <Menu className="h-6 w-6 sm:h-7 sm:w-7" />
               </button>
             </SheetTrigger>
-            <SheetContent className="w-full bg-white sm:w-3/4">
-              <SheetHeader>
-                <SheetTitle>
+            <SheetContent className="w-full max-w-full bg-white p-0 overflow-hidden flex flex-col max-h-[100vh]">
+              <SheetHeader className="flex-shrink-0 sticky top-0 z-10 bg-white border-b border-gray-100">
+                <SheetTitle className="flex items-center justify-between px-4 py-4">
                   <Logo />
+                  <SheetClose asChild>
+                    <button className="p-2 -mr-2 touch-manipulation hover:bg-gray-100 rounded-full transition-colors">
+                      <X className="h-6 w-6" />
+                      <span className="sr-only">Close menu</span>
+                    </button>
+                  </SheetClose>
                 </SheetTitle>
               </SheetHeader>
-              <div className="mt-8 flex flex-col items-center space-y-4 px-4">
+              <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
                 <Navigation isMobile />
                 <div className="w-full">
                   <SearchBar />
                 </div>
-                <div className="flex w-full gap-4">
+              </div>
+              <div className="flex-shrink-0 border-t border-gray-100 p-4 bg-white">
+                <div className="flex flex-col gap-3 w-full">
                   <UserAccountNav user={user} displayMode="button" />
                   <Link href="/products" className="w-full">
-                    <ShimmerButton className="w-full">Shop Now</ShimmerButton>
+                    <ShimmerButton className="w-full h-12 text-base touch-manipulation">Shop Now</ShimmerButton>
                   </Link>
                 </div>
               </div>
