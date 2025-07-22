@@ -95,7 +95,7 @@ const CarouselImage = memo(function CarouselImage({
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-200">
+    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-200 max-w-48 mx-auto">
       {/* Loading placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-xl" />

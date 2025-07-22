@@ -322,12 +322,12 @@ export function CheckoutClient({
 
   return (
     <div className="bg-jungle min-h-screen text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div className="bg-card rounded-lg p-8 shadow-lg">
-                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
+              <div className="bg-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-lg">
+                <h2 className="font-display mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Shipping Information
                 </h2>
 
@@ -542,8 +542,8 @@ export function CheckoutClient({
                 />
               </div>
 
-              <div className="bg-primary rounded-lg p-8 shadow-lg">
-                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+              <div className="bg-primary rounded-lg p-4 sm:p-6 lg:p-8 shadow-lg">
+                <h2 className="font-display mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Payment Method
                 </h2>
                 <div className="pt-2">
@@ -670,51 +670,50 @@ export function CheckoutClient({
                   )}
                 </div>
 
-                <h2 className="font-display mt-4 mb-6 text-3xl font-semibold text-white">
+                <h2 className="font-display mt-6 sm:mt-8 mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Order Summary
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {cartItems.map((item, index) => (
                     <div
                       key={item.cartItemId}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between gap-3"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="relative h-16 w-16 flex-shrink-0">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                        <div className="relative h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0">
                           <Image
                             src={item.imageUrl}
                             alt={`${item.name} product image`}
                             fill
-                            sizes="64px"
+                            sizes="(max-width: 640px) 48px, 64px"
                             className="rounded-md object-cover"
-                            // Prioritize first few items for better UX
                             priority={index < 3}
                             loading={index < 3 ? "eager" : "lazy"}
                             quality={85}
                           />
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold truncate">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm sm:text-base truncate">
                             {item.name} {item.size && `(${item.size})`}
                           </p>
-                          <p className="text-sm text-white/70">
+                          <p className="text-xs sm:text-sm text-white/70">
                             Qty: {item.quantity}
                           </p>
                         </div>
                       </div>
-                      <p className="font-semibold flex-shrink-0">
+                      <p className="font-semibold text-sm sm:text-base flex-shrink-0">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
                 </div>
-                <div className="my-8 h-px bg-white/20" />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between font-semibold">
+                <div className="my-6 sm:my-8 h-px bg-white/20" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center justify-between font-semibold text-sm sm:text-base">
                     <p>Subtotal</p>
                     <p>${cartTotal.toFixed(2)}</p>
                   </div>
-                  <div className="flex items-center justify-between font-semibold">
+                  <div className="flex items-center justify-between font-semibold text-sm sm:text-base">
                     <p>Shipping</p>
                     <p>
                       {shippingCost === 0
@@ -723,20 +722,20 @@ export function CheckoutClient({
                     </p>
                   </div>
                   {shippingCost === 0 && (
-                    <p className="text-sm text-green-400">
+                    <p className="text-xs sm:text-sm text-green-400">
                       Free shipping on orders over $60!
                     </p>
                   )}
                 </div>
-                <div className="my-8 h-px bg-white/20" />
-                <div className="flex items-center justify-between text-xl font-bold">
+                <div className="my-6 sm:my-8 h-px bg-white/20" />
+                <div className="flex items-center justify-between text-lg sm:text-xl font-bold">
                   <p>Total</p>
                   <p>${finalTotal.toFixed(2)}</p>
                 </div>
                 <Button
                   type="submit"
                   disabled={isSubmitting || cartItems.length === 0}
-                  className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
+                  className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-6 sm:mt-8 w-full rounded-full py-4 sm:py-6 text-base sm:text-lg font-bold transition-colors hover:text-white touch-manipulation"
                 >
                   {isSubmitting ? "Processing..." : "Place Order"}
                 </Button>

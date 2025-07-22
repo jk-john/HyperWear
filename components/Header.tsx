@@ -18,13 +18,14 @@ import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -48,9 +49,56 @@ export const Header = () => {
     };
   }, []);
 
+  // Close mobile menu on route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  // Additional safety: close menu on any navigation event
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMobileMenuOpen(false);
+    };
+
+    let originalPushState: typeof window.history.pushState | null = null;
+    let originalReplaceState: typeof window.history.replaceState | null = null;
+
+    // Listen for route changes (works with both router.push and Link clicks)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', handleRouteChange);
+      
+      // Store original methods
+      originalPushState = window.history.pushState;
+      originalReplaceState = window.history.replaceState;
+      
+      // Override history methods to detect navigation
+      window.history.pushState = function(...args) {
+        handleRouteChange();
+        return originalPushState!.apply(window.history, args);
+      };
+      
+      window.history.replaceState = function(...args) {
+        handleRouteChange();
+        return originalReplaceState!.apply(window.history, args);
+      };
+      
+      window.addEventListener('popstate', handleRouteChange);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('beforeunload', handleRouteChange);
+        window.removeEventListener('popstate', handleRouteChange);
+        // Restore original methods
+        if (originalPushState) {
+          window.history.pushState = originalPushState;
+        }
+        if (originalReplaceState) {
+          window.history.replaceState = originalReplaceState;
+        }
+      }
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">

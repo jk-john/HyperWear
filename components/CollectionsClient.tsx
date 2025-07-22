@@ -18,7 +18,7 @@ interface CollectionsClientProps {
   collections: Collection[];
 }
 
-// Optimized collection card component
+// Optimized collection card component with fixed dimensions
 const CollectionCard = ({ collection, priority }: { collection: Collection; priority: boolean }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -30,43 +30,49 @@ const CollectionCard = ({ collection, priority }: { collection: Collection; prio
       >
         Coming Soon
       </Badge>
-      <div className="relative h-60 w-full overflow-hidden">
+      <div className="relative aspect-square w-full overflow-hidden rounded-xl max-w-xs mx-auto">
         {/* Loading placeholder */}
         {!imageLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-xl" />
         )}
         
-        {/* Optimized image */}
+        {/* Optimized image with fixed dimensions and circular shape */}
         <Image
           src={collection.image}
           alt={collection.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className={`object-cover transition-opacity duration-500 ${
+          width={300}
+          height={300}
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
+          className={`w-full h-full object-cover rounded-xl transition-opacity duration-500 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setImageLoaded(true)}
           priority={priority}
-          quality={85}
+          loading={priority ? "eager" : "lazy"}
+          quality={priority ? 90 : 75}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+cddKvPzjz2jN3Z"
         />
       </div>
-      <div className="p-6">
-        <h2 className="font-display text-xl font-bold text-gray-900">
+      <div className="p-4 sm:p-6">
+        <h2 className="font-display text-lg sm:text-xl font-bold text-gray-900 leading-tight">
           {collection.title}
         </h2>
-        <p className="font-body mt-2 text-gray-600">
+        <p className="font-body mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
           {collection.description}
         </p>
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:justify-between">
           <Button
             variant="outline"
-            className="cursor-not-allowed rounded-full font-semibold opacity-60"
+            size="sm"
+            className="cursor-not-allowed rounded-full font-semibold opacity-60 text-xs sm:text-sm touch-manipulation"
             disabled
           >
             View Collection
           </Button>
           <Button
-            className="bg-primary hover:bg-secondary cursor-not-allowed rounded-full font-semibold text-white opacity-60 hover:text-black"
+            size="sm"
+            className="bg-primary hover:bg-secondary cursor-not-allowed rounded-full font-semibold text-white opacity-60 hover:text-black text-xs sm:text-sm touch-manipulation"
             disabled
           >
             Shop Now
@@ -82,15 +88,15 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
   const [shuffledImages, setShuffledImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Faster shuffle and load for production
+  // Optimized shuffle and load for mobile performance
   useEffect(() => {
     const shuffled = [...carouselImages].sort(() => Math.random() - 0.5);
     setShuffledImages(shuffled);
     
-    // Faster loading - reduce delay for production performance
+    // Minimal loading delay for better mobile performance
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 200); // Reduced from default to 200ms
+    }, 100); // Further reduced to 100ms for mobile
     
     return () => clearTimeout(timer);
   }, [carouselImages]);
@@ -107,20 +113,20 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
           </div>
         </div>
         
-        {/* Simplified loading skeleton for faster rendering */}
-        <div className="grid gap-16 lg:grid-cols-3 lg:gap-x-12">
+        {/* Optimized loading skeleton with fixed aspect ratio */}
+        <div className="grid gap-8 sm:gap-12 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-12">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
               className="relative overflow-hidden rounded-xl bg-white shadow-lg"
             >
-              <div className="h-60 w-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
-              <div className="p-6 space-y-3">
-                <div className="h-6 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                <div className="flex items-center justify-between pt-3">
-                  <div className="h-10 w-32 bg-gray-200 rounded-full animate-pulse" />
-                  <div className="h-10 w-24 bg-gray-200 rounded-full animate-pulse" />
+              <div className="aspect-square w-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-xl max-w-xs mx-auto" />
+              <div className="p-4 sm:p-6 space-y-3">
+                <div className="h-5 sm:h-6 bg-gray-200 rounded animate-pulse" />
+                <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                <div className="flex items-center justify-between pt-2 sm:pt-3">
+                  <div className="h-8 sm:h-10 w-24 sm:w-32 bg-gray-200 rounded-full animate-pulse" />
+                  <div className="h-8 sm:h-10 w-20 sm:w-24 bg-gray-200 rounded-full animate-pulse" />
                 </div>
               </div>
             </div>
@@ -134,12 +140,12 @@ const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
     <>
       <ThreeDPhotoCarousel images={shuffledImages} />
       
-      <div className="grid gap-16 lg:grid-cols-3 lg:gap-x-12">
+      <div className="grid gap-8 sm:gap-12 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-12">
         {collections.map((collection, index) => (
           <CollectionCard 
             key={collection.title} 
             collection={collection} 
-            priority={index < 3} 
+            priority={index < 2} 
           />
         ))}
       </div>

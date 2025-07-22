@@ -25,18 +25,12 @@ export const metadata: Metadata = {
 
 const carouselImages = [
   "/img-collections/DSC02198.jpg",
-  "/img-collections/DSC02218.jpg",
-  "/img-collections/DSC02232.jpg",
-  "/img-collections/DSC02234.jpg",
-  "/img-collections/DSC02235.jpg",
-  "/img-collections/DSC02268.jpg",
-  "/img-collections/DSC02288.jpg",
-  "/img-collections/DSC02297.jpg",
-  "/img-collections/DSC02300.jpg",
-  "/img-collections/DSC02317.jpg",
-  "/img-collections/DSC02319.jpg",
-  "/img-collections/DSC02325.jpg",
   "/img-collections/DSC02340.jpg",
+  "/img-collections/DSC02232.jpg",
+  "/img-collections/DSC02268.jpg",
+  "/img-collections/DSC02297.jpg",
+  "/img-collections/DSC02325.jpg",
+  "/img-collections/DSC02288.jpg",
 ];
 
 const collections: Collection[] = [
