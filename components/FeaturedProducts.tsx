@@ -18,12 +18,13 @@ export default function FeaturedProducts() {
         const { data, error } = await supabase
           .from("products")
           .select("*")
+          .contains("tags", ["Featured"])
           .limit(VISIBLE_PRODUCTS);
 
         if (error) throw error;
         setProducts(data || []);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching featured products:", error);
       } finally {
         setLoading(false);
       }
@@ -33,7 +34,7 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="w-full bg-white">
+    <section className="w-full bg-white mt-1">
       <div className="container mx-auto px-2 pt-8 sm:px-6 sm:pt-10 md:px-8">
         <div className="mb-8 text-center sm:mb-12">
           <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">

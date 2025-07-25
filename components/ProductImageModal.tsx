@@ -93,7 +93,7 @@ export const ProductImageModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-6xl h-auto max-h-[90vh] bg-white dark:bg-gray-900 border-0 p-0 overflow-hidden">
+      <DialogContent className="w-full max-w-4xl h-auto max-h-[calc(100vh-32px)] bg-white dark:bg-gray-900 border-0 p-0 overflow-hidden [&>button.absolute.top-4.right-4]:hidden">
         {/* Close Button */}
         <Button
           variant="ghost"
@@ -104,7 +104,7 @@ export const ProductImageModal = ({
           <X className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-2 h-auto lg:h-full">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 h-full max-h-[calc(100vh-32px)]">
           {/* Image Section */}
           <div className="relative bg-gray-50 dark:bg-gray-800 h-64 sm:h-80 lg:h-full">
             <div className="embla h-full overflow-hidden" ref={emblaRef}>
@@ -143,9 +143,9 @@ export const ProductImageModal = ({
           </div>
 
           {/* Product Details Section */}
-          <div className="flex flex-col h-auto lg:h-full">
+          <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="p-4 sm:p-6 lg:p-8 pb-4 sm:pb-6 border-b border-gray-100 dark:border-gray-800">
+            <div className="p-4 sm:p-6 pb-4 sm:pb-6 border-b border-gray-100 dark:border-gray-800">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 leading-tight">
                 {product.name}
               </h1>
@@ -185,8 +185,8 @@ export const ProductImageModal = ({
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto max-h-64 sm:max-h-80 lg:max-h-none">
-              <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {/* Description */}
                 {product.description && (
                   <div>
@@ -263,7 +263,7 @@ export const ProductImageModal = ({
             </div>
 
             {/* Actions Footer */}
-            <div className="border-t border-gray-100 dark:border-gray-800 p-4 sm:p-6 lg:p-8">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 p-4 sm:p-6 shadow-lg">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button 
                   variant="outline" 

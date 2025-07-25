@@ -17,15 +17,14 @@ export default async function AllProducts() {
   }
 
   return (
-    <section className="w-full bg-white">
+    <section className="w-full bg-white mt-1">
       <div className="container mx-auto px-2 py-8 sm:px-6 sm:py-10 md:px-8">
         <div className="mb-8 text-center sm:mb-12">
           <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
             All Products
           </h2>
-          <p className="text-base font-light text-gray-600 sm:text-lg">
-            These are the products coming from the database. This is a
-            placeholder for the actual products.
+          <p className="font-light text-xl text-gray-600 sm:text-xl mt-10 text-center">
+            Discover our complete collection of HyperLiquid merchandise designed by the community. 
           </p>
         </div>
         <div className="overflow-hidden">
