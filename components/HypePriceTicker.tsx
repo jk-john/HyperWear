@@ -104,7 +104,23 @@ export function HypePriceTicker() {
 
 // Floating ticker version for prominent display
 export function FloatingHypePriceTicker() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const isDismissed = localStorage.getItem("hypeTickerDismissed");
+    if (!isDismissed) {
+      setIsVisible(true);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem("hypeTickerDismissed", "true");
+  };
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
@@ -112,7 +128,7 @@ export function FloatingHypePriceTicker() {
     }`}>
       <div className="relative bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-emerald)] to-[var(--color-deep)] text-white px-5 py-3 rounded-2xl shadow-lg border border-[var(--color-secondary)]/20 backdrop-blur-sm">
         <button
-          onClick={() => setIsVisible(false)}
+          onClick={handleDismiss}
           className="absolute -top-2 -right-2 w-6 h-6 bg-[var(--color-primary)] hover:bg-[var(--color-deep)] text-[var(--color-secondary)] rounded-full flex items-center justify-center text-xs transition-colors duration-200 border border-[var(--color-secondary)]/20"
         >
           ×

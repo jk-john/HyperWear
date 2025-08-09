@@ -45,7 +45,6 @@ export const Cart = ({
   } = useCartStore();
 
   const [user, setUser] = useState<User | null>(null);
-  const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -58,22 +57,19 @@ export const Cart = ({
   }, []);
 
   useEffect(() => {
-    if (user && !hasChecked) {
+    if (user) {
       checkPendingOrder(user.id);
-      setHasChecked(true);
     }
-  }, [user, hasChecked, checkPendingOrder]);
+  }, [user, checkPendingOrder]);
 
   const totalCartItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
   );
-  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
   const handleCheckout = () => {
     router.push("/checkout");
-    setIsOpen(false);
   };
 
   const handleGoToPayment = () => {
@@ -83,7 +79,6 @@ export const Cart = ({
           pendingOrder.id
         }`,
       );
-      setIsOpen(false);
     }
   };
 
@@ -98,7 +93,7 @@ export const Cart = ({
       pendingOrder.payment_method === "USDHL");
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet>
       <SheetTrigger asChild>
         {displayMode === "button" ? (
           <Button
@@ -149,7 +144,7 @@ export const Cart = ({
                       src={item.imageUrl}
                       alt={`${item.name} product image`}
                       fill
-                      sizes="80px"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="rounded-lg border border-gray-200 object-cover"
                       priority={index < 3}
                       loading={index < 3 ? "eager" : "lazy"}
@@ -177,11 +172,11 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity - 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
-                        aria-label={`Decrease quantity for ${item.name}`}
+                        aria-label={`Decrease quantity of ${item.name}`}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
-                      <span className="w-8 text-center font-bold" aria-label={`Quantity: ${item.quantity}`}>
+                      <span className="w-8 text-center font-bold" aria-live="polite" aria-atomic="true">
                         {item.quantity}
                       </span>
                       <Button
@@ -192,7 +187,7 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity + 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
-                        aria-label={`Increase quantity for ${item.name}`}
+                        aria-label={`Increase quantity of ${item.name}`}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -208,7 +203,7 @@ export const Cart = ({
                       className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
                       onClick={() => removeFromCart(item.cartItemId)}
                       disabled={!!hasPendingCryptoOrder}
-                      aria-label={`Remove ${item.name} from cart`}
+                      aria-label={`Remove ${item.name} from your cart`}
                     >
                       <X className="h-5 w-5" />
                     </Button>

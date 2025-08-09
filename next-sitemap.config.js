@@ -6,26 +6,6 @@ module.exports = {
   changefreq: "daily",
   priority: 0.7,
 
-  // Additional paths to include
-  additionalPaths: async (config) => [
-    // High-priority SEO category pages
-    await config.transform(config, "/hyperliquid-tshirts", {
-      changefreq: "weekly",
-      priority: 0.9,
-      lastmod: new Date().toISOString(),
-    }),
-    await config.transform(config, "/hyperliquid-mugs", {
-      changefreq: "weekly",
-      priority: 0.9,
-      lastmod: new Date().toISOString(),
-    }),
-    await config.transform(config, "/hyperliquid-merchandise", {
-      changefreq: "weekly",
-      priority: 0.9,
-      lastmod: new Date().toISOString(),
-    }),
-  ],
-
   // Transform function to set custom priorities and settings
   transform: async (config, path) => {
     // High priority pages

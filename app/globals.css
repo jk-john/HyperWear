@@ -264,6 +264,8 @@ html {
   background-clip: text;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   position: relative;
+  -webkit-text-stroke: 1px transparent;
+  text-stroke: 1px transparent;
 }
 
 /* Fallback for better contrast */

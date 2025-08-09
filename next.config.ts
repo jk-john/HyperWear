@@ -31,7 +31,6 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
@@ -46,15 +45,18 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'none';",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com; child-src *.youtube.com *.google.com *.twitter.com; style-src 'self' 'unsafe-inline' *.googleapis.com; img-src * blob: data:; media-src 'self'; connect-src *; font-src 'self' *.googleapis.com *.gstatic.com; frame-src *.youtube.com *.twitter.com;",
           },
         ],
       },

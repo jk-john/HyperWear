@@ -70,7 +70,16 @@ export default function DashboardClient({
   const [visibleOrdersCount, setVisibleOrdersCount] = useState(5);
   const supabase = createClient();
 
-  const totalSpent = orders?.reduce((acc, order) => acc + (order.total ?? 0), 0) ?? 0;
+  // Format currency properly
+  const formatCurrency = (amount: number, currency = 'USD') => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
+  // Use normalized amounts from database (stored in cents)
+  const totalSpent = orders?.reduce((acc, order) => acc + ((order.amount_total ?? 0) / 100), 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
   const defaultAddress =
     initialAddresses.find((address) => address.is_default) || null;
@@ -136,7 +145,7 @@ export default function DashboardClient({
                 className="text-xl font-bold sm:text-2xl"
                 style={{ color: "var(--color-secondary)" }}
               >
-                ${totalSpent.toFixed(2)}
+                {formatCurrency(totalSpent)}
               </div>
             </CardContent>
           </Card>
@@ -279,7 +288,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            ${order.total?.toFixed(2) ?? '0.00'}
+                            {formatCurrency((order.amount_total ?? 0) / 100)}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -322,7 +331,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            ${order.total?.toFixed(2) ?? '0.00'}
+                            {formatCurrency((order.amount_total ?? 0) / 100)}
                           </p>
                         </div>
                         <span

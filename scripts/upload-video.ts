@@ -1,3 +1,13 @@
+// -----------------------------------------------------------------------------
+// WARNING: This script is for local, one-time use ONLY.
+// It uses the SUPABASE_SERVICE_ROLE_KEY, which provides full admin access
+// to your Supabase project. NEVER run this script in a production environment
+// or expose your service role key.
+//
+// Ensure your `.env.local` file is in `.gitignore` and has been properly
+// configured before running this script.
+// -----------------------------------------------------------------------------
+
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 import { readFileSync } from 'fs';

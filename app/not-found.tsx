@@ -1,14 +1,22 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function NotFound() {
   return (
     <div className="bg-dark text-light flex min-h-[100dvh] flex-col items-center justify-center px-4 py-12 text-center">
       <div className="max-w-md">
+        <Image
+          src="/purr-happy.png"
+          alt="Happy Purr"
+          width={150}
+          height={150}
+          className="mx-auto mb-8 rounded-full"
+        />
         <h1 className="text-secondary text-9xl font-bold tracking-tighter">
           <span className="text-secondary">404</span>
         </h1>
         <p className="text-cream mt-4 text-2xl font-medium tracking-wide">
-          Oops, page not found!
+          Oops, you've wandered off the trail!
         </p>
         <p className="mt-2 text-white">
           The page you are looking for might have been removed, had its name

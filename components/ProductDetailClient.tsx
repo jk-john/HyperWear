@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { ProductImageCarousel } from "./ProductImageCarousel";
 import { ProductImageModal } from "./ProductImageModal";
 import { Button } from "./ui/button";
+import { ColorSwatch } from "./ui/ColorSwatch";
 
 interface ProductDetailClientProps {
   product: Product;
@@ -46,6 +47,10 @@ export default function ProductDetailClient({
     (product.category === "t-shirts" || product.category === "caps") &&
     product.colors &&
     product.colors.length > 1;
+
+  const isAddToCartDisabled =
+    (needsSizeSelection && !selectedSize) ||
+    (needsColorSelection && !selectedColor);
 
 
   const handleAddToCart = () => {
@@ -88,28 +93,11 @@ export default function ProductDetailClient({
             {needsColorSelection && (
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium">Color</label>
-                <Select
-                  onValueChange={(value) =>
-                    setSelectedColor(value === "null" ? undefined : value)
-                  }
-                >
-                  <SelectTrigger className="w-full max-w-xs">
-                    <SelectValue placeholder="Select a color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.colors?.map((color) => (
-                      <SelectItem key={color} value={color}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="h-4 w-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: color.toLowerCase() }}
-                          />
-                          {color.charAt(0).toUpperCase() + color.slice(1)}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ColorSwatch
+                  colors={product.colors || []}
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                />
               </div>
             )}
             {needsSizeSelection && (
@@ -135,7 +123,7 @@ export default function ProductDetailClient({
             )}
             <Button
               onClick={handleAddToCart}
-              disabled={!!(needsSizeSelection && !selectedSize) || !!(needsColorSelection && !selectedColor)}
+              disabled={isAddToCartDisabled}
               className="w-full"
             >
               Add to Cart

@@ -24,6 +24,7 @@ type OrderConfirmationEmailProps = {
   orderDate: string;
   items: { name: string; quantity: number; price: number }[];
   total: number;
+  receiptUrl?: string | null;
 };
 
 const OrderConfirmationEmail = ({
@@ -32,6 +33,7 @@ const OrderConfirmationEmail = ({
   orderDate,
   items,
   total,
+  receiptUrl,
 }: OrderConfirmationEmailProps) => (
   <Html>
     <Head />
@@ -101,6 +103,16 @@ const OrderConfirmationEmail = ({
           <Hr className="my-6 border-t border-gray-200" />
 
           <Section className="text-center text-sm text-gray-500">
+            {receiptUrl && (
+              <Text>
+                <Link
+                  href={receiptUrl}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  View your receipt and payment details
+                </Link>
+              </Text>
+            )}
             <Text>
               If you have any questions, please contact our support team.
             </Text>

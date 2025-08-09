@@ -54,52 +54,6 @@ export const Header = () => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  // Additional safety: close menu on any navigation event
-  useEffect(() => {
-    const handleRouteChange = () => {
-      setIsMobileMenuOpen(false);
-    };
-
-    let originalPushState: typeof window.history.pushState | null = null;
-    let originalReplaceState: typeof window.history.replaceState | null = null;
-
-    // Listen for route changes (works with both router.push and Link clicks)
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', handleRouteChange);
-      
-      // Store original methods
-      originalPushState = window.history.pushState;
-      originalReplaceState = window.history.replaceState;
-      
-      // Override history methods to detect navigation
-      window.history.pushState = function(...args) {
-        handleRouteChange();
-        return originalPushState!.apply(window.history, args);
-      };
-      
-      window.history.replaceState = function(...args) {
-        handleRouteChange();
-        return originalReplaceState!.apply(window.history, args);
-      };
-      
-      window.addEventListener('popstate', handleRouteChange);
-    }
-
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('beforeunload', handleRouteChange);
-        window.removeEventListener('popstate', handleRouteChange);
-        // Restore original methods
-        if (originalPushState) {
-          window.history.pushState = originalPushState;
-        }
-        if (originalReplaceState) {
-          window.history.replaceState = originalReplaceState;
-        }
-      }
-    };
-  }, []);
-
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">

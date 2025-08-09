@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,7 +30,6 @@ import { toast } from "sonner";
 import * as z from "zod";
 import {
   cancelOrder,
-  createCheckoutSession,
   initiateHypePayment,
 } from "./actions";
 
@@ -148,7 +146,7 @@ export function CheckoutClient({
       country: defaultAddress?.country || "",
       companyName: defaultAddress?.company_name || "",
       deliveryInstructions: defaultAddress?.delivery_instructions || "",
-      paymentMethod: "usdt0",
+      paymentMethod: "stripe",
       evmAddress: walletAddress || "",
     },
   });
@@ -283,31 +281,53 @@ export function CheckoutClient({
           toast.error(result.error || "Failed to initiate payment");
         }
       } else if (values.paymentMethod === "stripe") {
-        // Convert form values to ShippingAddress format
-        const shippingAddress = {
-          first_name: values.firstName,
-          last_name: values.lastName,
-          phone_number: values.phoneNumber,
-          street: values.street,
-          address_complement: values.addressComplement || null,
-          city: values.city,
-          postal_code: values.zip,
-          country: values.country,
-          company_name: values.companyName || null,
-          delivery_instructions: values.deliveryInstructions || null,
-        };
+        try {
+          const response = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: user?.id, // Pass user ID for webhook
+              shippingAddress: {
+                first_name: values.firstName,
+                last_name: values.lastName,
+                email: values.email,
+                phone_number: values.phoneNumber,
+                street: values.street,
+                city: values.city,
+                postal_code: values.zip,
+                country: values.country,
+                address_complement: values.addressComplement,
+                company_name: values.companyName,
+                delivery_instructions: values.deliveryInstructions,
+              },
+              cartItems: cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+              })),
+            }),
+          });
 
-        const result = await createCheckoutSession(
-          cartItems,
-          shippingAddress,
-          user.email!,
-        );
-        if (result && !result.error) {
-          // createCheckoutSession redirects on success, so this shouldn't be reached
-          // But if it does, we can handle it here
-          toast.success("Redirecting to checkout...");
-        } else {
-          toast.error(result?.error || "Failed to create checkout session");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create checkout session');
+          }
+
+          const { url } = await response.json();
+          
+          if (url) {
+            window.location.href = url;
+          } else {
+            toast.error("Failed to redirect to checkout");
+          }
+        } catch (error: unknown) {
+          console.error('Checkout error:', error);
+          toast.error(error instanceof Error ? error.message : 'Failed to create checkout session');
         }
       } else {
         toast.error("Payment method not yet supported");
@@ -564,28 +584,19 @@ export function CheckoutClient({
                           <SelectContent>
                             <SelectItem
                               value="stripe"
-                              className="relative cursor-not-allowed overflow-hidden border-b-2 border-black bg-gradient-to-r from-gray-100 to-gray-200"
-                              disabled
+                              className="border-b-2 border-black bg-white"
                             >
                               <div className="relative flex w-full items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  <span className="text-gray-500">
-                                    Credit Card (Stripe)
-                                  </span>
+                                  <span>Credit Card (Stripe)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant="secondary"
-                                    className="bg-[--color-secondary] px-3 py-1 text-sm font-bold text-[--color-primary] shadow-lg"
-                                  >
-                                    Coming Soon
-                                  </Badge>
                                   <Image
                                     src="/stripe.png"
                                     alt="Stripe payment logo"
                                     width={24}
                                     height={24}
-                                    className="ml-2 opacity-50"
+                                    className="ml-2"
                                     quality={90}
                                   />
                                 </div>
