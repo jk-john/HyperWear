@@ -46,7 +46,6 @@ const Footer = () => {
                   {[
                     { name: "HyperLiquid Merchandise", href: "/hyperliquid-merchandise" },
                     { name: "HyperLiquid T-Shirts", href: "/hyperliquid-tshirts" },
-                    { name: "HyperLiquid Mugs", href: "/hyperliquid-mugs" },
                     { name: "HyperLiquid Caps", href: "/hyperliquid-caps" },
                     { name: "All Products", href: "/products" },
                     { name: "Collections", href: "/collections" },
