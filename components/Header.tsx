@@ -1,11 +1,11 @@
 "use client";
 
-import { Cart } from "@/components/Cart";
 import { Logo } from "@/components/header/Logo";
 import { Navigation } from "@/components/header/Navigation";
+import ShimmerButton from "@/components/ui/ShimmerButton";
+import { Cart } from "@/components/Cart";
 import { SearchBar } from "@/components/header/SearchBar";
 import { UserAccountNav } from "@/components/header/UserAccountNav";
-import ShimmerButton from "@/components/ui/ShimmerButton";
 import {
   Sheet,
   SheetClose,

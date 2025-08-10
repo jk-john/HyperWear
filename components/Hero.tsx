@@ -2,36 +2,67 @@
 
 import { MEDIA_URLS } from "@/lib/supabase/storage";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { VelocityScroll } from "./ui/scroll-based-velocity";
 
+// Import new Hero components
+import DynamicGradientOverlay from "./hero/DynamicGradientOverlay";
+
+// Lazy load particle system for performance
+const ParticleCanvas = dynamic(() => import("./hero/ParticleCanvas"), { 
+  ssr: false,
+  loading: () => null 
+});
+
 export default function Hero() {
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <section 
       className="video-hero relative h-screen w-full overflow-hidden"
+      style={{ perspective: "1000px" }}
     >
-      {/* Video Background */}
+      {/* Priority poster image for faster LCP */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/hyperwear.png"
+          alt="HyperWear Hero Background"
+          fill
+          priority
+          quality={85}
+          className={`h-full w-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
+        />
+      </div>
+      
+      {/* Optimized Video Background with lazy loading */}
       <div className="absolute inset-0 z-0">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="h-full w-full object-cover"
-          poster="/hyperwear.png"
+          preload="none"
+          className={`h-full w-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoadedData={() => setVideoLoaded(true)}
         >
           <source src={MEDIA_URLS.VIDEO_HOMEPAGE} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>
 
-      {/* Light Overlay for text readability */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-jungle/20 via-forest/15 to-primary/25" />
+      {/* Dynamic Gradient Overlay */}
+      <DynamicGradientOverlay />
+
+      {/* Particle System */}
+      <ParticleCanvas />
 
       {/* Content Container */}
       <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
+
         {/* Animated Title */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -44,7 +75,7 @@ export default function Hero() {
             defaultVelocity={2}
             className="font-display text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
           >
-            The Place To House All Hyperliquid Fans.
+              The Place To House All Hyperliquid Fans.
           </VelocityScroll>
         </motion.div>
 
@@ -60,65 +91,65 @@ export default function Hero() {
             style={{ 
               textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
             }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
-          >
-            <motion.span 
-              className="text-white font-semibold"
-              style={{ 
-                textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
-              }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-            >
-              Crypto was fragmented
-            </motion.span>{" "}
-            <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.4 }}
+              transition={{ duration: 1, delay: 1 }}
             >
-              back then but{" "}
-            </motion.span>
-            <motion.span 
-              className="text-white font-bold text-base sm:text-lg md:text-xl"
-              style={{ 
-                textShadow: '1px 1px 4px rgba(0, 0, 0, 0.6)' 
-              }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 1.6 }}
-            >
-              HyperLiquid
-            </motion.span>{" "}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.8 }}
-            >
-              changed that. For the first time, wear the movement that{" "}
-            </motion.span>
-            <motion.span 
-              className="text-white font-semibold"
-              style={{ 
-                textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
-              }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2 }}
-            >
-              unites projects, creators, and assets
-            </motion.span>{" "}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 2.2 }}
-            >
-              under one seamless ecosystem.
-            </motion.span>
-          </motion.p>
+              <motion.span 
+                className="text-white font-semibold"
+                style={{ 
+                  textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
+                }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 1.2 }}
+              >
+                Crypto was fragmented
+              </motion.span>{" "}
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 1.4 }}
+              >
+                back then but{" "}
+              </motion.span>
+              <motion.span 
+                className="text-white font-bold text-base sm:text-lg md:text-xl"
+                style={{ 
+                  textShadow: '1px 1px 4px rgba(0, 0, 0, 0.6)' 
+                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.6 }}
+              >
+                HyperLiquid
+              </motion.span>{" "}
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 1.8 }}
+              >
+                changed that. For the first time, wear the movement that{" "}
+              </motion.span>
+              <motion.span 
+                className="text-white font-semibold"
+                style={{ 
+                  textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 2 }}
+              >
+                unites projects, creators, and assets
+              </motion.span>{" "}
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 2.2 }}
+              >
+                under one seamless ecosystem.
+              </motion.span>
+            </motion.p>
         </motion.div>
 
         {/* Call-to-Action Buttons */}
@@ -168,33 +199,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Floating Elements */}
-      <div className="floating-element-1 absolute top-20 right-20 w-3 h-3 bg-secondary rounded-full opacity-60" />
-      <div className="floating-element-2 absolute bottom-40 left-20 w-2 h-2 bg-accent rounded-full opacity-50" />
-      <motion.div
-        className="absolute top-1/3 left-10 w-1 h-1 bg-mint rounded-full opacity-30"
-        animate={{ 
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.7, 0.3]
-        }}
-        transition={{ 
-          duration: 5, 
-          repeat: Infinity,
-          delay: 2
-        }}
-      />
-      <motion.div
-        className="absolute bottom-1/3 right-10 w-1.5 h-1.5 bg-light rounded-full opacity-40"
-        animate={{ 
-          rotate: [0, 360],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ 
-          duration: 8, 
-          repeat: Infinity,
-          delay: 3
-        }}
-      />
     </section>
   );
 }

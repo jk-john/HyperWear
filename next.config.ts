@@ -35,9 +35,19 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   experimental: {
-    optimizePackageImports: ["@radix-ui/react-icons", "lucide-react"],
+    optimizePackageImports: ["@radix-ui/react-icons", "lucide-react", "@supabase/supabase-js"],
+    scrollRestoration: true,
+  },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
   },
   compress: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -84,6 +94,24 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
+        source: "/:path*\\.(woff|woff2|eot|ttf|otf)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/:path*\\.(js|css)",
+        headers: [
+          {
+            key: "Cache-Control", 
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

@@ -29,7 +29,7 @@ const PurrNftForm = dynamic(
 export default function CommunityPageClient() {
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col items-center justify-start rounded-md pt-20 antialiased overflow-hidden"
+      className="relative flex min-h-screen w-full flex-col items-center justify-start rounded-md pt-20 antialiased overflow-hidden mb-20"
       style={{ backgroundColor: "var(--color-dark)" }}
     >
       {/* Floating Purr Images - Positioned absolutely for creative placement */}

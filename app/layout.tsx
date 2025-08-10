@@ -14,19 +14,21 @@ import "./globals.css";
 // Validate environment variables at startup
 assertEnvVars();
 
-// Load fonts from Google Fonts with all weights
+// Optimized font loading - only load essential weights
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"], // Reduced from 9 to 4 weights
   variable: "--font-body",
   display: "swap",
+  preload: true,
 });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "600"], // Reduced from 5 to 2 weights
   variable: "--font-display",
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -120,6 +122,47 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
+        
+        {/* Performance optimizations */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="preconnect" href="https://jhxxuhisdypknlvhaklm.supabase.co" />
+        <link rel="preconnect" href="https://api.hyperliquid.xyz" />
+        
+        {/* Critical CSS for faster render */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS for above-the-fold content */
+            body { font-family: var(--font-body), system-ui, -apple-system, sans-serif; }
+            .video-hero { height: 100vh; position: relative; overflow: hidden; }
+            .hero-button { transition: all 0.3s ease; }
+            .sticky { position: sticky; top: 0; z-index: 50; }
+            .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+          `
+        }} />
+        {/* Font preloading for better FCP */}
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;600&display=swap"
+          as="style"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              const fontLink = document.querySelector('link[rel="preload"][as="style"]');
+              if (fontLink) {
+                fontLink.rel = 'stylesheet';
+              }
+            `,
+          }}
+        />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;600&display=swap"
+          />
+        </noscript>
       </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
         <Header />
@@ -132,6 +175,38 @@ export default function RootLayout({
         <CookieBanner />
         <SpeedInsights />
         <Analytics />
+        {/* Web Vitals tracking */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if ('performance' in window && 'PerformanceObserver' in window) {
+                  const observer = new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                      if (entry.entryType === 'largest-contentful-paint') {
+                        console.log('LCP:', entry.startTime);
+                      }
+                    }
+                  });
+                  observer.observe({entryTypes: ['largest-contentful-paint']});
+                }
+                
+                // Register service worker for better caching
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                      .then((registration) => {
+                        console.log('SW registered: ', registration);
+                      })
+                      .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                      });
+                  });
+                }
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );
