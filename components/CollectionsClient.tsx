@@ -3,7 +3,9 @@
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getPublicImageUrl } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 interface Collection {
@@ -11,6 +13,8 @@ interface Collection {
   description: string;
   image: string;
   link: string;
+  category?: string;
+  comingSoon?: boolean;
 }
 
 interface CollectionsClientProps {
@@ -24,13 +28,15 @@ const CollectionCard = ({ collection, priority }: { collection: Collection; prio
 
   return (
     <div className="relative transform overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-2">
-      <Badge
-        variant="secondary"
-        className="bg-secondary text-primary absolute top-2 right-2 z-10"
-      >
-        Coming Soon
-      </Badge>
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl max-w-xs mx-auto">
+      {collection.comingSoon && (
+        <Badge
+          variant="secondary"
+          className="bg-secondary text-primary absolute top-2 right-2 z-10"
+        >
+          Coming Soon
+        </Badge>
+      )}
+      <div className="relative aspect-square w-full overflow-hidden rounded-md max-w-xs mx-auto p-4 mt-6">
         {/* Loading placeholder */}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-xl" />
@@ -38,7 +44,7 @@ const CollectionCard = ({ collection, priority }: { collection: Collection; prio
         
         {/* Optimized image with fixed dimensions and circular shape */}
         <Image
-          src={collection.image}
+          src={getPublicImageUrl(collection.image)}
           alt={collection.title}
           width={300}
           height={300}
@@ -62,21 +68,45 @@ const CollectionCard = ({ collection, priority }: { collection: Collection; prio
           {collection.description}
         </p>
         <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            className="cursor-not-allowed rounded-full font-semibold opacity-60 text-xs sm:text-sm touch-manipulation"
-            disabled
-          >
-            View Collection
-          </Button>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-secondary cursor-not-allowed rounded-full font-semibold text-white opacity-60 hover:text-black text-xs sm:text-sm touch-manipulation"
-            disabled
-          >
-            Shop Now
-          </Button>
+          {collection.comingSoon ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto cursor-not-allowed rounded-full font-semibold opacity-60 text-xs sm:text-sm touch-manipulation"
+                disabled
+              >
+                View Collection
+              </Button>
+              <Button
+                size="sm"
+                className="w-full sm:w-auto bg-primary hover:bg-secondary cursor-not-allowed rounded-full font-semibold text-white opacity-60 hover:text-black text-xs sm:text-sm touch-manipulation"
+                disabled
+              >
+                Shop Now
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href={collection.category ? `/products?category=${collection.category}` : collection.link}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto rounded-full font-semibold text-xs sm:text-sm touch-manipulation hover:bg-gray-50 transition-colors"
+                >
+                  View Collection
+                </Button>
+              </Link>
+              <Link href="/products">
+                <Button
+                  size="sm"
+                  className="w-full sm:w-auto bg-primary hover:bg-secondary rounded-full font-semibold text-white hover:text-black text-xs sm:text-sm touch-manipulation transition-colors"
+                >
+                  Shop Now
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>

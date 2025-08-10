@@ -107,19 +107,19 @@ const storeSchema = {
 export default function Home() {
   // Collection images for the 3D carousel
   const carouselImages = [
-    "/img-collections/DSC02198.jpg",
-    "/img-collections/DSC02218.jpg",
-    "/img-collections/DSC02232.jpg",
-    "/img-collections/DSC02234.jpg",
-    "/img-collections/DSC02235.jpg",
-    "/img-collections/DSC02268.jpg",
-    "/img-collections/DSC02288.jpg",
-    "/img-collections/DSC02297.jpg",
-    "/img-collections/DSC02300.jpg",
-    "/img-collections/DSC02317.jpg",
-    "/img-collections/DSC02319.jpg",
-    "/img-collections/DSC02325.jpg",
-    "/img-collections/DSC02340.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02268.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02288.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02297.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02300.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02317.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02319.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02325.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02340.jpg",
   ];
 
   // Shuffle images for dynamic experience

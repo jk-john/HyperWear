@@ -6,10 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getPublicImageUrl(path: string): string {
-  if (!path) return "/products-img/tee-shirt.webp"; // Fallback image
+  if (!path) return "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/tee-shirt.webp"; // Fallback image
 
   // If the path is already a full URL, return it directly
   if (path.startsWith("http")) {
+    return path;
+  }
+
+  // If the path starts with a slash, it's a local public path
+  if (path.startsWith("/")) {
     return path;
   }
 
