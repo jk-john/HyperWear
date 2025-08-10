@@ -31,34 +31,21 @@ const components: {
     priority: true,
   },
   {
-    title: "HyperLiquid Mugs",
-    href: "/hyperliquid-mugs", 
-    src: "/products-img/mug.webp",
-    description: "High-quality ceramic mugs for HyperLiquid fans",
-    priority: true,
-  },
-  {
     title: "T-Shirts",
     href: "/products?category=t-shirts",
-    src: "/products-img/tee-shirt.webp",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/t-shirts-images/Front.png",
     description: "Re-discover the basics",
-  },
-  {
-    title: "Shorts",
-    href: "/products?category=shorts",
-    src: "/products-img/short-front.png",
-    description: "Comfort and style for every day.",
   },
   {
     title: "Caps",
     href: "/products?category=caps",
-    src: "/products-img/caps-2.jpg",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
     description: "The best caps for your style.",
   },
   {
     title: "Accessories",
     href: "/products?category=accessories",
-    src: "/products-img/mug.webp",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-2-6861d32419357.png",
     description: "Complete your look with our accessories.",
   },
   {
@@ -96,14 +83,6 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               </li>
               <li>
                 <Link
-                  href="/hyperliquid-mugs"
-                  className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
-                >
-                  HyperLiquid Mugs
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/hyperliquid-caps"
                   className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
                 >
@@ -119,7 +98,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
             <ul className="space-y-3">
               {components.filter(c => !c.priority).map((component) => {
                 const isComingSoon =
-                  component.title === "Shorts" || component.title === "Plushies";
+                  component.title === "Plushies";
                 return (
                   <li key={component.title}>
                     <Link
@@ -209,13 +188,6 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium tees designed by the community</p>
                   </Link>
                   <Link
-                    href="/hyperliquid-mugs"
-                    className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                  >
-                    <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Mugs</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">High-quality ceramic drinkware</p>
-                  </Link>
-                  <Link
                     href="/hyperliquid-caps"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   >
@@ -282,7 +254,7 @@ const ListItem = React.forwardRef<
     liClassName?: string;
   }
 >(({ className, title, children, href, src, liClassName, ...props }, ref) => {
-  const isComingSoon = title === "Shorts" || title === "Plushies";
+  const isComingSoon = title === "Plushies";
   
   return (
     <li className={liClassName}>

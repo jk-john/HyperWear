@@ -244,7 +244,7 @@ export default async function HyperLiquidCapsPage() {
               <span style={{ color: 'var(--color-secondary)' }}>HyperLiquid Caps</span>
             </h2>
             {caps && caps.length > 0 ? (
-              <ProductGrid products={caps as Product[]} />
+              <ProductGrid products={caps as Product[]} className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-12" />
             ) : (
               <div className="text-center py-16">
                 <div className="mb-8 flex justify-center">

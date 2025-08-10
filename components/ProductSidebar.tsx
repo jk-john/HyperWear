@@ -9,11 +9,14 @@ export default function ProductSidebar({
   categories,
   isMobile = false,
 }: ProductSidebarProps) {
+  if (isMobile) {
+    return <ProductFilters categories={categories} isMobile={isMobile} />;
+  }
+
+  // Desktop inline filters
   return (
-    <aside className="mr-25 md:col-span-1">
-      <div className="md:sticky md:top-36">
-        <ProductFilters categories={categories} isMobile={isMobile} />
-      </div>
-    </aside>
+    <div className="flex items-center gap-4 flex-wrap">
+      <ProductFilters categories={categories} isMobile={isMobile} />
+    </div>
   );
 }

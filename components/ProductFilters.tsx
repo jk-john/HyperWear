@@ -90,56 +90,12 @@ export function ProductFilters({
   };
 
   return (
-    <div className={isMobile ? "space-y-6" : "space-y-8"}>
-      {/* Clear Filters */}
-      {hasActiveFilters && (
-        <div className={`border-b border-gray-200 ${isMobile ? "pb-4" : "pb-6"}`}>
-          <button
-            onClick={clearAllFilters}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-all duration-200 hover:bg-red-50 px-3 py-2 rounded-lg w-full justify-center lg:justify-start"
-          >
-            <X className="h-4 w-4" />
-            Clear all filters
-          </button>
-        </div>
-      )}
-
-      {/* Sort Options */}
-      <div className="space-y-4">
-        <h3 className={titleClassName}>Sort</h3>
-        <div className={isMobile ? "space-y-2" : "space-y-3"}>
-          <button
-            onClick={() => handleSortChange("none")}
-            className={sortButtonClassName(!currentSort)}
-          >
-            <span className="flex items-center gap-x-2 leading-none">
-              <ArrowUpDown className="h-4 w-4 flex-shrink-0 align-middle" />
-              <span className="whitespace-nowrap leading-none">Default</span>
-            </span>
-          </button>
-          {sortOptions.map((option) => {
-            const Icon = option.icon;
-            const isActive = currentSort === option.value.split("-")[0] && currentOrder === option.value.split("-")[1];
-            return (
-              <button
-                key={option.value}
-                onClick={() => handleSortChange(option.value)}
-                className={sortButtonClassName(isActive)}
-              >
-                <span className="flex items-center gap-x-2 leading-none">
-                  <Icon className="h-4 w-4 flex-shrink-0 align-middle" />
-                  <span className="whitespace-nowrap leading-none">{option.label}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <div className={isMobile ? "space-y-6" : "flex items-center gap-6 flex-wrap"}>
       {/* Category Filter */}
-      <div className="space-y-4">
-        <h3 className={titleClassName}>Category</h3>
-        <div className={`flex flex-wrap ${isMobile ? "gap-2" : "gap-3"}`}>
+      <div className={isMobile ? "space-y-4" : "flex items-center gap-2"}>
+        {isMobile && <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Category</h3>}
+        {!isMobile && <span className="text-sm font-medium text-gray-700">Category:</span>}
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleFilterChange("category", "all")}
             className={categoryButtonClassName(!currentCategory)}
@@ -158,8 +114,48 @@ export function ProductFilters({
         </div>
       </div>
 
-      {/* Active Filters Summary */}
+      {/* Sort Options */}
+      <div className={isMobile ? "space-y-4" : "flex items-center gap-2"}>
+        {isMobile && <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Sort</h3>}
+        {!isMobile && <span className="text-sm font-medium text-gray-700">Sort:</span>}
+        <div className={isMobile ? "space-y-2" : "flex gap-2"}>
+          <button
+            onClick={() => handleSortChange("none")}
+            className={isMobile ? sortButtonClassName(!currentSort) : `px-3 py-1 rounded-md text-sm font-medium transition-all ${!currentSort ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {isMobile && <ArrowUpDown className="h-4 w-4 flex-shrink-0 align-middle" />}
+            <span className={isMobile ? "whitespace-nowrap leading-none" : ""}>Default</span>
+          </button>
+          {sortOptions.map((option) => {
+            const Icon = option.icon;
+            const isActive = currentSort === option.value.split("-")[0] && currentOrder === option.value.split("-")[1];
+            return (
+              <button
+                key={option.value}
+                onClick={() => handleSortChange(option.value)}
+                className={isMobile ? sortButtonClassName(isActive) : `px-3 py-1 rounded-md text-sm font-medium transition-all ${isActive ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                {isMobile && <Icon className="h-4 w-4 flex-shrink-0 align-middle" />}
+                <span className={isMobile ? "whitespace-nowrap leading-none" : ""}>{isMobile ? option.label : option.label.replace('Price: ', '')}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Clear Filters */}
       {hasActiveFilters && (
+        <button
+          onClick={clearAllFilters}
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-all duration-200 hover:bg-red-50 px-2 py-1 rounded-md"
+        >
+          <X className="h-3 w-3" />
+          Clear
+        </button>
+      )}
+
+      {/* Active Filters Summary - Mobile Only */}
+      {hasActiveFilters && isMobile && (
         <div className="pt-6 border-t border-gray-200">
           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Active Filters

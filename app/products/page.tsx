@@ -1,5 +1,6 @@
 import ProductGrid from "@/components/ProductGrid";
 import ProductSidebar from "@/components/ProductSidebar";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import {
   Sheet,
   SheetContent,
@@ -68,67 +69,69 @@ export default async function ProductsPage(props: ProductsPageProps) {
     return <div>Error loading products.</div>;
   }
 
-    return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-12">
-        {/* Header Section */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-            All Products
-          </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Discover our complete collection of HyperLiquid merchandise designed by the community, for the community.
-          </p>
-        </div>
-
-        {/* Mobile Filters */}
-        <div className="mb-8 flex justify-center lg:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="bg-[var(--color-primary)] hover:bg-[var(--color-emerald)] text-white flex items-center gap-3 px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
-                <SlidersHorizontal className="h-5 w-5" />
-                <span>Filters & Sort</span>
-              </button>
-            </SheetTrigger>
-            <SheetContent className="bg-white border-gray-200">
-              <SheetHeader className="text-center pb-6">
-                <SheetTitle className="text-xl font-bold text-gray-900">
-                  Filters & Sort
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 mx-auto px-4 w-full max-w-sm pt-6">
-                <ProductSidebar categories={categories} isMobile />
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 py-6 px-1 pl-4 sticky top-6 mx-auto w-full max-w-xs">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b border-gray-100 pb-4">
-                Filters
-              </h2>
-              <ProductSidebar categories={categories} />
-            </div>
+  return (
+    <>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header Section */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              All Products
+            </h1>
+            <p className="text-base text-gray-600 max-w-2xl leading-relaxed">
+              Discover our complete collection of HyperLiquid merchandise designed by the community, for the community.
+            </p>
           </div>
 
-          {/* Products Grid */}
-          <main className="lg:col-span-3">
-            {products && products.length > 0 ? (
-              <div className="space-y-8">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-600 font-medium">
-                    Showing {products.length} {products.length === 1 ? 'product' : 'products'}
-                  </p>
-                </div>
-                <ProductGrid
-                  products={products}
-                  className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10 lg:gap-12"
-                />
+        {/* Filters Bar */}
+        <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Left: Results count */}
+            <div className="flex items-center gap-4">
+              <p className="text-gray-600 font-medium">
+                {products ? `${products.length} ${products.length === 1 ? 'product' : 'products'}` : 'Loading...'}
+              </p>
+            </div>
+            
+            {/* Right: Filter and Sort controls */}
+            <div className="flex items-center gap-3">
+              {/* Mobile Filters */}
+              <div className="sm:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button className="bg-[var(--color-primary)] hover:bg-[var(--color-emerald)] text-white flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200">
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span>Filters</span>
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent className="bg-white border-gray-200">
+                    <SheetHeader className="text-center pb-6">
+                      <SheetTitle className="text-xl font-bold text-gray-900">
+                        Filters & Sort
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 mx-auto px-4 w-full max-w-sm pt-6">
+                      <ProductSidebar categories={categories} isMobile />
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
+              
+              {/* Desktop Filters Toggle */}
+              <div className="hidden sm:block">
+                <ProductSidebar categories={categories} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        <main>
+            {products && products.length > 0 ? (
+              <ProductGrid
+                products={products}
+                className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-12"
+              />
             ) : (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-20 text-center">
                 <div className="max-w-md mx-auto">
@@ -153,6 +156,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
           </main>
         </div>
       </div>
-    </div>
+      <ScrollToTop />
+    </>
   );
 }

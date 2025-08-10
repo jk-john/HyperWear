@@ -13,7 +13,7 @@ export default function ProductGrid({ products, className }: ProductGridProps) {
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-1 justify-items-center gap-4 sm:gap-x-8 sm:gap-y-8 bg-white p-4 sm:p-6 lg:p-8 sm:grid-cols-2 md:grid-cols-3 md:gap-x-10 md:gap-y-10 lg:gap-x-12 lg:gap-y-12 xl:grid-cols-3",
+        "grid w-full grid-cols-1 justify-items-center sm:justify-items-stretch gap-6 sm:gap-x-8 sm:gap-y-10 bg-white p-4 sm:p-6 lg:p-8 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14",
         className,
       )}
     >

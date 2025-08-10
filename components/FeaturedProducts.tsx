@@ -34,7 +34,7 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="w-full bg-white mt-1">
+    <section className="w-full bg-white mt-1 p-12">
       <div className="container mx-auto px-2 pt-8 sm:px-6 sm:pt-10 md:px-8">
         <div className="mb-8 text-center sm:mb-12">
           <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
@@ -44,11 +44,11 @@ export default function FeaturedProducts() {
             Explore our carefully curated collection of exceptional products.
           </p>
         </div>
-        <div className="overflow-hidden">
+        <div className="overflow-hidden p-12">
           {loading ? (
             <div className="text-center">Loading...</div>
           ) : (
-            <ProductGrid products={products} />
+            <ProductGrid products={products} className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-12" />
           )}
         </div>
       </div>

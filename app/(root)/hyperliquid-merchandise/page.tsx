@@ -266,7 +266,7 @@ export default async function HyperLiquidMerchandisePage() {
                 <span style={{ color: 'var(--color-light)' }}>HyperLiquid </span>
                 <span style={{ color: 'var(--color-secondary)' }}>{category}</span>
               </h2>
-              <ProductGrid products={products as Product[]} />
+              <ProductGrid products={products as Product[]} className="!bg-transparent !p-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-12" />
               <div className="text-center mt-12">
                 <Link 
                   href={`/products?category=${category.toLowerCase()}`}
