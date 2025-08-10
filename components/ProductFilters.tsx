@@ -67,10 +67,6 @@ export function ProductFilters({
     { value: "price-desc", label: "Price: High to Low", icon: ArrowDown },
   ];
 
-  const titleClassName = isMobile
-    ? "mb-4 text-center text-sm font-semibold text-gray-800 uppercase tracking-wider"
-    : "mb-5 text-sm font-semibold text-gray-800 uppercase tracking-wider";
-
   const sortButtonClassName = (isActive: boolean) => {
     const baseClasses = "w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center border";
     const mobileClasses = isMobile ? "min-h-[44px]" : "min-h-[48px]";
