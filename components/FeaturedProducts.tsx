@@ -10,6 +10,11 @@ const VISIBLE_PRODUCTS = 6;
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -32,6 +37,27 @@ export default function FeaturedProducts() {
 
     fetchProducts();
   }, []);
+
+  // Prevent hydration mismatch by showing consistent loading state until mounted
+  if (!mounted) {
+    return (
+      <section className="w-full bg-white mt-1 p-12">
+        <div className="container mx-auto px-2 pt-8 sm:px-6 sm:pt-10 md:px-8">
+          <div className="mb-8 text-center sm:mb-12">
+            <h2 className="font-display text-3xl font-semibold text-[var(--color-dark)] sm:text-4xl">
+              Featured Products
+            </h2>
+            <p className="text-base font-light text-gray-600 sm:text-lg">
+              Explore our carefully curated collection of exceptional products.
+            </p>
+          </div>
+          <div className="overflow-hidden p-12">
+            <div className="text-center">Loading...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full bg-white mt-1 p-12">

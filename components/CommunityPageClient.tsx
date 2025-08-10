@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Instagram, Twitter } from "lucide-react";
+import { Twitter } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
@@ -131,14 +131,14 @@ export default function CommunityPageClient() {
             <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
               <div className="flex flex-col items-center gap-y-2">
                 <h2 className="font-body text-lg font-semibold text-white">
-                  Eligible PURR NFT holders, fill this form.
+                  PURR NFT holders, submit your eligibility information.
                 </h2>
-                <Badge variant="secondary">Coming Soon</Badge>
+                <Badge variant="default" className="bg-cyan-600 text-white">Live Now</Badge>
               </div>
             </div>
-            <fieldset disabled className="cursor-not-allowed opacity-50 relative z-10">
+            <div className="relative z-10">
               <PurrNftForm />
-            </fieldset>
+            </div>
           </section>
 
           {/* Future Surprise Section */}
@@ -175,15 +175,7 @@ export default function CommunityPageClient() {
                 Stay connected with us to be the first to know!
               </p>
 
-              <div className="mt-6 flex flex-row items-center justify-center gap-12">
-                <a
-                  href="https://www.instagram.com/wear_hyper/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-transform hover:scale-110"
-                >
-                  <Instagram className="h-6 w-6 text-purple-200 hover:text-white" />
-                </a>
+              <div className="mt-6 flex flex-row items-center justify-center">
                 <a
                   href="https://x.com/wear_hyper"
                   target="_blank"

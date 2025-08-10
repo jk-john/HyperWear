@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      purr_nft_eligible_addresses: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          id: string
+          purr_nft_count: number | null
+          submission_type: string
+          updated_at: string
+          user_id: string | null
+          wallet_address: string
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          id?: string
+          purr_nft_count?: number | null
+          submission_type?: string
+          updated_at?: string
+          user_id?: string | null
+          wallet_address: string
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          id?: string
+          purr_nft_count?: number | null
+          submission_type?: string
+          updated_at?: string
+          user_id?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           email_type: string
@@ -596,3 +629,10 @@ export const Constants = {
     },
   },
 } as const
+
+// Custom types for the application
+export type Product = Tables<"products">
+export type User = Tables<"users">
+export type Order = Tables<"orders">
+export type OrderItem = Tables<"order_items">
+export type PurrNftEligibleAddress = Tables<"purr_nft_eligible_addresses">

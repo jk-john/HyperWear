@@ -76,23 +76,6 @@ export default function SubscriptionConfirmationEmail({
                   src={getPublicImageUrl("hyperwear-public/twitter.png")}
                 />
               </Link>
-              <Link
-                style={{
-                  display: "inline-block",
-                  margin: "0 10px",
-                }}
-                href="https://www.instagram.com/wear_hyper/"
-              >
-                <Img
-                  className="mx-auto my-0"
-                  width={32}
-                  height={32}
-                  alt="Instagram"
-                  src={getPublicImageUrl(
-                    "hyperwear-public/Instagram_Glyph_Gradient.png",
-                  )}
-                />
-              </Link>
             </Section>
           </Section>
           <Text className="text-center text-xs text-gray-500">
