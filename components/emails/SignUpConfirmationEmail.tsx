@@ -73,12 +73,14 @@ export const SignUpConfirmationEmail = ({
 
 export default SignUpConfirmationEmail;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const main = {
   backgroundColor: "#f6f9fc",
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const container = {
   backgroundColor: "#ffffff",
   margin: "0 auto",
@@ -88,10 +90,12 @@ const container = {
   borderRadius: "4px",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logo = {
   margin: "0 auto",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const heading = {
   fontSize: "24px",
   fontWeight: "bold",
@@ -99,6 +103,7 @@ const heading = {
   marginBottom: "20px",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const text = {
   color: "#333",
   fontSize: "14px",
@@ -106,11 +111,13 @@ const text = {
   textAlign: "center" as const,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buttonContainer = {
   textAlign: "center" as const,
   margin: "20px 0",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const button = {
   backgroundColor: "#000000",
   borderRadius: "3px",
@@ -122,11 +129,13 @@ const button = {
   padding: "12px 20px",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const hr = {
   borderColor: "#eaeaea",
   margin: "28px 0",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const footer = {
   color: "#666666",
   fontSize: "12px",

@@ -3,10 +3,10 @@ import type { NextConfig } from "next";
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
@@ -55,8 +55,17 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com; child-src *.youtube.com *.google.com *.twitter.com; style-src 'self' 'unsafe-inline' *.googleapis.com; img-src * blob: data:; media-src 'self'; connect-src *; font-src 'self' *.googleapis.com *.gstatic.com; frame-src *.youtube.com *.twitter.com;",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com",
+              "child-src *.youtube.com *.google.com *.twitter.com",
+              "style-src 'self' 'unsafe-inline' *.googleapis.com",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self'",
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''} https://api.resend.com https://api.hyperliquid.xyz https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.supabase.co`,
+              "font-src 'self' *.googleapis.com *.gstatic.com",
+              "frame-src *.youtube.com *.twitter.com",
+            ].join('; '),
           },
         ],
       },

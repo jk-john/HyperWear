@@ -7,16 +7,14 @@ import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-interface ConfirmationPageProps {
-  params: {
-    token: string;
-  };
-}
+type ConfirmationPageProps = {
+  params: { token: string };
+};
 
 function HypeConfirmation({ params }: ConfirmationPageProps) {
   const router = useRouter();
@@ -48,9 +46,9 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
   };
 
   const handleCopyAmount = () => {
-    if (order?.remaining_amount) {
+    if (order?.total_token_amount) {
       navigator.clipboard.writeText(
-        order.remaining_amount.toFixed(18).toString(),
+        order.total_token_amount.toFixed(18).toString(),
       );
       setCopiedAmount(true);
       toast.success("Amount copied to clipboard!");
@@ -236,7 +234,7 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
     order?.payment_method?.toLowerCase() || params.token;
   const tokenImage = tokenImages[normalizedPaymentMethod];
 
-  const amountToPay = order?.remaining_amount ?? order?.total_token_amount ?? 0;
+  const amountToPay = order?.total_token_amount ?? 0;
 
   if (isCancelled) {
     return (
@@ -457,9 +455,8 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
   );
 }
 
-export default function HypeConfirmationPage({
-  params,
-}: ConfirmationPageProps) {
+export default function HypeConfirmationPage() {
+  const params = useParams<{ token: string }>();
   return (
     <Suspense
       fallback={
@@ -471,7 +468,7 @@ export default function HypeConfirmationPage({
         </div>
       }
     >
-      <HypeConfirmation params={params} />
+      <HypeConfirmation params={{ token: params.token }} />
     </Suspense>
   );
 }

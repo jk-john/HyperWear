@@ -27,7 +27,7 @@ export type CartItem = {
   quantity: number;
   size?: string;
   color?: string;
-  variant_id: string | null;
+  variant_id?: string | null;
   imageUrl: string;
   cartItemId: string;
 };

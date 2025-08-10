@@ -141,7 +141,7 @@ export default async function OrdersPage() {
                 </TableBody>
               </Table>
               <div className="mt-4 text-right font-bold text-black">
-                Total: ${order.total?.toFixed(2)}
+                Total: ${(order.total ?? order.amount_total ?? 0).toFixed(2)}
               </div>
             </CardContent>
           </Card>

@@ -23,7 +23,7 @@ export function HypePriceTicker() {
     if (hypePrice) {
       setPreviousPrice(hypePrice);
     }
-  }, [hypePrice]);
+  }, [hypePrice, previousPrice]);
 
   if (isLoading) {
     return (

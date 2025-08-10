@@ -167,7 +167,7 @@ const Carousel = memo(function Carousel({ cards }: { cards: string[] }) {
     // Start loading remaining images after a short delay
     const timeoutId = setTimeout(loadRemainingImages, 1000);
     return () => clearTimeout(timeoutId);
-  }, [cards.length, visibleImages.size]);
+  }, [cards.length, visibleImages]);
 
   // Fallback: ensure all images are loaded within 4 seconds maximum
   useEffect(() => {

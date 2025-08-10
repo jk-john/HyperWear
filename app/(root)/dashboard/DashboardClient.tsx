@@ -78,8 +78,8 @@ export default function DashboardClient({
     }).format(amount);
   };
 
-  // Use normalized amounts from database (stored in cents)
-  const totalSpent = orders?.reduce((acc, order) => acc + ((order.amount_total ?? 0) / 100), 0) ?? 0;
+  // Use normalized amounts from database
+  const totalSpent = orders?.reduce((acc, order) => acc + (order.total ?? order.amount_total ?? 0), 0) ?? 0;
   const totalOrders = orders?.length ?? 0;
   const defaultAddress =
     initialAddresses.find((address) => address.is_default) || null;
@@ -288,7 +288,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            {formatCurrency((order.amount_total ?? 0) / 100)}
+                            {formatCurrency(order.total ?? order.amount_total ?? 0)}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -331,7 +331,7 @@ export default function DashboardClient({
                             className="font-semibold"
                             style={{ color: "var(--color-secondary)" }}
                           >
-                            {formatCurrency((order.amount_total ?? 0) / 100)}
+                            {formatCurrency(order.total ?? order.amount_total ?? 0)}
                           </p>
                         </div>
                         <span

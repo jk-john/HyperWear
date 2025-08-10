@@ -34,7 +34,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               Oops! Something went wrong.
             </h1>
             <p className="text-lg text-gray-400">
-              We've been notified of the issue and are working to fix it. Please
+              We&apos;ve been notified of the issue and are working to fix it. Please
               try again later.
             </p>
           </div>

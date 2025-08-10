@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { Button } from "./Button";
+import { Button } from "./button";
 
 interface Product {
   id: string;

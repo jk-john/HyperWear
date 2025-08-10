@@ -5,12 +5,12 @@ import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
 import {
-  CheckCircle,
-  Home,
-  Loader2,
-  Package,
-  ShoppingCart,
-  Truck,
+    CheckCircle,
+    Home,
+    Loader2,
+    Package,
+    ShoppingCart,
+    Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -120,11 +120,11 @@ function SuccessContent() {
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
-  // Use normalized amounts from database (stored in cents)
-  const subtotal = (order.amount_subtotal || 0) / 100;
-  const shippingAmount = (order.amount_shipping || 0) / 100;
-  const taxAmount = (order.amount_tax || 0) / 100;
-  const totalAmount = (order.amount_total || 0) / 100;
+  // Calculate subtotal from order items
+  const subtotal = order.order_items.reduce((sum, item) => sum + (item.price_at_purchase * item.quantity), 0);
+  const shippingAmount = order.amount_shipping || 0;
+  const taxAmount = order.amount_tax || 0;
+  const totalAmount = order.total || order.amount_total || 0;
 
   // Format currency properly
   const formatCurrency = (amount: number, currency = 'USD') => {

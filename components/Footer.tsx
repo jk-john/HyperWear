@@ -200,8 +200,8 @@ const Footer = () => {
                         href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
                         className="transition-colors duration-200 flex items-center group"
                         style={{ color: 'var(--color-accent)' }}
-                        onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                        onMouseLeave={(e) => e.target.style.color = 'var(--color-accent)'}
+                        onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                        onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-accent)'}
                       >
                         <span 
                           className="w-1 h-1 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -230,8 +230,8 @@ const Footer = () => {
                   href="/privacy-policy"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Privacy Policy
                 </Link>
@@ -239,8 +239,8 @@ const Footer = () => {
                   href="/terms-of-service"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Terms of Service
                 </Link>
@@ -248,8 +248,8 @@ const Footer = () => {
                   href="/cookie-policy"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Cookie Policy
                 </Link>

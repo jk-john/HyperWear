@@ -2,21 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PhoneInput from "@/components/ui/phone-input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
@@ -29,8 +29,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import {
-  cancelOrder,
-  initiateHypePayment,
+    cancelOrder,
+    initiateHypePayment,
 } from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
@@ -210,7 +210,7 @@ export function CheckoutClient({
               <div className="mb-2 flex justify-between">
                 <span className="font-semibold">Order Total:</span>
                 <span className="font-bold">
-                  ${pendingOrder.total?.toFixed(2)}
+                  ${(pendingOrder.total ?? pendingOrder.amount_total ?? 0).toFixed(2)}
                 </span>
               </div>
               <div className="mb-2 flex justify-between">

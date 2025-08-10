@@ -2,9 +2,7 @@ import { createClient as createServerClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const getShippingCost = (cartTotal: number): number => {
   return cartTotal >= 60 ? 0 : 9.99;
@@ -75,8 +73,8 @@ export async function POST(request: NextRequest) {
         cartItems: JSON.stringify(cartItems),
         shipping: JSON.stringify(shippingAddress),
       },
-      success_url: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/checkout/cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/cancel`,
     });
 
     if (!session.url) {

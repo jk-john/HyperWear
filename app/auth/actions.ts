@@ -9,10 +9,9 @@ export async function signOut() {
 
   if (error) {
     console.error("Error signing out:", error);
-    return {
-      error: "An unexpected error occurred while signing out. Please try again.",
-    };
+    // For form actions, we should redirect even if there's an error
+    // The error will be logged but the user will still be redirected
   }
 
-  return redirect("/");
+  redirect("/");
 }

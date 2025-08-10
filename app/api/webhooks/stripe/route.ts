@@ -34,7 +34,7 @@ async function sendOrderConfirmationEmail(
     .eq("id", order.id)
     .single();
 
-  if (existingOrder?.email_sent) {
+  if (existingOrder?.email_sent === true) {
     console.log(
       `[WEBHOOK] Email already sent for order ${order.id}, skipping.`,
     );
@@ -58,13 +58,13 @@ async function sendOrderConfirmationEmail(
         orderDate: new Date(order.created_at).toLocaleDateString(),
         items,
         total: (session.amount_total ?? 0) / 100,
-        receiptUrl: order.receipt_url,
+        receiptUrl: null,
       }),
     });
 
     await supabase
       .from("orders")
-      .update({ email_sent_status: "sent" })
+      .update({ email_sent: true })
       .eq("id", order.id);
 
     console.log(
@@ -77,7 +77,7 @@ async function sendOrderConfirmationEmail(
     );
     await supabase
       .from("orders")
-      .update({ email_sent_status: "failed" })
+      .update({ email_sent: false })
       .eq("id", order.id);
   }
 }
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
         // Check for existing order (idempotency)
         const { data: existingOrder } = await supabase
           .from("orders")
-          .select("id, email_sent, created_at, receipt_url")
+          .select("*")
           .eq("stripe_session_id", session.id)
           .single();
         
@@ -175,26 +175,26 @@ export async function POST(req: Request) {
           .from("orders")
           .insert({
             user_id: session.metadata?.userId || session.client_reference_id || undefined,
-            total_usd: totalAmount,
-            total_hype: totalAmount, // For Stripe payments, token amount equals USD amount
+            total: totalAmount, // Use 'total' instead of 'total_usd'
+            total_token_amount: totalAmount, // Use 'total_token_amount' instead of 'total_hype'
             status: "paid",
             payment_method: "Stripe",
             stripe_session_id: session.id, // Store session ID for success page lookup
             amount_subtotal: cartSubtotal, // Calculated cart subtotal in dollars
             amount_shipping: calculatedShipping, // Calculated shipping cost in dollars
-            amount_tax: (session.amount_tax || 0) / 100, // Convert cents to dollars
+            amount_tax: (session.total_details?.amount_tax || 0) / 100, // Convert cents to dollars
             amount_total: (session.amount_total || 0) / 100, // Convert cents to dollars
             currency: session.currency || 'usd',
             receipt_url: receiptUrl,
-            email_sent_status: "pending",
+            email_sent: false, // Use 'email_sent' boolean instead of 'email_sent_status'
             shipping_first_name: shippingDetails.first_name || session.customer_details?.name?.split(' ')[0] || 'Customer',
             shipping_last_name: shippingDetails.last_name || session.customer_details?.name?.split(' ')[1] || '',
             shipping_email: shippingDetails.email || session.customer_details?.email || '',
             shipping_phone_number: shippingDetails.phone_number || session.customer_details?.phone || '',
-            shipping_street: shippingDetails.street || session.shipping_details?.address?.line1 || '',
-            shipping_city: shippingDetails.city || session.shipping_details?.address?.city || '',
-            shipping_postal_code: shippingDetails.postal_code || shippingDetails.zip || session.shipping_details?.address?.postal_code || '',
-            shipping_country: shippingDetails.country || session.shipping_details?.address?.country || '',
+            shipping_street: shippingDetails.street || '',
+            shipping_city: shippingDetails.city || '',
+            shipping_postal_code: shippingDetails.postal_code || shippingDetails.zip || '',
+            shipping_country: shippingDetails.country || '',
           })
           .select()
           .single();

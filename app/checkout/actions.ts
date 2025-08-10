@@ -1,6 +1,7 @@
 "use server";
 
 import { CartItem, CheckoutFormValues, ShippingAddress } from "@/types";
+import { TablesInsert } from "@/types/supabase";
 import { createClient as getServerSupabase } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -122,7 +123,7 @@ export async function createCheckoutSession(
       user.id,
       {
         user_id: user.id,
-        total,
+        total: total,
         status: "pending" as const,
         payment_method: "Stripe",
         shipping_first_name: shippingAddress.first_name,
@@ -133,7 +134,7 @@ export async function createCheckoutSession(
         shipping_country: shippingAddress.country,
         shipping_phone_number: shippingAddress.phone_number,
         shipping_email: email,
-      },
+      } as TablesInsert<"orders">,
       cartItems,
     );
 
@@ -166,8 +167,8 @@ export async function createCheckoutSession(
         shipping: JSON.stringify(shippingAddress),
         cartItems: JSON.stringify(cartItems),
       },
-      success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?orderId=${order.id}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout/cancel?orderId=${order.id}`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/cancel`,
     });
 
     if (session.url) {
@@ -298,7 +299,7 @@ export async function initiateHypePayment(
         shipping_postal_code: formValues.zip,
         shipping_country: formValues.country,
         shipping_phone_number: formValues.phoneNumber,
-      },
+      } as TablesInsert<"orders">,
       cartItems,
     );
     return { success: true, orderId: order.id };

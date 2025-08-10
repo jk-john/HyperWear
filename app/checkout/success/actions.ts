@@ -65,7 +65,7 @@ export async function getOrderDetailsBySessionId(sessionId: string) {
   
   try {
     // Initialize Stripe to retrieve session details
-    const Stripe = require('stripe');
+    const { default: Stripe } = await import('stripe');
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
     
     // Retrieve the checkout session from Stripe
@@ -93,7 +93,7 @@ export async function getOrderDetailsBySessionId(sessionId: string) {
     
     // Calculate amounts
     const totalAmount = (session.amount_total ?? 0) / 100;
-    const cartSubtotal = cartItems.reduce((sum: number, item: any) => 
+    const cartSubtotal = cartItems.reduce((sum: number, item: { price: number; quantity: number }) => 
       sum + (item.price * item.quantity), 0
     );
     const calculatedShipping = cartSubtotal >= 60 ? 0 : 9.99;
@@ -111,26 +111,26 @@ export async function getOrderDetailsBySessionId(sessionId: string) {
       .from("orders")
       .insert({
         user_id: session.metadata?.userId || session.client_reference_id || undefined,
-        total: totalAmount,
-        total_token_amount: totalAmount,
+        total: totalAmount, // Use 'total' instead of 'total_usd'
+        total_token_amount: totalAmount, // Use 'total_token_amount' instead of 'total_hype'
         status: "paid",
         payment_method: "Stripe",
         stripe_session_id: session.id,
         amount_subtotal: cartSubtotal,
         amount_shipping: calculatedShipping,
-        amount_tax: (session.amount_tax || 0) / 100,
+        amount_tax: (session.total_details?.amount_tax || 0) / 100,
         amount_total: (session.amount_total || 0) / 100,
         currency: session.currency || 'usd',
         receipt_url: receiptUrl,
-        email_sent: false,
+        email_sent: false, // Use 'email_sent' boolean instead of 'email_sent_status'
         shipping_first_name: shippingDetails.first_name || session.customer_details?.name?.split(' ')[0] || 'Customer',
         shipping_last_name: shippingDetails.last_name || session.customer_details?.name?.split(' ')[1] || '',
         shipping_email: shippingDetails.email || session.customer_details?.email || '',
         shipping_phone_number: shippingDetails.phone_number || session.customer_details?.phone || '',
-        shipping_street: shippingDetails.street || session.shipping_details?.address?.line1 || '',
-        shipping_city: shippingDetails.city || session.shipping_details?.address?.city || '',
-        shipping_postal_code: shippingDetails.postal_code || shippingDetails.zip || session.shipping_details?.address?.postal_code || '',
-        shipping_country: shippingDetails.country || session.shipping_details?.address?.country || '',
+        shipping_street: shippingDetails.street || '',
+        shipping_city: shippingDetails.city || '',
+        shipping_postal_code: shippingDetails.postal_code || shippingDetails.zip || '',
+        shipping_country: shippingDetails.country || '',
       })
       .select()
       .single();
@@ -146,13 +146,14 @@ export async function getOrderDetailsBySessionId(sessionId: string) {
 
     // Create order items if we have cart data
     if (order && cartItems.length > 0) {
-      const orderItems = cartItems.map((item: any) => ({
+      type CartItemLite = { id: string; quantity: number; price: number; size?: string | null; color?: string | null };
+      const orderItems = (cartItems as CartItemLite[]).map((item) => ({
         order_id: order.id,
         product_id: item.id,
         quantity: item.quantity,
         price_at_purchase: item.price,
-        size: item.size,
-        color: undefined,
+        size: item.size ?? undefined,
+        color: item.color ?? undefined,
       }));
 
       const { error: itemsError } = await supabase
@@ -170,13 +171,13 @@ export async function getOrderDetailsBySessionId(sessionId: string) {
       try {
         console.log(`[SUCCESS PAGE] Sending confirmation email to ${customerEmail}`);
         
-        const { Resend } = require('resend');
+        const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY!);
         
         // Import the email component
-        const OrderConfirmationEmail = require('@/components/emails/OrderConfirmationEmail').default;
+        const { default: OrderConfirmationEmail } = await import('@/components/emails/OrderConfirmationEmail');
         
-        const items = cartItems.map((item: any) => ({
+        const items = cartItems.map((item: { name: string; size?: string; quantity: number; price: number }) => ({
           name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
           quantity: item.quantity ?? 0,
           price: item.price ?? 0,
@@ -311,7 +312,7 @@ export async function sendConfirmationEmail(orderId: string) {
     };
   }
 
-  if (order.email_sent) {
+  if (order.email_sent === true) {
     console.log(`[SUCCESS PAGE] Email already sent for order ${orderId}`);
     return {
       message: "Email already sent.",
@@ -329,28 +330,28 @@ export async function sendConfirmationEmail(orderId: string) {
 
     console.log(`[SUCCESS PAGE] Sending confirmation email to ${customerEmail}`);
     
-    const { Resend } = require('resend');
+    const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY!);
     
     // Import the email component
-    const OrderConfirmationEmail = require('@/components/emails/OrderConfirmationEmail').default;
+    const { default: OrderConfirmationEmail } = await import('@/components/emails/OrderConfirmationEmail');
     
-    const items = order.order_items.map((item: any) => ({
+    const items = order.order_items.map((item: { products: { name: string }; quantity: number; price_at_purchase: number }) => ({
       name: item.products.name,
       quantity: item.quantity,
       price: item.price_at_purchase,
     }));
 
-    await resend.emails.send({
+        await resend.emails.send({
       from: "HyperWear <noreply@hyperwear.io>",
       to: customerEmail,
       subject: "Your HyperWear Order Confirmation",
       react: OrderConfirmationEmail({
-        customerName: order.shipping_first_name || order.customer_details?.name ?? "Valued Customer",
+            customerName: order.shipping_first_name || (order.customer_details?.name ?? "Valued Customer"),
         orderId: order.id.toString(),
         orderDate: new Date(order.created_at).toLocaleDateString(),
         items,
-        total: order.total,
+            total: order.total ?? order.amount_total ?? 0,
         receiptUrl: order.receipt_url,
       }),
     });
@@ -373,12 +374,4 @@ export async function sendConfirmationEmail(orderId: string) {
   }
 }
 
-async function createManualOrder(
-  supabase: any,
-  cartItems: any[],
-  shippingDetails: any,
-  total: number,
-  userId: string,
-) {
-  // Logic to create a manual order
-}
+// Reserved for future use if manual order creation is needed

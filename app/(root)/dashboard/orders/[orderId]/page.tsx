@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { Tables } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
@@ -89,6 +89,7 @@ export default async function OrderDetailsPage(
                   <span>Payment Method:</span>
                   <span>{order.payment_method || "N/A"}</span>
                 </div>
+                {/* Crypto payment fields not available in current schema - commenting out for Stripe flow
                 {order.status === "underpaid" && (
                   <>
                     <div className="flex justify-between text-yellow-400">
@@ -111,9 +112,10 @@ export default async function OrderDetailsPage(
                     </div>
                   </>
                 )}
+                */}
                 <div className="flex justify-between font-bold">
                   <span>Total Amount:</span>
-                  <span>${order.total?.toFixed(2) || "0.00"}</span>
+                  <span>${(order.total ?? order.amount_total ?? 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -142,9 +144,9 @@ export default async function OrderDetailsPage(
             </Table>
           </div>
           <div className="pt-4">
-            <h3 className="font-semibold">Tracking Number</h3>
+            <h3 className="font-semibold">Transactions</h3>
             <p className="text-gray-400">
-              {order.tx_hash || "Not available yet."}
+              {Array.isArray(order.tx_hashes) && order.tx_hashes.length > 0 ? order.tx_hashes.join(", ") : "Not available yet."}
             </p>
           </div>
           <div className="pt-4">

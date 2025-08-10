@@ -235,7 +235,7 @@ export const Cart = ({
             <div className="w-full">
               <div className="text-primary mb-2 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${pendingOrder?.total?.toFixed(2)}</span>
+                <span>${(pendingOrder?.total ?? pendingOrder?.amount_total ?? 0).toFixed(2)}</span>
               </div>
               {timeLeft !== null && (
                 <div className="mb-3 text-center text-lg font-bold text-red-500">

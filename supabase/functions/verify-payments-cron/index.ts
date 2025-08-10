@@ -1,14 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
-  createClient,
-  SupabaseClient,
+    createClient,
+    SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  createPublicClient,
-  formatUnits,
-  http,
-  Log,
-  Transaction,
+    createPublicClient,
+    formatUnits,
+    http,
+    Log,
+    Transaction,
 } from "https://esm.sh/viem@2.7.1";
 import { defineChain } from "https://esm.sh/viem@2.7.1/utils";
 
@@ -52,8 +52,8 @@ const viemClient = createPublicClient({
 type Order = {
   id: string;
   wallet_address: string;
-  total: number;
-  total_token_amount: number;
+  total_usd: number;
+  total_hype: number;
   paid_amount: number;
   remaining_amount: number;
   status: "pending" | "underpaid" | "completed" | "overpaid";
@@ -135,9 +135,9 @@ async function processPaymentsForOrder(
     return;
   }
 
-  if (!order.total_token_amount || order.total_token_amount <= 0) {
+  if (!order.total_hype || order.total_hype <= 0) {
     console.error(
-      `Order ${order.id} has an invalid total_token_amount: ${order.total_token_amount}. Skipping.`,
+      `Order ${order.id} has an invalid total_hype: ${order.total_hype}. Skipping.`,
     );
     return;
   }
@@ -166,8 +166,8 @@ async function processPaymentsForOrder(
     }
   }
 
-  const newRemainingAmount = order.total_token_amount - currentPaidAmount;
-  const lowerBound = order.total_token_amount * 0.98;
+  const newRemainingAmount = order.total_hype - currentPaidAmount;
+  const lowerBound = order.total_hype * 0.98;
   const newStatus = currentPaidAmount >= lowerBound ? "completed" : "underpaid";
 
   const { error } = await supabase
@@ -214,16 +214,16 @@ async function processPaymentsForOrder(
               quantity: item.quantity ?? 0,
               price: item.price_at_purchase ?? 0,
             })),
-            total: order.total ?? 0,
+            total: order.total_usd ?? 0,
           });
 
           if (emailSent) {
-            await supabase.from('orders').update({ email_sent_status: 'Sent' }).eq('id', order.id);
+            await supabase.from('orders').update({ email_sent_status: 'sent' }).eq('id', order.id);
           } else {
-            await supabase.from('orders').update({ email_sent_status: 'Failed' }).eq('id', order.id);
+            await supabase.from('orders').update({ email_sent_status: 'failed' }).eq('id', order.id);
           }
         } catch (e) {
-            await supabase.from('orders').update({ email_sent_status: `Error: ${e.message}` }).eq('id', order.id);
+            await supabase.from('orders').update({ email_sent_status: 'failed' }).eq('id', order.id);
         }
       }
     }

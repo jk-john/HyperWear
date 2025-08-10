@@ -48,9 +48,10 @@ export default function ProductDetailClient({
     product.colors &&
     product.colors.length > 1;
 
-  const isAddToCartDisabled =
+  const isAddToCartDisabled = Boolean(
     (needsSizeSelection && !selectedSize) ||
-    (needsColorSelection && !selectedColor);
+    (needsColorSelection && !selectedColor)
+  );
 
 
   const handleAddToCart = () => {

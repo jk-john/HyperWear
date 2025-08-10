@@ -16,7 +16,7 @@ export default function NotFound() {
           <span className="text-secondary">404</span>
         </h1>
         <p className="text-cream mt-4 text-2xl font-medium tracking-wide">
-          Oops, you've wandered off the trail!
+          Oops, you&apos;ve wandered off the trail!
         </p>
         <p className="mt-2 text-white">
           The page you are looking for might have been removed, had its name

@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          error_message: string
+          error_name: string
+          error_stack: string | null
+          id: number
+          metadata: Json | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          error_message: string
+          error_name: string
+          error_stack?: string | null
+          id?: number
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          error_message?: string
+          error_name?: string
+          error_stack?: string | null
+          id?: number
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       manual_orders: {
         Row: {
           amount_hype: number
@@ -130,17 +169,18 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount_shipping: number | null
+          amount_subtotal: number | null
+          amount_tax: number | null
+          amount_total: number | null
           created_at: string
-          email_sent_status: string | null
+          currency: string | null
+          email_sent: boolean | null
           expires_at: string | null
           id: string
-          paid_amount: number | null
           payment_method: string | null
-          remaining_amount: number | null
-          selected_color: string | null
-          selected_size: string | null
+          receipt_url: string | null
           shipping_address_complement: string | null
-          shipping_address_complement_from_line2: string | null
           shipping_city: string | null
           shipping_company_name: string | null
           shipping_country: string | null
@@ -152,25 +192,26 @@ export type Database = {
           shipping_postal_code: string | null
           shipping_street: string | null
           status: string | null
+          stripe_session_id: string | null
           total: number | null
           total_token_amount: number
           tx_hashes: string[] | null
           user_id: string | null
-          verification_error: string | null
           wallet_address: string | null
         }
         Insert: {
+          amount_shipping?: number | null
+          amount_subtotal?: number | null
+          amount_tax?: number | null
+          amount_total?: number | null
           created_at?: string
-          email_sent_status?: string | null
+          currency?: string | null
+          email_sent?: boolean | null
           expires_at?: string | null
           id?: string
-          paid_amount?: number | null
           payment_method?: string | null
-          remaining_amount?: number | null
-          selected_color?: string | null
-          selected_size?: string | null
+          receipt_url?: string | null
           shipping_address_complement?: string | null
-          shipping_address_complement_from_line2?: string | null
           shipping_city?: string | null
           shipping_company_name?: string | null
           shipping_country?: string | null
@@ -182,25 +223,26 @@ export type Database = {
           shipping_postal_code?: string | null
           shipping_street?: string | null
           status?: string | null
+          stripe_session_id?: string | null
           total?: number | null
           total_token_amount: number
           tx_hashes?: string[] | null
           user_id?: string | null
-          verification_error?: string | null
           wallet_address?: string | null
         }
         Update: {
+          amount_shipping?: number | null
+          amount_subtotal?: number | null
+          amount_tax?: number | null
+          amount_total?: number | null
           created_at?: string
-          email_sent_status?: string | null
+          currency?: string | null
+          email_sent?: boolean | null
           expires_at?: string | null
           id?: string
-          paid_amount?: number | null
           payment_method?: string | null
-          remaining_amount?: number | null
-          selected_color?: string | null
-          selected_size?: string | null
+          receipt_url?: string | null
           shipping_address_complement?: string | null
-          shipping_address_complement_from_line2?: string | null
           shipping_city?: string | null
           shipping_company_name?: string | null
           shipping_country?: string | null
@@ -212,11 +254,11 @@ export type Database = {
           shipping_postal_code?: string | null
           shipping_street?: string | null
           status?: string | null
+          stripe_session_id?: string | null
           total?: number | null
           total_token_amount?: number
           tx_hashes?: string[] | null
           user_id?: string | null
-          verification_error?: string | null
           wallet_address?: string | null
         }
         Relationships: []
@@ -411,6 +453,14 @@ export type Database = {
         Returns: {
           category: string
         }[]
+      }
+      safe_auth_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      safe_auth_uid: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
     }
     Enums: {

@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   // Attempt to send a confirmation email via Resend
   try {
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: "HyperWear <noreply@hyperwear.io>",
       to: email,
       subject: "You're in! 🐾 Welcome to the HyperWear Movement",

@@ -127,6 +127,7 @@ const container = {
   margin: "auto",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const heading = {
   fontSize: "24px",
   fontWeight: "bold",
