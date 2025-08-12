@@ -1,4 +1,5 @@
 import { createClient as createServerClient } from '@/utils/supabase/server';
+import { rateLimit, getClientIdentifier, sanitizeError } from '@/lib/security';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
@@ -10,6 +11,24 @@ const getShippingCost = (cartTotal: number): number => {
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting for checkout
+    const clientId = getClientIdentifier(request);
+    const rateLimitResult = rateLimit(clientId, { maxRequests: 5, windowMs: 60000 }); // 5 checkouts per minute
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        sanitizeError('rate_limit', 'rate_limit'),
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
+          }
+        }
+      );
+    }
+
     const { shippingAddress, cartItems } = await request.json();
     const supabase = createServerClient();
     const {
@@ -18,12 +37,12 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(sanitizeError(authError, 'auth'), { status: 401 });
     }
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json(
-        { error: 'Cart items are required' },
+        sanitizeError('Cart items are required', 'validation'),
         { status: 400 }
       );
     }
@@ -91,7 +110,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error('Stripe checkout error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      sanitizeError(error, 'server'),
       { status: 500 }
     );
   }

@@ -37,6 +37,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
+// Safe date formatting to prevent hydration issues
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Use a format that's consistent across server/client
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+}
+
 type Product = Tables<"products">;
 type OrderItem = Tables<"order_items"> & { products: Product | null };
 type OrderWithItems = Tables<"orders"> & { order_items: OrderItem[] };
@@ -271,7 +278,7 @@ export default function DashboardClient({
                             {order.id.substring(0, 8)}...
                           </TableCell>
                           <TableCell style={{ color: "var(--color-light)" }}>
-                            {new Date(order.created_at).toLocaleDateString()}
+                            {formatDate(order.created_at)}
                           </TableCell>
                           <TableCell>
                             <span

@@ -61,10 +61,12 @@ function ParallaxText({
       }
     };
 
-    calculateRepetitions();
-
-    window.addEventListener("resize", calculateRepetitions);
-    return () => window.removeEventListener("resize", calculateRepetitions);
+    // Only run on client side to avoid hydration issues
+    if (typeof window !== 'undefined') {
+      calculateRepetitions();
+      window.addEventListener("resize", calculateRepetitions);
+      return () => window.removeEventListener("resize", calculateRepetitions);
+    }
   }, [children]);
 
   const x = useTransform(baseX, (v) => `${wrap(-100 / repetitions, 0, v)}%`);

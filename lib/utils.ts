@@ -18,15 +18,17 @@ export function getPublicImageUrl(path: string): string {
     return path;
   }
 
-  const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`;
+  // Get Supabase URL with fallback
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://auth.hyperwear.io";
+  const storageUrl = `${supabaseUrl}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name
   if (path.includes("/")) {
-    return `${supabaseUrl}${path}`;
+    return `${storageUrl}${path}`;
   }
 
   // Otherwise, use the default 'product-images' bucket
-  return `${supabaseUrl}product-images/${path}`;
+  return `${storageUrl}product-images/${path}`;
 }
 
 // Utility to clear potentially broken cart data from localStorage

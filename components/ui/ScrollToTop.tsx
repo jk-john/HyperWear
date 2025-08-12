@@ -5,10 +5,11 @@ import { ChevronUp } from "lucide-react";
 
 export const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Show button when user scrolls down 400px
   const toggleVisibility = () => {
-    if (window.scrollY > 400) {
+    if (typeof window !== 'undefined' && window.scrollY > 400) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -16,18 +17,28 @@ export const ScrollToTop = () => {
   };
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", toggleVisibility);
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
+    setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("scroll", toggleVisibility);
+      return () => {
+        window.removeEventListener("scroll", toggleVisibility);
+      };
+    }
   }, []);
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>

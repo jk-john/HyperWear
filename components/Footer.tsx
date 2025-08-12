@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Socials } from "./Socials";
 
-const currentYear = new Date().getFullYear();
-
 const Footer = () => {
+  const [currentYear, setCurrentYear] = useState(2025); // Default fallback
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
   return (
     <footer className="text-white" style={{ background: 'linear-gradient(to bottom right, var(--color-forest), var(--color-dark), var(--color-deep))' }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

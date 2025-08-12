@@ -3,10 +3,36 @@
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getPublicImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+
+// Local utility function to handle image URLs
+function getPublicImageUrl(path: string): string {
+  if (!path) return "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/tee-shirt.webp";
+
+  // If the path is already a full URL, return it directly
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  // If the path starts with a slash, it's a local public path
+  if (path.startsWith("/")) {
+    return path;
+  }
+
+  // Get Supabase URL with fallback
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://auth.hyperwear.io";
+  const storageUrl = `${supabaseUrl}/storage/v1/object/public/`;
+
+  // If the path includes a slash, it's assumed to contain the bucket name
+  if (path.includes("/")) {
+    return `${storageUrl}${path}`;
+  }
+
+  // Otherwise, use the default 'product-images' bucket
+  return `${storageUrl}product-images/${path}`;
+}
 
 interface Collection {
   title: string;
@@ -115,7 +141,7 @@ const CollectionCard = ({ collection, priority }: { collection: Collection; prio
 
 const CollectionsClient = ({ images, collections }: CollectionsClientProps) => {
   const carouselImages = useMemo(() => images, [images]);
-  const [shuffledImages, setShuffledImages] = useState<string[]>([]);
+  const [shuffledImages, setShuffledImages] = useState<string[]>(images);
   const [isLoading, setIsLoading] = useState(true);
 
   // Optimized shuffle and load for mobile performance

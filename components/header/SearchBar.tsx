@@ -2,14 +2,19 @@
 
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export const SearchBar = () => {
+  const router = useRouter();
+
   return (
     <form
       action={(formData) => {
         const query = formData.get("q");
         if (typeof query === "string" && query.trim() !== "") {
-          window.location.href = `/search?q=${encodeURIComponent(query)}`;
+          if (typeof window !== 'undefined') {
+            router.push(`/search?q=${encodeURIComponent(query)}`);
+          }
         }
       }}
       className="hidden items-center md:flex"

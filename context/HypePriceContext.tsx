@@ -16,6 +16,7 @@ export function HypePriceProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const fetchHypePrice = async () => {
     try {
@@ -44,6 +45,8 @@ export function HypePriceProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    setIsMounted(true);
+    
     // Initial fetch
     fetchHypePrice();
     
@@ -52,6 +55,15 @@ export function HypePriceProvider({ children }: { children: ReactNode }) {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Prevent hydration mismatch by not rendering dynamic content until mounted
+  if (!isMounted) {
+    return (
+      <HypePriceContext.Provider value={{ hypePrice: null, isLoading: true, error: null, lastUpdated: null }}>
+        {children}
+      </HypePriceContext.Provider>
+    );
+  }
 
   return (
     <HypePriceContext.Provider value={{ hypePrice, isLoading, error, lastUpdated }}>

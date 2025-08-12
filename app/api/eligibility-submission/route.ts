@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
-import { NextResponse } from "next/server";
+import { rateLimit, getClientIdentifier, sanitizeError } from "@/lib/security";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Validation schema for eligibility submission
@@ -16,8 +17,26 @@ const submissionSchema = z.object({
   submission_type: z.string().default("purr_nft"),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimitResult = rateLimit(clientId, { maxRequests: 10, windowMs: 60000 }); // 10 requests per minute
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        sanitizeError('rate_limit', 'rate_limit'),
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
+          }
+        }
+      );
+    }
+
     const supabase = await createClient();
     
     // Check if user is authenticated
@@ -25,7 +44,7 @@ export async function POST(request: Request) {
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Authentication required. Please sign in to submit." },
+        sanitizeError(authError, 'auth'),
         { status: 401 }
       );
     }
@@ -60,7 +79,7 @@ export async function POST(request: Request) {
       // PGRST116 is "not found" error, which is expected if no submission exists
       console.error("Error checking existing submission:", checkError);
       return NextResponse.json(
-        { error: "Failed to check existing submissions" },
+        sanitizeError(checkError, 'server'),
         { status: 500 }
       );
     }
@@ -91,7 +110,7 @@ export async function POST(request: Request) {
     if (insertError) {
       console.error("Error inserting submission:", insertError);
       return NextResponse.json(
-        { error: "Failed to submit eligibility information" },
+        sanitizeError(insertError, 'server'),
         { status: 500 }
       );
     }
@@ -109,7 +128,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Unexpected error in eligibility submission:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      sanitizeError(error, 'server'),
       { status: 500 }
     );
   }
