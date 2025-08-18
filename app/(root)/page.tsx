@@ -1,16 +1,11 @@
 import Hero from "@/components/Hero";
-import { Suspense } from "react";
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
 // Dynamically import heavy components to improve initial page load
-const AllProducts = dynamic(() => import("@/components/AllProducts"), {
+const HomeProductsSection = dynamic(() => import("@/components/HomeProductsSection"), {
   loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" />,
   ssr: true, // Server-side render for SEO
-});
-
-const FeaturedProducts = dynamic(() => import("@/components/FeaturedProducts"), {
-  loading: () => <div className="h-64 animate-pulse bg-gray-100 rounded-lg" />,
-  ssr: true,
 });
 
 const DynamicImageShowcaseWrapper = dynamic(() => import("@/components/DynamicImageShowcaseWrapper"), {
@@ -190,12 +185,8 @@ export default function Home() {
           <p>Free shipping on orders over $60!</p>
         </div>
         
-        <Suspense fallback={<div className="h-64 animate-pulse bg-gray-100 rounded-lg mx-4" />}>
-          <FeaturedProducts />
-        </Suspense>
-        
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-lg mx-4" />}>
-          <AllProducts />
+          <HomeProductsSection />
         </Suspense>
       </div>
     </>
