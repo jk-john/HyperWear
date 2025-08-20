@@ -16,6 +16,13 @@ import {
 import { Database } from "@/types/supabase";
 import { createClient } from "@/utils/supabase/server";
 
+// Safe date formatting to prevent hydration issues
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Use a format that's consistent across server/client
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+}
+
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -84,7 +91,7 @@ export default async function OrdersPage() {
                 Order #{order.id.substring(0, 8)}
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Placed on {new Date(order.created_at!).toLocaleDateString()}
+                Placed on {formatDate(order.created_at!)}
               </CardDescription>
             </CardHeader>
             <CardContent className="bg-white">

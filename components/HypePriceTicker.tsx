@@ -9,6 +9,11 @@ export function HypePriceTicker() {
   const { hypePrice, isLoading, lastUpdated } = useHypePrice();
   const [previousPrice, setPreviousPrice] = useState<number | null>(null);
   const [priceDirection, setPriceDirection] = useState<'up' | 'down' | 'neutral'>('neutral');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (hypePrice && previousPrice !== null) {
@@ -24,6 +29,11 @@ export function HypePriceTicker() {
       setPreviousPrice(hypePrice);
     }
   }, [hypePrice, previousPrice]);
+
+  // Prevent hydration issues with time formatting
+  if (!isMounted) {
+    return null;
+  }
 
   if (isLoading) {
     return (

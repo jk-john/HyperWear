@@ -1,8 +1,16 @@
 import Hero from "@/components/Hero";
-import AllProducts from "@/components/AllProducts";
-import FeaturedProducts from "@/components/FeaturedProducts";
-import DynamicImageShowcaseWrapper from "@/components/DynamicImageShowcaseWrapper";
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
+
+// Dynamically import heavy components to improve initial page load
+const HomeProductsSection = dynamic(() => import("@/components/HomeProductsSection"), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" />,
+  ssr: true, // Server-side render for SEO
+});
+
+const DynamicImageShowcaseWrapper = dynamic(() => import("@/components/DynamicImageShowcaseWrapper"), {
+  loading: () => <div className="h-80 animate-pulse bg-gray-100 rounded-lg" />,
+});
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -177,12 +185,8 @@ export default function Home() {
           <p>Free shipping on orders over $60!</p>
         </div>
         
-        <Suspense fallback={<div className="h-64 animate-pulse bg-gray-100 rounded-lg mx-4" />}>
-          <FeaturedProducts />
-        </Suspense>
-        
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-lg mx-4" />}>
-          <AllProducts />
+          <HomeProductsSection />
         </Suspense>
       </div>
     </>

@@ -12,6 +12,13 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+// Safe date formatting to prevent hydration issues
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Use a format that's consistent across server/client
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+}
+
 type Product = Tables<"products">;
 type OrderItem = Tables<"order_items"> & { products: Product | null };
 type OrderWithItems = Tables<"orders"> & { order_items: OrderItem[] };
@@ -83,7 +90,7 @@ export default async function OrderDetailsPage(
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Order Date:</span>
-                  <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                  <span>{formatDate(order.created_at)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Payment Method:</span>

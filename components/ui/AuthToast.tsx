@@ -11,6 +11,9 @@ export function AuthToast() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const welcomeMessage = searchParams.get("welcome_message");
     const genericMessage = searchParams.get("message");
 
@@ -30,7 +33,6 @@ export function AuthToast() {
       router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
 
-    // Only access window object on client-side to prevent hydration issues
     if (typeof window !== 'undefined') {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       if (hashParams.get("type") === "email_change") {
@@ -56,6 +58,9 @@ export function AuthToast() {
   }, []);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const supabase = createClient();
     const {
       data: { subscription },
@@ -65,7 +70,9 @@ export function AuthToast() {
         typeof window !== 'undefined' &&
         window.location.hash.includes("access_token")
       ) {
-        const hasShownToast = typeof window !== 'undefined' ? sessionStorage.getItem("signupWelcomeToast") : null;
+        const hasShownToast = typeof sessionStorage !== 'undefined' 
+          ? sessionStorage.getItem("signupWelcomeToast")
+          : null;
         if (!hasShownToast && session?.user) {
           const userName =
             session.user.user_metadata.name ||
@@ -74,16 +81,18 @@ export function AuthToast() {
           toast.success(
             `Welcome ${userName}, you are now signed in. Happy Shopping!`,
           );
-          if (typeof window !== 'undefined') {
+          if (typeof sessionStorage !== 'undefined') {
             sessionStorage.setItem("signupWelcomeToast", "true");
           }
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname + window.location.search,
-          );
+          if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname + window.location.search,
+            );
+          }
         }
-      } else if (event === "SIGNED_OUT" && typeof window !== 'undefined') {
+      } else if (event === "SIGNED_OUT" && typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem("signupWelcomeToast");
       }
     });

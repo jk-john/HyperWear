@@ -8,15 +8,17 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
-  Dialog,
-  DialogContent,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    VisuallyHidden,
 } from "./ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "./ui/select";
 
 interface ProductImageModalProps {
@@ -94,6 +96,9 @@ export const ProductImageModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-4xl h-auto max-h-[calc(100vh-32px)] bg-white dark:bg-gray-900 border-0 p-0 overflow-hidden [&>button.absolute.top-4.right-4]:hidden">
+        <VisuallyHidden>
+          <DialogTitle>{product.name}</DialogTitle>
+        </VisuallyHidden>
         {/* Close Button */}
         <Button
           variant="ghost"

@@ -9,19 +9,25 @@ interface DynamicImageShowcaseProps {
 }
 
 export function DynamicImageShowcase({ images }: DynamicImageShowcaseProps) {
-  const [shuffledImages, setShuffledImages] = useState<string[]>([]);
+  const [shuffledImages, setShuffledImages] = useState<string[]>(images);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Shuffle the original images first
+    setMounted(true);
+    // Shuffle the original images after mounting
     const shuffled = [...images].sort(() => Math.random() - 0.5);
     setShuffledImages(shuffled);
   }, [images]);
+
+  // Use original images array for SSR consistency
+  const displayImages = mounted ? shuffledImages : images;
 
   return (
     <div className="w-full overflow-hidden py-6">
       {/* Single Row - Moving Left */}
       <div className="flex space-x-4">
         <motion.div
+          initial={false}
           className="flex space-x-4 shrink-0"
           animate={{
             x: [0, -2000],
@@ -35,8 +41,8 @@ export function DynamicImageShowcase({ images }: DynamicImageShowcaseProps) {
             },
           }}
         >
-          {/* Create seamless loop by duplicating the shuffled array */}
-          {shuffledImages.concat(shuffledImages).concat(shuffledImages).map((image, index) => (
+          {/* Create seamless loop by duplicating the display array */}
+          {displayImages.concat(displayImages).concat(displayImages).map((image, index) => (
             <motion.div
               key={`${image}-${index}`}
               className="relative group cursor-pointer"
