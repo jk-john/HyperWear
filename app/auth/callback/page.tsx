@@ -1,127 +1,53 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 
-export default function AuthCallbackPage() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function AuthCallback() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleAuth = async () => {
+    (async () => {
       try {
-        const supabase = createClient();
-        
-        // Check for OAuth/PKCE code parameter
-        const code = searchParams.get("code");
-        
-        if (code) {
-          // Handle OAuth/PKCE flow
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (error) {
-            throw new Error(error.message);
-          }
-          
-          if (!data.user) {
-            throw new Error("No user found after authentication");
-          }
-          
-          // Success - redirect to post-auth page
-          const userName =
-            data.user.user_metadata?.first_name ||
-            data.user.user_metadata?.name ||
-            data.user.email?.split("@")[0] ||
-            "there";
+        const url = new URL(window.location.href);
 
-          const welcomeMessage = `Welcome ${userName}, you are now signed in. Happy Shopping!`;
-          
-          // Clean history and redirect
-          window.history.replaceState({}, document.title, "/welcome");
-          router.replace(`/welcome?welcome_message=${encodeURIComponent(welcomeMessage)}`);
+        // 1) PKCE flow (?code=...)
+        const code = url.searchParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession({ code });
+          if (error) throw error;
+          window.history.replaceState({}, "", "/");
+          router.replace("/");
           return;
         }
-        
-        // Check for magic/email hash tokens
-        const hash = window.location.hash;
-        if (hash) {
-          // Parse hash parameters
-          const hashParams = new URLSearchParams(hash.substring(1));
-          const accessToken = hashParams.get("access_token");
-          const refreshToken = hashParams.get("refresh_token");
-          
-          if (accessToken && refreshToken) {
-            // Handle magic/email hash flow
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-            
-            if (error) {
-              throw new Error(error.message);
-            }
-            
-            if (!data.user) {
-              throw new Error("No user found after setting session");
-            }
-            
-            // Success - redirect to post-auth page
-            const userName =
-              data.user.user_metadata?.first_name ||
-              data.user.user_metadata?.name ||
-              data.user.email?.split("@")[0] ||
-              "there";
 
-            const welcomeMessage = `Welcome ${userName}, you are now signed in. Happy Shopping!`;
-            
-            // Clean history and redirect
-            window.history.replaceState({}, document.title, "/welcome");
-            router.replace(`/welcome?welcome_message=${encodeURIComponent(welcomeMessage)}`);
+        // 2) Hash token flow (#access_token=...&refresh_token=...)
+        if (window.location.hash?.length) {
+          const hash = new URLSearchParams(window.location.hash.slice(1));
+          const access_token = hash.get("access_token");
+          const refresh_token = hash.get("refresh_token");
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (error) throw error;
+            window.history.replaceState({}, "", "/");
+            router.replace("/");
             return;
           }
         }
-        
-        // No valid authentication parameters found
-        throw new Error("Missing authentication parameters");
-        
-      } catch (authError) {
-        console.error("Auth callback error:", authError);
-        const errorMessage = authError instanceof Error ? authError.message : "Authentication failed";
-        
-        // Redirect to error page
-        router.replace(`/auth/auth-code-error?error=${encodeURIComponent(errorMessage)}`);
-      } finally {
-        setIsLoading(false);
+
+        // Fallback
+        router.replace("/auth/auth-code-error?error=Missing authentication parameters");
+      } catch (err: any) {
+        router.replace("/auth/auth-code-error?error=" + encodeURIComponent(err?.message || "Auth callback failed"));
       }
-    };
+    })();
+  }, [router]);
 
-    handleAuth();
-  }, [searchParams, router]);
-
-  // Show loading state while processing
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-6 rounded-2xl border border-blue-500/20 bg-gradient-to-b from-blue-950/50 to-blue-900/50 p-8 text-center shadow-xl backdrop-blur-sm">
-          <div className="space-y-4">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/20">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-            </div>
-            
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-white">Signing you in…</h1>
-              <p className="text-blue-200">
-                Please wait while we verify your authentication.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // This should not be reached as we redirect on both success and error
-  return null;
+  return <div className="mx-auto max-w-md p-8 text-center">Signing you in…</div>;
 }
