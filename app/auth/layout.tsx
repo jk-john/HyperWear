@@ -1,6 +1,6 @@
 // app/auth/layout.tsx
-import { AuthToast } from "@/components/ui/AuthToast.jsx";
-import { Toaster } from "@/components/ui/sonner.jsx";
+import { AuthToast } from "@/components/ui/AuthToast";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
