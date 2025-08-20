@@ -9,6 +9,22 @@ export async function middleware(request: NextRequest) {
 
   const { supabase, response } = createClient(request);
 
+  // Handle auth callback explicitly for email confirmations
+  if (request.nextUrl.pathname === "/auth/callback") {
+    // For auth callbacks, let Supabase handle session establishment
+    // The SSR client should automatically process auth tokens
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    
+    // If session was established, continue to callback page which will redirect
+    if (session) {
+      console.log("Middleware: Session established for", session.user.email);
+    }
+    
+    return response;
+  }
+
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
   const {

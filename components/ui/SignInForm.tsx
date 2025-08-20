@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -34,10 +34,34 @@ const formSchema = z.object({
   }),
 });
 
-export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
+export function SignInForm({ callbackUrl, successMessage }: { callbackUrl?: string; successMessage?: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Show success message if provided
+  React.useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage);
+    }
+  }, [successMessage]);
+
+  // Check if user is already signed in and redirect
+  React.useEffect(() => {
+    const checkAuthStatus = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session && successMessage) {
+        // User is signed in and we have a success message, redirect after a short delay
+        setTimeout(() => {
+          router.push(callbackUrl || "/dashboard");
+        }, 2000); // 2 second delay to show the success message
+      }
+    };
+    
+    checkAuthStatus();
+  }, [successMessage, callbackUrl, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

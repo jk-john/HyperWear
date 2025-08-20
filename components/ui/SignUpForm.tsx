@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useId, useMemo, useState, useCallback, useRef } from "react";
+import React, { useId, useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -16,14 +16,21 @@ import { Icons } from "./icons";
 
 async function checkEmailExists(email: string): Promise<{ exists: boolean; providers: string[] } | null> {
   try {
+    const normalizedEmail = email.trim().toLowerCase();
     const res = await fetch("/api/auth/check-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: normalizedEmail }),
     });
-    if (!res.ok) return null;
+    
+    if (!res.ok) {
+      console.warn(`Email check failed (${res.status}):`, await res.text());
+      return null;
+    }
+    
     return res.json();
-  } catch {
+  } catch (error) {
+    console.warn("Email check error:", error);
     return null;
   }
 }
@@ -213,10 +220,17 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export const SignupForm = () => {
+export const SignupForm = ({ errorType, errorMessage }: { errorType?: string; errorMessage?: string } = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [highlightGoogle, setHighlightGoogle] = useState(false);
   const router = useRouter();
+
+  // Show error message if provided
+  useEffect(() => {
+    if (errorType === "expired" && errorMessage) {
+      toast.error(errorMessage);
+    }
+  }, [errorType, errorMessage]);
   const id = useId();
   const debounceTimer = useRef<NodeJS.Timeout>();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -239,10 +253,11 @@ export const SignupForm = () => {
     }
     
     debounceTimer.current = setTimeout(async () => {
-      if (!email || !email.includes('@')) return;
+      const normalizedEmail = email.trim().toLowerCase();
+      if (!normalizedEmail || !normalizedEmail.includes('@')) return;
       
-      const probe = await checkEmailExists(email);
-      if (probe?.exists && probe.providers.includes("google")) {
+      const probe = await checkEmailExists(normalizedEmail);
+      if (probe?.exists && probe.providers?.includes("google")) {
         setHighlightGoogle(true);
         // Auto-hide highlight after 3 seconds
         setTimeout(() => setHighlightGoogle(false), 3000);
@@ -257,8 +272,11 @@ export const SignupForm = () => {
     
     try {
       // Check if email already exists before proceeding with signup
-      const probe = await checkEmailExists(values.email);
-      if (probe?.exists) {
+      const normalizedEmail = values.email.trim().toLowerCase();
+      const probe = await checkEmailExists(normalizedEmail);
+      
+      // Only block signup if user exists AND has valid providers
+      if (probe?.exists && probe.providers && probe.providers.length > 0) {
         if (probe.providers.includes("google")) {
           toast.error("This email is already registered with Google. Please continue with Google.");
           setHighlightGoogle(true);
@@ -269,9 +287,13 @@ export const SignupForm = () => {
           toast.error("An account with this email already exists. Try signing in or reset your password.");
           return;
         }
+        // Handle other providers
         toast.error(`This email is registered with ${probe.providers.join(", ")}. Use that provider to continue.`);
         return;
       }
+      
+      // If user exists but has no providers, OR if user doesn't exist, proceed with signup
+      // This prevents false positives from blocking legitimate signups
 
       // Proceed with existing signup flow
       const response = await fetch("/api/auth/sign-up", {
@@ -280,7 +302,7 @@ export const SignupForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: values.email,
+          email: normalizedEmail,
           password: values.password,
           firstName: values.firstName,
           lastName: values.lastName,
@@ -310,12 +332,21 @@ export const SignupForm = () => {
 
   const handleClientSideSignUp = async (values: z.infer<typeof formSchema>) => {
     try {
+      const normalizedEmail = values.email.trim().toLowerCase();
       const supabase = createClient();
+      // Use environment-aware callback URL for both dev and production
+      const redirectUrl = getSupabaseCallbackUrl() + "?type=signup";
+      
+      // Debug logging for client-side signup
+      console.log("🔍 CLIENT SIGNUP DEBUG:");
+      console.log("- Generated redirectUrl:", redirectUrl);
+      console.log("- User email:", normalizedEmail);
+      
       const { data, error } = await supabase.auth.signUp({
-        email: values.email,
+        email: normalizedEmail,
         password: values.password,
         options: {
-          emailRedirectTo: "https://hyperwear.io/auth/callback",
+          emailRedirectTo: redirectUrl,
           data: {
             first_name: values.firstName,
             last_name: values.lastName,

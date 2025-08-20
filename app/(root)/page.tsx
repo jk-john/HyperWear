@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import AuthTokenHandler from "@/components/AuthTokenHandler";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -121,6 +122,9 @@ export default function Home() {
 
   return (
     <>
+      {/* Handle auth tokens if they land on homepage instead of callback */}
+      <AuthTokenHandler />
+      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

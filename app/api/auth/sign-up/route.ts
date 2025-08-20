@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseCallbackUrl } from "@/lib/supabase/utils";
 
 export const runtime = "nodejs";
 
@@ -15,10 +16,21 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
+    // Use environment-aware callback URL for both dev and production
+    const redirectUrl = getSupabaseCallbackUrl() + "?type=signup";
+    
+    // Debug logging to see what redirect URL is being used
+    console.log("🔍 SIGNUP DEBUG:");
+    console.log("- NEXT_PUBLIC_SITE_URL:", process.env.NEXT_PUBLIC_SITE_URL);
+    console.log("- Generated redirectUrl:", redirectUrl);
+    console.log("- User email:", email);
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: "https://hyperwear.io/auth/callback" },
+      options: { 
+        emailRedirectTo: redirectUrl
+      },
     });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
