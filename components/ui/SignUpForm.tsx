@@ -8,11 +8,25 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useId, useMemo, useState } from "react";
+import React, { useId, useMemo, useState, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Icons } from "./icons";
+
+async function checkEmailExists(email: string): Promise<{ exists: boolean; providers: string[] } | null> {
+  try {
+    const res = await fetch("/api/auth/check-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
 const BottomGradient = () => {
   return (
@@ -201,8 +215,10 @@ const formSchema = z
 
 export const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightGoogle, setHighlightGoogle] = useState(false);
   const router = useRouter();
   const id = useId();
+  const debounceTimer = useRef<NodeJS.Timeout>();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -217,9 +233,47 @@ export const SignupForm = () => {
   const passwordId = useId();
   const confirmPasswordId = useId();
 
+  const debouncedEmailCheck = useCallback(async (email: string) => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    
+    debounceTimer.current = setTimeout(async () => {
+      if (!email || !email.includes('@')) return;
+      
+      const probe = await checkEmailExists(email);
+      if (probe?.exists && probe.providers.includes("google")) {
+        setHighlightGoogle(true);
+        // Auto-hide highlight after 3 seconds
+        setTimeout(() => setHighlightGoogle(false), 3000);
+      } else {
+        setHighlightGoogle(false);
+      }
+    }, 250);
+  }, []);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    
     try {
+      // Check if email already exists before proceeding with signup
+      const probe = await checkEmailExists(values.email);
+      if (probe?.exists) {
+        if (probe.providers.includes("google")) {
+          toast.error("This email is already registered with Google. Please continue with Google.");
+          setHighlightGoogle(true);
+          setTimeout(() => setHighlightGoogle(false), 3000);
+          return;
+        }
+        if (probe.providers.includes("email")) {
+          toast.error("An account with this email already exists. Try signing in or reset your password.");
+          return;
+        }
+        toast.error(`This email is registered with ${probe.providers.join(", ")}. Use that provider to continue.`);
+        return;
+      }
+
+      // Proceed with existing signup flow
       const response = await fetch("/api/auth/sign-up", {
         method: "POST",
         headers: {
@@ -306,7 +360,10 @@ export const SignupForm = () => {
 
       <div className="mb-6 flex flex-col space-y-4">
         <button
-          className="group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]"
+          className={cn(
+            "group/btn relative flex h-10 w-full items-center justify-center space-x-2 rounded-md border border-[var(--color-emerald)] bg-[var(--color-deep)] px-4 font-medium text-[var(--color-light)] shadow-lg transition-all duration-300 ease-in-out hover:bg-[var(--color-emerald)]",
+            highlightGoogle && "animate-pulse ring-2 ring-blue-400 ring-opacity-75"
+          )}
           type="button"
           onClick={() => handleOAuthSignIn("google")}
         >
@@ -369,6 +426,7 @@ export const SignupForm = () => {
             placeholder="john.doe@example.com"
             type="email"
             {...form.register("email")}
+            onBlur={(e) => debouncedEmailCheck(e.target.value)}
             className="border-[var(--color-mint)] bg-[var(--color-emerald)] text-[var(--color-light)] placeholder:text-[var(--color-accent)]"
           />
           {form.formState.errors.email && (
