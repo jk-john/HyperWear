@@ -1,6 +1,5 @@
 // app/auth/layout.tsx
 import { AuthToast } from "@/components/ui/AuthToast";
-import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -17,7 +16,6 @@ export default function AuthLayout({
   return (
     <>
       {children}
-      <Toaster />
       <Suspense>
         <AuthToast />
       </Suspense>

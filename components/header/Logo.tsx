@@ -11,6 +11,7 @@ export const Logo = () => {
           width={250}
           height={250}
           className="cursor-pointer"
+         
         />
       </Link>
     </>

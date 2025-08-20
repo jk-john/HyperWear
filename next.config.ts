@@ -71,7 +71,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.youtube.com *.twitter.com *.vercel-scripts.com",
               "child-src *.youtube.com *.google.com *.twitter.com",
               "style-src 'self' 'unsafe-inline' *.googleapis.com",
               "img-src 'self' data: blob: https:",

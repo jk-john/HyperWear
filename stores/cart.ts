@@ -167,15 +167,17 @@ export const useCartStore = create<CartState>()(
         const result = await cancelOrder(orderToCancel.id);
 
         if (result.success) {
-          toast.success("Your pending order has been cancelled.");
           const currentTimerId = get().timerId;
           if (currentTimerId) {
             clearInterval(currentTimerId);
           }
           set({ pendingOrder: null, timeLeft: null, timerId: null, cartItems: [] });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success("Your pending order has been cancelled."), 0);
         } else {
-          toast.error(result.error || "Failed to cancel your order.");
           console.error("Error cancelling order:", result.error);
+          // Toast after logging to avoid render-time calls
+          setTimeout(() => toast.error(result.error || "Failed to cancel your order."), 0);
         }
       },
 
@@ -193,48 +195,52 @@ export const useCartStore = create<CartState>()(
         const variantName = product.name.split(" - ")[1];
         const imageUrl = getCartImageUrl(product, variantName);
 
-        set((state) => {
-          const itemInCart = state.cartItems.find(
-            (item) => item.cartItemId === cartItemId,
-          );
-          if (itemInCart) {
-            toast.success(`Added another ${product.name} to your cart.`);
-            return {
-              cartItems: state.cartItems.map((item) =>
-                item.cartItemId === cartItemId
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item,
-              ),
-            };
-          } else {
-            const sizeColorText = [size, color].filter(Boolean).join(", ");
-            toast.success(
-              `Added ${product.name}${sizeColorText ? ` (${sizeColorText})` : ""} to your cart.`,
-            );
-            return {
-              cartItems: [
-                ...state.cartItems,
-                { ...product, quantity: 1, size, color, cartItemId, imageUrl },
-              ],
-            };
-          }
-        });
+        const state = get();
+        const itemInCart = state.cartItems.find(
+          (item) => item.cartItemId === cartItemId,
+        );
+
+        if (itemInCart) {
+          set({
+            cartItems: state.cartItems.map((item) =>
+              item.cartItemId === cartItemId
+                ? { ...item, quantity: item.quantity + 1 }
+                : item,
+            ),
+          });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(`Added another ${product.name} to your cart.`), 0);
+        } else {
+          const sizeColorText = [size, color].filter(Boolean).join(", ");
+          set({
+            cartItems: [
+              ...state.cartItems,
+              { ...product, quantity: 1, size, color, cartItemId, imageUrl },
+            ],
+          });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(
+            `Added ${product.name}${sizeColorText ? ` (${sizeColorText})` : ""} to your cart.`,
+          ), 0);
+        }
       },
 
       removeFromCart: (cartItemId) => {
-        set((state) => {
-          const item = state.cartItems.find(
-            (item) => item.cartItemId === cartItemId,
-          );
-          if (item) {
-            toast.success(`Removed ${item.name} from your cart.`);
-          }
-          return {
-            cartItems: state.cartItems.filter(
-              (item) => item.cartItemId !== cartItemId,
-            ),
-          };
+        const state = get();
+        const item = state.cartItems.find(
+          (item) => item.cartItemId === cartItemId,
+        );
+
+        set({
+          cartItems: state.cartItems.filter(
+            (item) => item.cartItemId !== cartItemId,
+          ),
         });
+
+        if (item) {
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(`Removed ${item.name} from your cart.`), 0);
+        }
       },
 
       updateQuantity: (cartItemId, quantity) => {

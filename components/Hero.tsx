@@ -32,6 +32,7 @@ export default function Hero() {
       {/* Dynamic Gradient Overlay */}
       <DynamicGradientOverlay />
 
+
       {/* Particle System - temporarily disabled */}
       {/* <ParticleCanvas /> */}
 

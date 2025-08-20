@@ -46,6 +46,8 @@ export const Cart = ({
   } = useCartStore();
 
   const [user, setUser] = useState<User | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -63,23 +65,62 @@ export const Cart = ({
     }
   }, [user, checkPendingOrder]);
 
+  // Reset navigation state when sheet closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsNavigating(false);
+    }
+  }, [isOpen]);
+
   const totalCartItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
   );
   const router = useRouter();
 
-  const handleCheckout = () => {
-    router.push("/checkout");
+  // Prefetch checkout routes for snappier navigation
+  useEffect(() => {
+    router.prefetch("/checkout");
+    if (pendingOrder) {
+      router.prefetch(
+        `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
+          pendingOrder.id
+        }`
+      );
+    }
+  }, [router, pendingOrder]);
+
+  const handleCheckout = async () => {
+    if (isNavigating) return; // Prevent double clicks
+    
+    setIsNavigating(true);
+    
+    try {
+      // SheetClose component will handle closing the sheet
+      await router.push("/checkout");
+    } catch (error) {
+      console.error("Navigation to checkout failed:", error);
+      // If navigation fails, reset the navigating state
+      setIsNavigating(false);
+    }
   };
 
-  const handleGoToPayment = () => {
-    if (pendingOrder) {
-      router.push(
+  const handleGoToPayment = async () => {
+    if (!pendingOrder || isNavigating) return; // Prevent double clicks
+    
+    setIsNavigating(true);
+    
+    try {
+      // SheetClose component will handle closing the sheet
+      await router.push(
         `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
           pendingOrder.id
         }`,
       );
+    } catch (error) {
+      console.error("Navigation to payment failed:", error);
+      // If navigation fails, reset the navigating state
+      setIsNavigating(false);
     }
   };
 
@@ -94,12 +135,13 @@ export const Cart = ({
       pendingOrder.payment_method === "USDHL");
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         {displayMode === "button" ? (
           <Button
             variant="ghost"
             className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 p-3 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+            onClick={() => setIsOpen(true)}
           >
             <ShoppingBag className="h-5 w-5" />
             <span>Cart</span>
@@ -114,6 +156,7 @@ export const Cart = ({
             variant="ghost"
             size="icon"
             className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
+            onClick={() => setIsOpen(true)}
           >
             <ShoppingBag className="h-8 w-8" />
             {(totalCartItems > 0 || hasPendingCryptoOrder) && (
@@ -244,12 +287,15 @@ export const Cart = ({
                 </div>
               )}
               <div className="w-full space-y-3">
-                <Button
-                  onClick={handleGoToPayment}
-                  className="bg-primary hover:bg-secondary font-body h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
-                >
-                  Complete Payment
-                </Button>
+                <SheetClose asChild>
+                  <Button
+                    onClick={handleGoToPayment}
+                    disabled={isNavigating}
+                    className="bg-primary hover:bg-secondary font-body h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isNavigating ? "Loading..." : "Complete Payment"}
+                  </Button>
+                </SheetClose>
                 <Button
                   onClick={handleCancelOrder}
                   variant="outline"
@@ -268,12 +314,15 @@ export const Cart = ({
               <p className="text-primary/60 mt-1 text-sm">
                 Shipping and taxes calculated at checkout.
               </p>
-              <Button
-                onClick={handleCheckout}
-                className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
-              >
-                Proceed to Checkout
-              </Button>
+              <SheetClose asChild>
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isNavigating}
+                  className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isNavigating ? "Loading..." : "Proceed to Checkout"}
+                </Button>
+              </SheetClose>
             </div>
           ) : null}
         </SheetFooter>
