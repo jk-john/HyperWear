@@ -225,26 +225,58 @@ export const SignupForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
       });
 
       const result = await response.json();
 
-      if (response.ok) {
-        toast.success(
-          "Welcome aboard! Please check your inbox to confirm your email.",
-        );
+      if (response.ok && result.ok) {
+        toast.success("Check your email to confirm your account.");
         router.push("/sign-in");
+      } else if (result.error) {
+        toast.error(result.error);
+      } else if (response.status >= 500) {
+        // Fallback: try client-side signup if API route fails with 500
+        await handleClientSideSignUp(values);
       } else {
-        toast.error(
-          result.error ||
-            "Hmm… something went wrong signing up. Please try again.",
-        );
+        toast.error("Something went wrong signing up. Please try again.");
       }
     } catch {
-      toast.error("Hmm… something went wrong signing up. Please try again.");
+      // Fallback: try client-side signup if API call fails entirely
+      await handleClientSideSignUp(values);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleClientSideSignUp = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          emailRedirectTo: "https://hyperwear.io/auth/callback",
+          data: {
+            first_name: values.firstName,
+            last_name: values.lastName,
+          },
+        },
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else if (data.user) {
+        toast.success("Check your email to confirm your account.");
+        router.push("/sign-in");
+      }
+    } catch {
+      toast.error("Failed to create account. Please try again.");
     }
   };
 

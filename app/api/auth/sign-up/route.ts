@@ -1,51 +1,30 @@
-import { getCallbackUrl } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/server";
-import { AuthApiError } from "@supabase/supabase-js";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-export async function POST(request: NextRequest) {
-  const { firstName, lastName, email, password } = await request.json();
+export const runtime = "nodejs";
 
-  if (!email || !password || !firstName || !lastName) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
-    );
-  }
-
-  const supabase = createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: getCallbackUrl(),
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-      },
-    },
-  });
-
-  if (error) {
-    console.error("Error signing up:", error);
-    if (error instanceof AuthApiError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+export async function POST(req: Request) {
+  try {
+    const { email, password } = await req.json();
+    if (!email || !password) {
+      return NextResponse.json({ error: "Missing email or password" }, { status: 400 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  if (!user) {
-    console.error("No user returned after sign-up");
-    return NextResponse.json(
-      { error: "An unexpected error occurred." },
-      { status: 500 }
-    );
-  }
 
-  return NextResponse.json(
-    { message: "Sign-up successful! Please check your email to verify." },
-    { status: 200 }
-  );
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: "https://hyperwear.io/auth/callback" },
+    });
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ ok: true, userId: data.user?.id ?? null }, { status: 200 });
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : "Internal error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
 } 
