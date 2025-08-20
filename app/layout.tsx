@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: `%s | HyperWear.io`,
   },
   description:
-    "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! ⭐ Premium quality ⭐ Free shipping $60+ ⭐ Exclusive designs ⭐ Fast worldwide delivery. Shop now at HyperWear.io!",
+    "HyperLiquid t-shirts, mugs & merchandise designed by the community!  Premium quality Free shipping $60+ Exclusive designs Fast worldwide delivery. Shop now at HyperWear.io",
   keywords: [
     "HyperLiquid merchandise",
     "HyperLiquid t-shirts", 
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+      "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
     images: [
       {
         url: "/og-preview.png",
@@ -93,7 +93,7 @@ export const metadata: Metadata = {
     creator: "@wear_hyper",
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+      "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
     images: ["/og-preview.png"],
   },
   alternates: {
@@ -127,8 +127,8 @@ export default function RootLayout({
         {/* Performance optimizations */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://jhxxuhisdypknlvhaklm.supabase.co" />
         <link rel="preconnect" href="https://api.hyperliquid.xyz" />
         
@@ -137,7 +137,7 @@ export default function RootLayout({
           __html: `
             /* Critical CSS for above-the-fold content */
             body { font-family: var(--font-body), system-ui, -apple-system, sans-serif; }
-            .hero-section { height: 100vh; position: relative; overflow: hidden; }
+            .hero-section { height: 100vh; position: relative; overflow: hidd en; }
             .hero-button { transition: all 0.3s ease; }
             .sticky { position: sticky; top: 0; z-index: 50; }
             .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
