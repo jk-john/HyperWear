@@ -14,16 +14,33 @@ export function getSupabaseCallbackUrl(next?: string) {
     console.log("🔍 Using detected window location:", baseUrl);
   }
   
-  const callbackPath = "/auth/callback";
-
-  const url = new URL(callbackPath, baseUrl);
-  if (next) url.searchParams.set("next", next);
+  // Ensure baseUrl ends with no trailing slash for proper URL construction
+  baseUrl = baseUrl.replace(/\/$/, "");
+  
+  // Construct the full callback URL
+  const callbackUrl = `${baseUrl}/auth/callback`;
+  
+  // Add next parameter if provided
+  if (next) {
+    const url = new URL(callbackUrl);
+    url.searchParams.set("next", next);
+    const finalUrl = url.toString();
+    
+    // Debug logging
+    console.log("🔍 getSupabaseCallbackUrl DEBUG (with next):");
+    console.log("- Original SITE_URL:", process.env.NEXT_PUBLIC_SITE_URL);
+    console.log("- Final baseUrl:", baseUrl);
+    console.log("- Callback URL:", callbackUrl);
+    console.log("- Final URL with params:", finalUrl);
+    
+    return finalUrl;
+  }
 
   // Debug logging
   console.log("🔍 getSupabaseCallbackUrl DEBUG:");
   console.log("- Original SITE_URL:", process.env.NEXT_PUBLIC_SITE_URL);
   console.log("- Final baseUrl:", baseUrl);
-  console.log("- Generated callback URL:", url.toString());
+  console.log("- Generated callback URL:", callbackUrl);
 
-  return url.toString();
+  return callbackUrl;
 } 
