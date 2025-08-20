@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
       // Email confirmation flow
       const result = await supabase.auth.verifyOtp({
         token_hash,
-        type: type as any,
+        type: type as EmailOtpType,
       });
       user = result.data.user;
       error = result.error;

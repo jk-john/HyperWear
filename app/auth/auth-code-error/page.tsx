@@ -31,7 +31,7 @@ export default function AuthCodeErrorPage({
               Authentication Error
             </h1>
             <p className="text-red-200">
-              We couldn't verify your email confirmation link.
+              We couldn&apos;t verify your email confirmation link.
             </p>
             {errorMessage && (
               <div className="mt-4 rounded-md bg-red-900/50 p-3">
@@ -52,7 +52,7 @@ export default function AuthCodeErrorPage({
 
         <div className="space-y-3">
           <p className="text-sm text-red-200">
-            Don't worry! You can try these options:
+            Don&apos;t worry! You can try these options:
           </p>
           
           <div className="space-y-2">
