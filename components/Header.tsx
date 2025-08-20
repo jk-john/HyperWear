@@ -24,10 +24,16 @@ import { useEffect, useState } from "react";
 export const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    if (!isClient) return;
+    
     const supabase = createClient();
     const checkUser = async () => {
       const {
@@ -47,7 +53,7 @@ export const Header = () => {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [isClient]);
 
   // Close mobile menu on route changes
   useEffect(() => {

@@ -47,11 +47,18 @@ function ParallaxText({
     clamp: false,
   });
 
-  const [repetitions, setRepetitions] = useState(1);
+  const [repetitions, setRepetitions] = useState(4); // Start with a safe default
+  const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
     const calculateRepetitions = () => {
       if (containerRef.current && textRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
@@ -63,9 +70,11 @@ function ParallaxText({
 
     calculateRepetitions();
 
-    window.addEventListener("resize", calculateRepetitions);
-    return () => window.removeEventListener("resize", calculateRepetitions);
-  }, [children]);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("resize", calculateRepetitions);
+      return () => window.removeEventListener("resize", calculateRepetitions);
+    }
+  }, [children, isClient]);
 
   const x = useTransform(baseX, (v) => `${wrap(-100 / repetitions, 0, v)}%`);
 

@@ -50,7 +50,5 @@ export const supabaseStorage = {
   }
 };
 
-// Pre-configured URLs for your media
-export const MEDIA_URLS = {
-  VIDEO_HOMEPAGE: supabaseStorage.getPublicUrl('media', 'videos/homepage-background.mp4'),
-} as const; 
+// Pre-configured URLs for your media (video URLs removed)
+// export const MEDIA_URLS = {} as const; 

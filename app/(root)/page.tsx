@@ -1,21 +1,8 @@
 import Hero from "@/components/Hero";
+import AllProducts from "@/components/AllProducts";
+import FeaturedProducts from "@/components/FeaturedProducts";
+import DynamicImageShowcaseWrapper from "@/components/DynamicImageShowcaseWrapper";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
-
-// Dynamically import heavy components to improve initial page load
-const AllProducts = dynamic(() => import("@/components/AllProducts"), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" />,
-  ssr: true, // Server-side render for SEO
-});
-
-const FeaturedProducts = dynamic(() => import("@/components/FeaturedProducts"), {
-  loading: () => <div className="h-64 animate-pulse bg-gray-100 rounded-lg" />,
-  ssr: true,
-});
-
-const DynamicImageShowcaseWrapper = dynamic(() => import("@/components/DynamicImageShowcaseWrapper"), {
-  loading: () => <div className="h-80 animate-pulse bg-gray-100 rounded-lg" />,
-});
 
 const jsonLd = {
   "@context": "https://schema.org",

@@ -1,32 +1,23 @@
 "use client";
 
-import { MEDIA_URLS } from "@/lib/supabase/storage";
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { Button } from "./ui/button";
 import { VelocityScroll } from "./ui/scroll-based-velocity";
 
 // Import new Hero components
 import DynamicGradientOverlay from "./hero/DynamicGradientOverlay";
-
-// Lazy load particle system for performance
-const ParticleCanvas = dynamic(() => import("./hero/ParticleCanvas"), { 
-  ssr: false,
-  loading: () => null 
-});
+// ParticleCanvas disabled to prevent HMR issues
 
 export default function Hero() {
-  const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <section 
-      className="video-hero relative h-screen w-full overflow-hidden"
+      className="hero-section relative h-screen w-full overflow-hidden"
       style={{ perspective: "1000px" }}
     >
-      {/* Priority poster image for faster LCP */}
+      {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/hyperwear.png"
@@ -34,31 +25,15 @@ export default function Hero() {
           fill
           priority
           quality={85}
-          className={`h-full w-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
+          className="h-full w-full object-cover"
         />
-      </div>
-      
-      {/* Optimized Video Background with lazy loading */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="none"
-          className={`h-full w-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoadedData={() => setVideoLoaded(true)}
-        >
-          <source src={MEDIA_URLS.VIDEO_HOMEPAGE} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
       </div>
 
       {/* Dynamic Gradient Overlay */}
       <DynamicGradientOverlay />
 
-      {/* Particle System */}
-      <ParticleCanvas />
+      {/* Particle System - temporarily disabled */}
+      {/* <ParticleCanvas /> */}
 
       {/* Content Container */}
       <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">

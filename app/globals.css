@@ -115,8 +115,8 @@ input:-webkit-autofill:active {
   caret-color: var(--color-light) !important;
 }
 
-/* Immersive Video Hero Styles */
-.video-hero {
+/* Hero Section Styles */
+.hero-section {
   position: relative;
   overflow: hidden;
   will-change: transform;
@@ -125,12 +125,6 @@ input:-webkit-autofill:active {
 /* Radial gradient utility */
 .bg-gradient-radial {
   background: radial-gradient(circle at center, var(--tw-gradient-stops));
-}
-
-.video-hero video {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
 }
 
 /* Smooth scroll behavior */

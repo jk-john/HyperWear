@@ -107,15 +107,19 @@ export function FloatingHypePriceTicker() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const isDismissed = localStorage.getItem("hypeTickerDismissed");
-    if (!isDismissed) {
-      setIsVisible(true);
+    if (typeof window !== 'undefined') {
+      const isDismissed = localStorage.getItem("hypeTickerDismissed");
+      if (!isDismissed) {
+        setIsVisible(true);
+      }
     }
   }, []);
 
   const handleDismiss = () => {
     setIsVisible(false);
-    localStorage.setItem("hypeTickerDismissed", "true");
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("hypeTickerDismissed", "true");
+    }
   };
 
   if (!isVisible) {

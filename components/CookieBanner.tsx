@@ -1,8 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import CookieConsent from "react-cookie-consent";
 
 export default function CookieBanner() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
   return (
     <CookieConsent
       location="bottom"

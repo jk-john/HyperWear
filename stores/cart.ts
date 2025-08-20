@@ -83,12 +83,20 @@ export const useCartStore = create<CartState>()(
             }
           };
           
-          // Initial call
-          updateTimer();
-          
-          // Set up interval (update every second)
-          const newTimerId = window.setInterval(updateTimer, 1000);
-          set({ timerId: newTimerId });
+          // Only set up timer on client-side to prevent hydration issues
+          if (typeof window !== 'undefined') {
+            // Initial call
+            updateTimer();
+            
+            // Set up interval (update every second)
+            const newTimerId = window.setInterval(updateTimer, 1000);
+            set({ timerId: newTimerId });
+          } else {
+            // Server-side: set consistent initial state
+            const now = new Date().getTime();
+            const serverDistance = expiryTime - now;
+            set({ timeLeft: Math.floor(serverDistance / 1000), timerId: null });
+          }
         } else {
           set({ timeLeft: null, timerId: null });
         }
@@ -250,7 +258,7 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => {
         const currentTimerId = get().timerId;
-        if (currentTimerId) {
+        if (currentTimerId && typeof window !== 'undefined') {
           clearInterval(currentTimerId);
         }
         set({ cartItems: [], pendingOrder: null, timeLeft: null, timerId: null });
@@ -258,7 +266,13 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage-v2",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => 
+        typeof window !== 'undefined' ? localStorage : {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {}
+        }
+      ),
     },
   ),
 );

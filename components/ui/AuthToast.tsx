@@ -30,10 +30,13 @@ export function AuthToast() {
       router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
 
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (hashParams.get("type") === "email_change") {
-      toast.success("Your email has been successfully verified!");
-      router.replace(pathname, { scroll: false });
+    // Only access window object on client-side to prevent hydration issues
+    if (typeof window !== 'undefined') {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      if (hashParams.get("type") === "email_change") {
+        toast.success("Your email has been successfully verified!");
+        router.replace(pathname, { scroll: false });
+      }
     }
   }, [searchParams, router, pathname]);
 
@@ -59,9 +62,10 @@ export function AuthToast() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (
         event === "SIGNED_IN" &&
+        typeof window !== 'undefined' &&
         window.location.hash.includes("access_token")
       ) {
-        const hasShownToast = sessionStorage.getItem("signupWelcomeToast");
+        const hasShownToast = typeof window !== 'undefined' ? sessionStorage.getItem("signupWelcomeToast") : null;
         if (!hasShownToast && session?.user) {
           const userName =
             session.user.user_metadata.name ||
@@ -70,14 +74,16 @@ export function AuthToast() {
           toast.success(
             `Welcome ${userName}, you are now signed in. Happy Shopping!`,
           );
-          sessionStorage.setItem("signupWelcomeToast", "true");
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem("signupWelcomeToast", "true");
+          }
           window.history.replaceState(
             {},
             document.title,
             window.location.pathname + window.location.search,
           );
         }
-      } else if (event === "SIGNED_OUT") {
+      } else if (event === "SIGNED_OUT" && typeof window !== 'undefined') {
         sessionStorage.removeItem("signupWelcomeToast");
       }
     });
