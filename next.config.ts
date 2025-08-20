@@ -120,6 +120,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  webpack: (config, { isServer }) => {
+    config.externals.push('original-fs');
+    if (isServer) {
+      config.externals.push('node-fetch-native');
+    }
+    config.module.exprContextCritical = false;
+    return config;
+  },
 };
 
 export default nextConfig;
