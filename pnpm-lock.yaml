@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: sha256-NImzlvJ2QNVnevFlWE2YIPS/HPMaZkvwj6ISsKHX3NY=
+
 importers:
 
   .:
@@ -193,7 +195,7 @@ importers:
         specifier: ^1.0.18
         version: 1.0.18
       glob:
-        specifier: ^11.0.3
+        specifier: ^11.0.0
         version: 11.0.3
       next-sitemap:
         specifier: ^4.2.3
