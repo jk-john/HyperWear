@@ -10,7 +10,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 interface CartItem extends Product {
   quantity: number;
   size?: string;
-  cartItemId: string; // Unique ID for the cart item (product.id + size)
+  color?: string;
+  cartItemId: string; // Unique ID for the cart item (product.id + size + color)
   imageUrl: string; // Full URL for the product image
 }
 
@@ -21,7 +22,7 @@ interface CartState {
   pendingOrder: Order | null;
   timeLeft: number | null;
   timerId: number | null;
-  addToCart: (product: Product, size?: string) => void;
+  addToCart: (product: Product, size?: string, color?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   totalPrice: () => number;
@@ -82,12 +83,20 @@ export const useCartStore = create<CartState>()(
             }
           };
           
-          // Initial call
-          updateTimer();
-          
-          // Set up interval (update every second)
-          const newTimerId = window.setInterval(updateTimer, 1000);
-          set({ timerId: newTimerId });
+          // Only set up timer on client-side to prevent hydration issues
+          if (typeof window !== 'undefined') {
+            // Initial call
+            updateTimer();
+            
+            // Set up interval (update every second)
+            const newTimerId = window.setInterval(updateTimer, 1000);
+            set({ timerId: newTimerId });
+          } else {
+            // Server-side: set consistent initial state
+            const now = new Date().getTime();
+            const serverDistance = expiryTime - now;
+            set({ timeLeft: Math.floor(serverDistance / 1000), timerId: null });
+          }
         } else {
           set({ timeLeft: null, timerId: null });
         }
@@ -135,7 +144,8 @@ export const useCartStore = create<CartState>()(
                 price: Number(item.price_at_purchase),
                 quantity: item.quantity,
                 size: item.size ?? undefined,
-                cartItemId: `${product.id!}-${item.size || "nosize"}`,
+                color: item.color ?? undefined,
+                cartItemId: `${product.id!}-${item.size || "nosize"}-${item.color || "nocolor"}`,
                 imageUrl: getCartImageUrl(product),
               };
             });
@@ -157,19 +167,21 @@ export const useCartStore = create<CartState>()(
         const result = await cancelOrder(orderToCancel.id);
 
         if (result.success) {
-          toast.success("Your pending order has been cancelled.");
           const currentTimerId = get().timerId;
           if (currentTimerId) {
             clearInterval(currentTimerId);
           }
           set({ pendingOrder: null, timeLeft: null, timerId: null, cartItems: [] });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success("Your pending order has been cancelled."), 0);
         } else {
-          toast.error(result.error || "Failed to cancel your order.");
           console.error("Error cancelling order:", result.error);
+          // Toast after logging to avoid render-time calls
+          setTimeout(() => toast.error(result.error || "Failed to cancel your order."), 0);
         }
       },
 
-      addToCart: (product, size) => {
+      addToCart: (product, size, color) => {
         if (get().pendingOrder) {
           toast.error(
             "You have a pending payment. Please complete or cancel it before adding new items.",
@@ -177,53 +189,58 @@ export const useCartStore = create<CartState>()(
           return;
         }
 
-        const cartItemId = `${product.id!}-${size || "nosize"}`;
+        const cartItemId = `${product.id!}-${size || "nosize"}-${color || "nocolor"}`;
 
         // Get the best image URL for this product variant
         const variantName = product.name.split(" - ")[1];
         const imageUrl = getCartImageUrl(product, variantName);
 
-        set((state) => {
-          const itemInCart = state.cartItems.find(
-            (item) => item.cartItemId === cartItemId,
-          );
-          if (itemInCart) {
-            toast.success(`Added another ${product.name} to your cart.`);
-            return {
-              cartItems: state.cartItems.map((item) =>
-                item.cartItemId === cartItemId
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item,
-              ),
-            };
-          } else {
-            toast.success(
-              `Added ${product.name}${size ? ` (${size})` : ""} to your cart.`,
-            );
-            return {
-              cartItems: [
-                ...state.cartItems,
-                { ...product, quantity: 1, size, cartItemId, imageUrl },
-              ],
-            };
-          }
-        });
+        const state = get();
+        const itemInCart = state.cartItems.find(
+          (item) => item.cartItemId === cartItemId,
+        );
+
+        if (itemInCart) {
+          set({
+            cartItems: state.cartItems.map((item) =>
+              item.cartItemId === cartItemId
+                ? { ...item, quantity: item.quantity + 1 }
+                : item,
+            ),
+          });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(`Added another ${product.name} to your cart.`), 0);
+        } else {
+          const sizeColorText = [size, color].filter(Boolean).join(", ");
+          set({
+            cartItems: [
+              ...state.cartItems,
+              { ...product, quantity: 1, size, color, cartItemId, imageUrl },
+            ],
+          });
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(
+            `Added ${product.name}${sizeColorText ? ` (${sizeColorText})` : ""} to your cart.`,
+          ), 0);
+        }
       },
 
       removeFromCart: (cartItemId) => {
-        set((state) => {
-          const item = state.cartItems.find(
-            (item) => item.cartItemId === cartItemId,
-          );
-          if (item) {
-            toast.success(`Removed ${item.name} from your cart.`);
-          }
-          return {
-            cartItems: state.cartItems.filter(
-              (item) => item.cartItemId !== cartItemId,
-            ),
-          };
+        const state = get();
+        const item = state.cartItems.find(
+          (item) => item.cartItemId === cartItemId,
+        );
+
+        set({
+          cartItems: state.cartItems.filter(
+            (item) => item.cartItemId !== cartItemId,
+          ),
         });
+
+        if (item) {
+          // Toast after state update to avoid render-time calls
+          setTimeout(() => toast.success(`Removed ${item.name} from your cart.`), 0);
+        }
       },
 
       updateQuantity: (cartItemId, quantity) => {
@@ -247,7 +264,7 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => {
         const currentTimerId = get().timerId;
-        if (currentTimerId) {
+        if (currentTimerId && typeof window !== 'undefined') {
           clearInterval(currentTimerId);
         }
         set({ cartItems: [], pendingOrder: null, timeLeft: null, timerId: null });
@@ -255,7 +272,13 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage-v2",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => 
+        typeof window !== 'undefined' ? localStorage : {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {}
+        }
+      ),
     },
   ),
 );

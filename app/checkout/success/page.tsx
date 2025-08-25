@@ -5,19 +5,19 @@ import { getPublicImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
 import {
-  CheckCircle,
-  Home,
-  Loader2,
-  Package,
-  ShoppingCart,
-  Truck,
+    CheckCircle,
+    Home,
+    Loader2,
+    Package,
+    ShoppingCart,
+    Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getOrderDetails } from "./actions";
+import { getOrderDetailsBySessionId } from "./actions";
 
 type OrderWithItems = Tables<"orders"> & {
   order_items: Array<{
@@ -38,48 +38,36 @@ function SuccessContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
+  const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
-    if (!orderId) {
-      setError("No order ID found.");
+    if (!sessionId) {
+      setError("No session ID found.");
       setLoading(false);
       return;
     }
 
     const fetchOrder = async () => {
-      // Retry logic to handle potential DB replication delay
-      for (let i = 0; i < 3; i++) {
-        const { order: fetchedOrder, error: fetchError } =
-          await getOrderDetails(orderId);
+      // The retry logic is now handled in getOrderDetailsBySessionId
+      const { order: fetchedOrder, error: fetchError } =
+        await getOrderDetailsBySessionId(sessionId);
 
-        if (fetchedOrder) {
-          setOrder(fetchedOrder as OrderWithItems);
-          clearCart();
-          localStorage.removeItem("shippingAddress");
-          toast.success(
-            "🎉 Order confirmed! We'll notify you once it's shipped.",
-          );
-          setLoading(false);
-          return; // Exit loop on success
-        }
-
-        if (i < 2) {
-          // Wait 1 second before retrying
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        } else {
-          // Set error after final attempt fails
-          setError(
-            fetchError ||
-              "Failed to fetch order details after multiple attempts.",
-          );
-        }
+      if (fetchedOrder) {
+        setOrder(fetchedOrder as OrderWithItems);
+        clearCart();
+        localStorage.removeItem("shippingAddress");
+        toast.success(
+          "🎉 Order confirmed! We'll notify you once it's shipped.",
+        );
+        setLoading(false);
+      } else {
+        setError(fetchError || "Failed to fetch order details.");
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchOrder();
-  }, [orderId, clearCart]);
+  }, [sessionId, clearCart]);
 
   if (loading) {
     return (
@@ -132,10 +120,19 @@ function SuccessContent() {
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
-  const subtotal = order.order_items.reduce(
-    (acc, item) => acc + item.price_at_purchase * item.quantity,
-    0,
-  );
+  // Calculate subtotal from order items
+  const subtotal = order.order_items.reduce((sum, item) => sum + (item.price_at_purchase * item.quantity), 0);
+  const shippingAmount = order.amount_shipping || 0;
+  const taxAmount = order.amount_tax || 0;
+  const totalAmount = order.total || order.amount_total || 0;
+
+  // Format currency properly
+  const formatCurrency = (amount: number, currency = 'USD') => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
 
   return (
     <div className="bg-background text-foreground min-h-screen">
@@ -214,29 +211,24 @@ function SuccessContent() {
                 </div>
               ))}
             </div>
-            <div className="mt-6 border-t pt-6">
-              <div className="flex justify-between">
-                <p className="text-lg font-medium text-white">Total</p>
-                <p className="text-lg font-bold text-white">
-                  ${order.total?.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
             <div className="my-6 border-t border-white" />
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-white">Subtotal</span>
-                <span className="text-white">${subtotal.toFixed(2)}</span>
+                <span className="text-white">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white">Shipping</span>
-                <span className="text-white">Free</span>
+                <span className="text-white">
+                  {shippingAmount > 0 ? formatCurrency(shippingAmount) : 'Free'}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white">Taxes</span>
-                <span className="text-white">Calculated at next step</span>
+                <span className="text-white">Tax</span>
+                <span className="text-white">
+                  {taxAmount > 0 ? formatCurrency(taxAmount) : 'Included'}
+                </span>
               </div>
             </div>
 
@@ -244,7 +236,7 @@ function SuccessContent() {
 
             <div className="flex justify-between text-lg font-bold">
               <span className="text-white">Total</span>
-              <span className="text-white">${subtotal.toFixed(2)}</span>
+              <span className="text-white">{formatCurrency(totalAmount)}</span>
             </div>
 
             <div className="mt-8">

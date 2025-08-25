@@ -45,7 +45,8 @@ export const Cart = ({
   } = useCartStore();
 
   const [user, setUser] = useState<User | null>(null);
-  const [hasChecked, setHasChecked] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -58,32 +59,67 @@ export const Cart = ({
   }, []);
 
   useEffect(() => {
-    if (user && !hasChecked) {
+    if (user) {
       checkPendingOrder(user.id);
-      setHasChecked(true);
     }
-  }, [user, hasChecked, checkPendingOrder]);
+  }, [user, checkPendingOrder]);
+
+  // Reset navigation state when sheet closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsNavigating(false);
+    }
+  }, [isOpen]);
 
   const totalCartItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
   );
-  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
-  const handleCheckout = () => {
-    router.push("/checkout");
-    setIsOpen(false);
+  // Prefetch checkout routes for snappier navigation
+  useEffect(() => {
+    router.prefetch("/checkout");
+    if (pendingOrder) {
+      router.prefetch(
+        `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
+          pendingOrder.id
+        }`
+      );
+    }
+  }, [router, pendingOrder]);
+
+  const handleCheckout = async () => {
+    if (isNavigating) return; // Prevent double clicks
+    
+    setIsNavigating(true);
+    
+    try {
+      // SheetClose component will handle closing the sheet
+      await router.push("/checkout");
+    } catch (error) {
+      console.error("Navigation to checkout failed:", error);
+      // If navigation fails, reset the navigating state
+      setIsNavigating(false);
+    }
   };
 
-  const handleGoToPayment = () => {
-    if (pendingOrder) {
-      router.push(
+  const handleGoToPayment = async () => {
+    if (!pendingOrder || isNavigating) return; // Prevent double clicks
+    
+    setIsNavigating(true);
+    
+    try {
+      // SheetClose component will handle closing the sheet
+      await router.push(
         `/checkout/confirmation/${pendingOrder.payment_method?.toLowerCase()}?orderId=${
           pendingOrder.id
         }`,
       );
-      setIsOpen(false);
+    } catch (error) {
+      console.error("Navigation to payment failed:", error);
+      // If navigation fails, reset the navigating state
+      setIsNavigating(false);
     }
   };
 
@@ -104,6 +140,7 @@ export const Cart = ({
           <Button
             variant="ghost"
             className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 p-3 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+            onClick={() => setIsOpen(true)}
           >
             <ShoppingBag className="h-5 w-5" />
             <span>Cart</span>
@@ -118,6 +155,7 @@ export const Cart = ({
             variant="ghost"
             size="icon"
             className="text-primary/80 hover:text-primary relative h-11 w-11 cursor-pointer rounded-full hover:bg-gray-100"
+            onClick={() => setIsOpen(true)}
           >
             <ShoppingBag className="h-8 w-8" />
             {(totalCartItems > 0 || hasPendingCryptoOrder) && (
@@ -149,7 +187,7 @@ export const Cart = ({
                       src={item.imageUrl}
                       alt={`${item.name} product image`}
                       fill
-                      sizes="80px"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="rounded-lg border border-gray-200 object-cover"
                       priority={index < 3}
                       loading={index < 3 ? "eager" : "lazy"}
@@ -177,11 +215,11 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity - 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
-                        aria-label={`Decrease quantity for ${item.name}`}
+                        aria-label={`Decrease quantity of ${item.name}`}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
-                      <span className="w-8 text-center font-bold" aria-label={`Quantity: ${item.quantity}`}>
+                      <span className="w-8 text-center font-bold" aria-live="polite" aria-atomic="true">
                         {item.quantity}
                       </span>
                       <Button
@@ -192,7 +230,7 @@ export const Cart = ({
                           updateQuantity(item.cartItemId, item.quantity + 1)
                         }
                         disabled={!!hasPendingCryptoOrder}
-                        aria-label={`Increase quantity for ${item.name}`}
+                        aria-label={`Increase quantity of ${item.name}`}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -208,7 +246,7 @@ export const Cart = ({
                       className="text-primary/50 hover:bg-red-500/10 hover:text-red-500"
                       onClick={() => removeFromCart(item.cartItemId)}
                       disabled={!!hasPendingCryptoOrder}
-                      aria-label={`Remove ${item.name} from cart`}
+                      aria-label={`Remove ${item.name} from your cart`}
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -240,7 +278,7 @@ export const Cart = ({
             <div className="w-full">
               <div className="text-primary mb-2 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${pendingOrder?.total?.toFixed(2)}</span>
+                <span>${(pendingOrder?.total ?? pendingOrder?.amount_total ?? 0).toFixed(2)}</span>
               </div>
               {timeLeft !== null && (
                 <div className="mb-3 text-center text-lg font-bold text-red-500">
@@ -248,12 +286,15 @@ export const Cart = ({
                 </div>
               )}
               <div className="w-full space-y-3">
-                <Button
-                  onClick={handleGoToPayment}
-                  className="bg-primary hover:bg-secondary font-body h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
-                >
-                  Complete Payment
-                </Button>
+                <SheetClose asChild>
+                  <Button
+                    onClick={handleGoToPayment}
+                    disabled={isNavigating}
+                    className="bg-primary hover:bg-secondary font-body h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isNavigating ? "Loading..." : "Complete Payment"}
+                  </Button>
+                </SheetClose>
                 <Button
                   onClick={handleCancelOrder}
                   variant="outline"
@@ -272,12 +313,15 @@ export const Cart = ({
               <p className="text-primary/60 mt-1 text-sm">
                 Shipping and taxes calculated at checkout.
               </p>
-              <Button
-                onClick={handleCheckout}
-                className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black"
-              >
-                Proceed to Checkout
-              </Button>
+              <SheetClose asChild>
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isNavigating}
+                  className="bg-primary hover:bg-secondary font-body mt-4 h-12 w-full rounded-full text-base font-semibold text-white transition-all duration-300 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isNavigating ? "Loading..." : "Proceed to Checkout"}
+                </Button>
+              </SheetClose>
             </div>
           ) : null}
         </SheetFooter>

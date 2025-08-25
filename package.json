@@ -10,7 +10,13 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "db:seed": "tsx scripts/seed.ts",
-    "upload:video": "tsx scripts/upload-video.ts"
+    "upload:video": "tsx scripts/upload-video.ts",
+    "test:edge-compat": "node scripts/check-edge-compatibility.js",
+    "test:dev-env": "node scripts/validate-dev-environment.js",
+    "test:security": "pnpm test:edge-compat && pnpm test:dev-env",
+    "test:security-ci": "pnpm test:edge-compat",
+    "predev": "pnpm test:security-ci",
+    "prebuild": "pnpm test:security-ci"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -28,6 +34,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@react-email/components": "^0.1.0",
     "@react-email/render": "^1.1.3",
+    "@stripe/stripe-js": "^7.8.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.0",
     "@types/qrcode.react": "^1.0.5",
@@ -74,6 +81,8 @@
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "git-guardian": "^1.0.18",
+    "glob": "^11.0.3",
     "next-sitemap": "^4.2.3",
     "prettier": "^3.6.1",
     "prettier-plugin-tailwindcss": "^0.6.12",

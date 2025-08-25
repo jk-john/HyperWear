@@ -1,7 +1,17 @@
-import AllProducts from "@/components/AllProducts";
-import FeaturedProducts from "@/components/FeaturedProducts";
+import AuthTokenHandler from "@/components/AuthTokenHandler";
 import Hero from "@/components/Hero";
-import { DynamicImageShowcase } from "@/components/ui/dynamic-image-showcase";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+// Dynamically import heavy components to improve initial page load
+const HomeProductsSection = dynamic(() => import("@/components/HomeProductsSection"), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" />,
+  ssr: true, // Server-side render for SEO
+});
+
+const DynamicImageShowcaseWrapper = dynamic(() => import("@/components/DynamicImageShowcaseWrapper"), {
+  loading: () => <div className="h-80 animate-pulse bg-gray-100 rounded-lg" />,
+});
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -9,9 +19,9 @@ const jsonLd = {
   name: "HyperWear",
   url: "https://hyperwear.io",
   description: "Community merchandise store for HyperLiquid fans. Premium t-shirts, mugs, caps, and accessories designed by the community, for the community.",
+
   sameAs: [
     "https://twitter.com/wear_hyper",
-    "https://www.instagram.com/wear_hyper/",
   ],
   logo: "https://hyperwear.io/HYPE.svg",
   contactPoint: {
@@ -39,6 +49,7 @@ const websiteSchema = {
   name: "HyperWear.io",
   url: "https://hyperwear.io",
   description: "HyperLiquid merchandise store featuring premium t-shirts, mugs, caps, and accessories designed by the community.",
+
   potentialAction: {
     "@type": "SearchAction",
     target: "https://hyperwear.io/search?q={search_term_string}",
@@ -56,6 +67,7 @@ const storeSchema = {
   "@type": "Store",
   name: "HyperWear.io",
   description: "HyperLiquid merchandise store offering premium t-shirts, mugs, caps, and accessories for the HyperLiquid community.",
+
   url: "https://hyperwear.io",
   logo: "https://hyperwear.io/HYPE.svg",
   hasOfferCatalog: {
@@ -93,26 +105,29 @@ const storeSchema = {
 export default function Home() {
   // Collection images for the 3D carousel
   const carouselImages = [
-    "/img-collections/DSC02198.jpg",
-    "/img-collections/DSC02218.jpg",
-    "/img-collections/DSC02232.jpg",
-    "/img-collections/DSC02234.jpg",
-    "/img-collections/DSC02235.jpg",
-    "/img-collections/DSC02268.jpg",
-    "/img-collections/DSC02288.jpg",
-    "/img-collections/DSC02297.jpg",
-    "/img-collections/DSC02300.jpg",
-    "/img-collections/DSC02317.jpg",
-    "/img-collections/DSC02319.jpg",
-    "/img-collections/DSC02325.jpg",
-    "/img-collections/DSC02340.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02268.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02288.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02297.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02300.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02317.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02319.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02325.jpg",
+    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02340.jpg",
   ];
 
-  // Shuffle images for dynamic experience
-  const shuffledImages = [...carouselImages].sort(() => Math.random() - 0.5);
+  // Pass original array to avoid hydration mismatch - shuffling will happen client-side
+  const shuffledImages = carouselImages;
 
   return (
     <>
+      {/* Handle auth tokens if they land on homepage instead of callback */}
+      <AuthTokenHandler />
+      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -140,7 +155,7 @@ export default function Home() {
               <span className="text-primary">for the Community</span>
             </h2>
           </div>
-          <DynamicImageShowcase images={shuffledImages} />
+          <DynamicImageShowcaseWrapper images={shuffledImages} />
         </section>
 
         {/* Trusted by Community Section */}
@@ -177,8 +192,9 @@ export default function Home() {
           <p>Free shipping on orders over $60!</p>
         </div>
         
-        <FeaturedProducts />
-        <AllProducts />
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-lg mx-4" />}>
+          <HomeProductsSection />
+        </Suspense>
       </div>
     </>
   );

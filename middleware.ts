@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
     hasWelcomeMessage: request.nextUrl.searchParams.has("welcome_message"),
   });
 
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  if (!user && (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/checkout"))) {
     console.log("Redirecting to /sign-in from middleware");
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
@@ -36,5 +36,6 @@ export const config = {
      */
     "/((?!_next/static|_next/image|favicon.ico).*)",
     "/dashboard/:path*",
+    "/checkout/:path*",
   ],
 };

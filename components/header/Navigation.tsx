@@ -31,34 +31,23 @@ const components: {
     priority: true,
   },
   {
-    title: "HyperLiquid Mugs",
-    href: "/hyperliquid-mugs", 
-    src: "/products-img/mug.webp",
-    description: "High-quality ceramic mugs for HyperLiquid fans",
-    priority: true,
-  },
-  {
     title: "T-Shirts",
     href: "/products?category=t-shirts",
-    src: "/products-img/tee-shirt.webp",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/t-shirts-images/Front.png",
     description: "Re-discover the basics",
-  },
-  {
-    title: "Shorts",
-    href: "/products?category=shorts",
-    src: "/products-img/short-front.png",
-    description: "Comfort and style for every day.",
   },
   {
     title: "Caps",
     href: "/products?category=caps",
-    src: "/products-img/caps-2.jpg",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
+
     description: "The best caps for your style.",
   },
   {
     title: "Accessories",
     href: "/products?category=accessories",
-    src: "/products-img/mug.webp",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-2-6861d32419357.png",
+
     description: "Complete your look with our accessories.",
   },
   {
@@ -72,90 +61,112 @@ const components: {
 export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
     return (
-      <nav className="flex flex-col space-y-4">
-        <h3 className="text-lg font-bold">Featured</h3>
-        <ul className="flex flex-col space-y-2 pl-4">
-          <li>
-            <Link
-              href="/hyperliquid-merchandise"
-              className="flex items-center gap-x-1 hover:underline font-medium text-primary"
-            >
-              HyperLiquid Merchandise
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/hyperliquid-tshirts"
-              className="flex items-center gap-x-1 hover:underline font-medium text-primary"
-            >
-              HyperLiquid T-Shirts
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/hyperliquid-mugs"
-              className="flex items-center gap-x-1 hover:underline font-medium text-primary"
-            >
-              HyperLiquid Mugs
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/hyperliquid-caps"
-              className="flex items-center gap-x-1 hover:underline font-medium text-primary"
-            >
-              HyperLiquid Caps
-            </Link>
-          </li>
-        </ul>
-        <h3 className="text-lg font-bold">Products</h3>
-        <ul className="flex flex-col space-y-2 pl-4">
-          {components.filter(c => !c.priority).map((component) => {
-            const isComingSoon =
-              component.title === "Shorts" || component.title === "Plushies";
-            return (
-              <li
-                key={component.title}
-                className={cn(isComingSoon && "cursor-not-allowed opacity-60")}
-              >
+      <nav className="w-full">
+        <div className="space-y-6">
+          {/* Featured Section */}
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Featured</h3>
+            <ul className="space-y-3">
+              <li>
                 <Link
-                  href={isComingSoon ? "#!" : component.href}
-                  onClick={(e) => {
-                    if (isComingSoon) {
-                      e.preventDefault();
-                    }
-                  }}
-                  className="flex items-center gap-x-1 hover:underline"
+                  href="/hyperliquid-merchandise"
+                  className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
                 >
-                  {component.title}
-                  {isComingSoon && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-secondary text-primary"
-                    >
-                      Coming Soon
-                    </Badge>
-                  )}
+                  HyperLiquid Merchandise
                 </Link>
               </li>
-            );
-          })}
-        </ul>
-        <Link
-          href="/collections"
-          className="text-lg font-medium hover:underline"
-        >
-          Collections
-        </Link>
-        <Link
-          href="/new-arrivals"
-          className="text-lg font-medium hover:underline"
-        >
-          New Arrivals
-        </Link>
-        <Link href="/community" className="text-lg font-medium hover:underline">
-          Community
-        </Link>
+              <li>
+                <Link
+                  href="/hyperliquid-tshirts"
+                  className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
+                >
+                  HyperLiquid T-Shirts
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/hyperliquid-caps"
+                  className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
+                >
+                  HyperLiquid Caps
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Products Section */}
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Products</h3>
+            <ul className="space-y-3">
+              {components.filter(c => !c.priority).map((component) => {
+                const isComingSoon =
+                  component.title === "Plushies";
+                return (
+                  <li key={component.title}>
+                    <Link
+                      href={isComingSoon ? "#!" : component.href}
+                      onClick={(e) => {
+                        if (isComingSoon) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={cn(
+                        "flex items-center justify-between py-3 px-4 -mx-4 text-base font-medium rounded-lg touch-manipulation transition-colors",
+
+                        isComingSoon 
+                          ? "cursor-not-allowed opacity-60 text-gray-400" 
+                          : "text-gray-700 hover:text-primary hover:bg-gray-50"
+                      )}
+                    >
+                      <span>{component.title}</span>
+                      {isComingSoon && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-gray-100 text-gray-500 text-xs"
+                        >
+                          Coming Soon
+                        </Badge>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div className="border-t border-gray-100 pt-6">
+            <div className="space-y-3">
+              <Link
+                href="/collections"
+                className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
+              >
+                Collections
+              </Link>
+              <Link
+                href="/new-arrivals"
+                className="flex items-center justify-between py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
+              >
+                <span>New Arrivals</span>
+                <Badge variant="secondary" className="bg-gray-100 text-gray-500 text-xs">
+                  Coming Soon
+                </Badge>
+              </Link>
+              <Link 
+                href="/community" 
+                className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
+              >
+                Community
+              </Link>
+            </div>
+          </div>
+        </div>
       </nav>
     );
   }
@@ -170,34 +181,37 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               {/* Featured SEO Pages */}
               <div className="col-span-2 mb-4">
                 <h4 className="mb-3 text-sm font-semibold text-primary uppercase tracking-wider">Featured Collections</h4>
+
                 <div className="grid grid-cols-4 gap-3">
                   <Link
                     href="/hyperliquid-merchandise"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Merchandise</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Complete collection of merchandise</p>
+
                   </Link>
                   <Link
                     href="/hyperliquid-tshirts"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid T-Shirts</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium tees designed by the community</p>
-                  </Link>
-                  <Link
-                    href="/hyperliquid-mugs"
-                    className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                  >
-                    <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Mugs</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">High-quality ceramic drinkware</p>
+
                   </Link>
                   <Link
                     href="/hyperliquid-caps"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Caps</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium headwear for HyperLiquid fans</p>
+
                   </Link>
                 </div>
               </div>
@@ -205,6 +219,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               {/* Regular Product Categories */}
               <div className="col-span-2">
                 <h4 className="mb-3 text-sm font-semibold text-gray-600 uppercase tracking-wider">All Categories</h4>
+
                 <div className="grid grid-cols-2 gap-3">
                   {components.filter(c => !c.priority).map((component) => (
                     <ListItem
@@ -259,7 +274,7 @@ const ListItem = React.forwardRef<
     liClassName?: string;
   }
 >(({ className, title, children, href, src, liClassName, ...props }, ref) => {
-  const isComingSoon = title === "Shorts" || title === "Plushies";
+  const isComingSoon = title === "Plushies";
   
   return (
     <li className={liClassName}>

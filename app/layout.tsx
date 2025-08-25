@@ -1,7 +1,6 @@
 import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { FloatingHypePriceTicker } from "@/components/HypePriceTicker";
 import { Toaster } from "@/components/ui/sonner";
 import { HypePriceProvider } from "@/context/HypePriceContext";
 import { assertEnvVars } from "@/lib/utils";
@@ -11,22 +10,26 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
-// Validate environment variables at startup
-assertEnvVars();
+// Validate environment variables only on server-side
+if (typeof window === "undefined") {
+  assertEnvVars();
+}
 
-// Load fonts from Google Fonts with all weights
+// Optimized font loading - only load essential weights
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"], // Reduced from 9 to 4 weights
   variable: "--font-body",
   display: "swap",
+  preload: true,
 });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "600"], // Reduced from 5 to 2 weights
   variable: "--font-display",
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -36,7 +39,8 @@ export const metadata: Metadata = {
     template: `%s | HyperWear.io`,
   },
   description:
-    "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! ⭐ Premium quality ⭐ Free shipping $60+ ⭐ Exclusive designs ⭐ Fast worldwide delivery. Shop now at HyperWear.io!",
+    "HyperLiquid t-shirts, mugs & merchandise designed by the community!  Premium quality Free shipping $60+ Exclusive designs Fast worldwide delivery. Shop now at HyperWear.io",
+
   keywords: [
     "HyperLiquid merchandise",
     "HyperLiquid t-shirts", 
@@ -70,7 +74,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+      "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+
     images: [
       {
         url: "/og-preview.png",
@@ -90,7 +95,8 @@ export const metadata: Metadata = {
     creator: "@wear_hyper",
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
-      "🔥 HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+      "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+
     images: ["/og-preview.png"],
   },
   alternates: {
@@ -117,21 +123,100 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/HYPE.svg" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2DD4BF" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
+        
+        {/* Performance optimizations */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://jhxxuhisdypknlvhaklm.supabase.co" />
+        <link rel="preconnect" href="https://api.hyperliquid.xyz" />
+        
+        {/* Critical CSS for faster render */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS for above-the-fold content */
+            body { font-family: var(--font-body), system-ui, -apple-system, sans-serif; }
+            .hero-section { height: 100vh; position: relative; overflow: hidd en; }
+            .hero-button { transition: all 0.3s ease; }
+            .sticky { position: sticky; top: 0; z-index: 50; }
+            .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+          `
+        }} />
+        {/* Font preload scripts removed to prevent hydration issues */}
       </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
+        {/* Full restoration complete */}
         <Header />
         <HypePriceProvider>
           {children}
-          <FloatingHypePriceTicker />
         </HypePriceProvider>
         <Footer />
         <Toaster />
         <CookieBanner />
         <SpeedInsights />
         <Analytics />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Service Worker management
+                if ('serviceWorker' in navigator) {
+                  const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                  
+                  if (isDev) {
+                    // In development: unregister any existing service workers and clear caches
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                      for(let registration of registrations) {
+                        registration.unregister();
+                      }
+                    });
+                    
+                    // Clear all caches in development
+                    if ('caches' in window) {
+                      caches.keys().then(function(names) {
+                        for(let name of names) {
+                          caches.delete(name);
+                        }
+                      });
+                    }
+                    
+                    console.log('Development: Service workers unregistered and caches cleared');
+                  } else {
+                    // In production: register service worker
+                    window.addEventListener('load', () => {
+                      navigator.serviceWorker.register('/sw.js')
+                        .then((registration) => {
+                          console.log('SW registered: ', registration);
+                        })
+                        .catch((registrationError) => {
+                          console.log('SW registration failed: ', registrationError);
+                        });
+                    });
+                  }
+                }
+                
+                // Web Vitals tracking only in production
+                if (.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                  if ('performance' in window && 'PerformanceObserver' in window) {
+                    const observer = new PerformanceObserver((list) => {
+                      for (const entry of list.getEntries()) {
+                        if (entry.entryType === 'largest-contentful-paint') {
+                          console.log('LCP:', entry.startTime);
+                        }
+                      }
+                    });
+                    observer.observe({entryTypes: ['largest-contentful-paint']});
+                  }
+                }
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );

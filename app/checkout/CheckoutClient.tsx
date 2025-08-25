@@ -1,23 +1,22 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PhoneInput from "@/components/ui/phone-input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Tables } from "@/types/supabase";
@@ -30,9 +29,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import {
-  cancelOrder,
-  createCheckoutSession,
-  initiateHypePayment,
+    cancelOrder,
+    initiateHypePayment,
 } from "./actions";
 
 const getShippingCost = (cartTotal: number): number => {
@@ -148,7 +146,7 @@ export function CheckoutClient({
       country: defaultAddress?.country || "",
       companyName: defaultAddress?.company_name || "",
       deliveryInstructions: defaultAddress?.delivery_instructions || "",
-      paymentMethod: "usdt0",
+      paymentMethod: "stripe",
       evmAddress: walletAddress || "",
     },
   });
@@ -212,7 +210,7 @@ export function CheckoutClient({
               <div className="mb-2 flex justify-between">
                 <span className="font-semibold">Order Total:</span>
                 <span className="font-bold">
-                  ${pendingOrder.total?.toFixed(2)}
+                  ${(pendingOrder.total ?? pendingOrder.amount_total ?? 0).toFixed(2)}
                 </span>
               </div>
               <div className="mb-2 flex justify-between">
@@ -283,31 +281,53 @@ export function CheckoutClient({
           toast.error(result.error || "Failed to initiate payment");
         }
       } else if (values.paymentMethod === "stripe") {
-        // Convert form values to ShippingAddress format
-        const shippingAddress = {
-          first_name: values.firstName,
-          last_name: values.lastName,
-          phone_number: values.phoneNumber,
-          street: values.street,
-          address_complement: values.addressComplement || null,
-          city: values.city,
-          postal_code: values.zip,
-          country: values.country,
-          company_name: values.companyName || null,
-          delivery_instructions: values.deliveryInstructions || null,
-        };
+        try {
+          const response = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: user?.id, // Pass user ID for webhook
+              shippingAddress: {
+                first_name: values.firstName,
+                last_name: values.lastName,
+                email: values.email,
+                phone_number: values.phoneNumber,
+                street: values.street,
+                city: values.city,
+                postal_code: values.zip,
+                country: values.country,
+                address_complement: values.addressComplement,
+                company_name: values.companyName,
+                delivery_instructions: values.deliveryInstructions,
+              },
+              cartItems: cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+              })),
+            }),
+          });
 
-        const result = await createCheckoutSession(
-          cartItems,
-          shippingAddress,
-          user.email!,
-        );
-        if (result && !result.error) {
-          // createCheckoutSession redirects on success, so this shouldn't be reached
-          // But if it does, we can handle it here
-          toast.success("Redirecting to checkout...");
-        } else {
-          toast.error(result?.error || "Failed to create checkout session");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create checkout session');
+          }
+
+          const { url } = await response.json();
+          
+          if (url) {
+            window.location.href = url;
+          } else {
+            toast.error("Failed to redirect to checkout");
+          }
+        } catch (error: unknown) {
+          console.error('Checkout error:', error);
+          toast.error(error instanceof Error ? error.message : 'Failed to create checkout session');
         }
       } else {
         toast.error("Payment method not yet supported");
@@ -322,12 +342,12 @@ export function CheckoutClient({
 
   return (
     <div className="bg-jungle min-h-screen text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div className="bg-card rounded-lg p-8 shadow-lg">
-                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
+              <div className="bg-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-lg">
+                <h2 className="font-display mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Shipping Information
                 </h2>
 
@@ -542,8 +562,8 @@ export function CheckoutClient({
                 />
               </div>
 
-              <div className="bg-primary rounded-lg p-8 shadow-lg">
-                <h2 className="font-display mb-6 text-3xl font-semibold text-white">
+              <div className="bg-primary rounded-lg p-4 sm:p-6 lg:p-8 shadow-lg">
+                <h2 className="font-display mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Payment Method
                 </h2>
                 <div className="pt-2">
@@ -564,28 +584,19 @@ export function CheckoutClient({
                           <SelectContent>
                             <SelectItem
                               value="stripe"
-                              className="relative cursor-not-allowed overflow-hidden border-b-2 border-black bg-gradient-to-r from-gray-100 to-gray-200"
-                              disabled
+                              className="border-b-2 border-black bg-white"
                             >
                               <div className="relative flex w-full items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  <span className="text-gray-500">
-                                    Credit Card (Stripe)
-                                  </span>
+                                  <span>Credit Card (Stripe)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant="secondary"
-                                    className="bg-[--color-secondary] px-3 py-1 text-sm font-bold text-[--color-primary] shadow-lg"
-                                  >
-                                    Coming Soon
-                                  </Badge>
                                   <Image
                                     src="/stripe.png"
                                     alt="Stripe payment logo"
                                     width={24}
                                     height={24}
-                                    className="ml-2 opacity-50"
+                                    className="ml-2"
                                     quality={90}
                                   />
                                 </div>
@@ -670,51 +681,50 @@ export function CheckoutClient({
                   )}
                 </div>
 
-                <h2 className="font-display mt-4 mb-6 text-3xl font-semibold text-white">
+                <h2 className="font-display mt-6 sm:mt-8 mb-4 sm:mb-6 text-2xl sm:text-3xl font-semibold text-white">
                   Order Summary
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {cartItems.map((item, index) => (
                     <div
                       key={item.cartItemId}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between gap-3"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="relative h-16 w-16 flex-shrink-0">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                        <div className="relative h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0">
                           <Image
                             src={item.imageUrl}
                             alt={`${item.name} product image`}
                             fill
-                            sizes="64px"
+                            sizes="(max-width: 640px) 48px, 64px"
                             className="rounded-md object-cover"
-                            // Prioritize first few items for better UX
                             priority={index < 3}
                             loading={index < 3 ? "eager" : "lazy"}
                             quality={85}
                           />
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold truncate">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm sm:text-base truncate">
                             {item.name} {item.size && `(${item.size})`}
                           </p>
-                          <p className="text-sm text-white/70">
+                          <p className="text-xs sm:text-sm text-white/70">
                             Qty: {item.quantity}
                           </p>
                         </div>
                       </div>
-                      <p className="font-semibold flex-shrink-0">
+                      <p className="font-semibold text-sm sm:text-base flex-shrink-0">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
                 </div>
-                <div className="my-8 h-px bg-white/20" />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between font-semibold">
+                <div className="my-6 sm:my-8 h-px bg-white/20" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center justify-between font-semibold text-sm sm:text-base">
                     <p>Subtotal</p>
                     <p>${cartTotal.toFixed(2)}</p>
                   </div>
-                  <div className="flex items-center justify-between font-semibold">
+                  <div className="flex items-center justify-between font-semibold text-sm sm:text-base">
                     <p>Shipping</p>
                     <p>
                       {shippingCost === 0
@@ -723,20 +733,20 @@ export function CheckoutClient({
                     </p>
                   </div>
                   {shippingCost === 0 && (
-                    <p className="text-sm text-green-400">
+                    <p className="text-xs sm:text-sm text-green-400">
                       Free shipping on orders over $60!
                     </p>
                   )}
                 </div>
-                <div className="my-8 h-px bg-white/20" />
-                <div className="flex items-center justify-between text-xl font-bold">
+                <div className="my-6 sm:my-8 h-px bg-white/20" />
+                <div className="flex items-center justify-between text-lg sm:text-xl font-bold">
                   <p>Total</p>
                   <p>${finalTotal.toFixed(2)}</p>
                 </div>
                 <Button
                   type="submit"
                   disabled={isSubmitting || cartItems.length === 0}
-                  className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-8 w-full rounded-full py-6 text-lg font-bold transition-colors hover:text-white"
+                  className="bg-secondary text-jungle hover:bg-mint hover:shadow-mint/40 mt-6 sm:mt-8 w-full rounded-full py-4 sm:py-6 text-base sm:text-lg font-bold transition-colors hover:text-white touch-manipulation"
                 >
                   {isSubmitting ? "Processing..." : "Place Order"}
                 </Button>

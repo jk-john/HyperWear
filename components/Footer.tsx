@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Socials } from "./Socials";
 
-const currentYear = new Date().getFullYear();
-
 const Footer = () => {
+  const [currentYear, setCurrentYear] = useState(2025); // Default fallback
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
   return (
     <footer className="text-white" style={{ background: 'linear-gradient(to bottom right, var(--color-forest), var(--color-dark), var(--color-deep))' }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -230,8 +234,8 @@ const Footer = () => {
                   href="/privacy-policy"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Privacy Policy
                 </Link>
@@ -239,8 +243,8 @@ const Footer = () => {
                   href="/terms-of-service"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Terms of Service
                 </Link>
@@ -248,8 +252,8 @@ const Footer = () => {
                   href="/cookie-policy"
                   className="transition-colors duration-200"
                   style={{ color: 'var(--color-light)' }}
-                  onMouseEnter={(e) => e.target.style.color = 'var(--color-secondary)'}
-                  onMouseLeave={(e) => e.target.style.color = 'var(--color-light)'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-light)'}
                 >
                   Cookie Policy
                 </Link>

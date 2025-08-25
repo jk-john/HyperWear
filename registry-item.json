@@ -1,0 +1,61 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "shimmer-button",
+  "type": "registry:ui",
+  "title": "Shimmer Button",
+  "description": "A button component with shimmer animation effects for enhanced visual appeal.",
+  "author": "HyperWear Team",
+  "categories": ["buttons", "animations"],
+  "files": [
+    {
+      "path": "components/ui/ShimmerButton.tsx",
+      "type": "registry:component",
+      "target": "components/ui/shimmer-button.tsx"
+    }
+  ],
+  "dependencies": [
+    "react",
+    "framer-motion"
+  ],
+  "registryDependencies": [
+    "button"
+  ],
+  "cssVars": {
+    "theme": {
+      "--shimmer-primary": "hsl(var(--primary))",
+      "--shimmer-secondary": "hsl(var(--secondary))"
+    },
+    "light": {
+      "--shimmer-opacity": "0.8"
+    },
+    "dark": {
+      "--shimmer-opacity": "0.6"
+    }
+  },
+  "tailwind": {
+    "config": {
+      "theme": {
+        "extend": {
+          "animation": {
+            "shimmer": "shimmer 2s linear infinite"
+          },
+          "keyframes": {
+            "shimmer": {
+              "from": {
+                "backgroundPosition": "0 0"
+              },
+              "to": {
+                "backgroundPosition": "-200% 0"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "docs": "https://hyperwear.io/docs/components/shimmer-button",
+  "meta": {
+    "version": "1.0.0",
+    "license": "MIT"
+  }
+}

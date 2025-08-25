@@ -30,8 +30,10 @@ export default function Hero() {
       {/* Light Overlay for text readability */}
       <div className="absolute inset-0 z-10 bg-gradient-to-b from-jungle/20 via-forest/15 to-primary/25" />
 
+
       {/* Content Container */}
       <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
+
         {/* Animated Title */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -170,7 +172,9 @@ export default function Hero() {
 
       {/* Floating Elements */}
       <div className="floating-element-1 absolute top-20 right-20 w-3 h-3 bg-secondary rounded-full opacity-60" />
+
       <div className="floating-element-2 absolute bottom-40 left-20 w-2 h-2 bg-accent rounded-full opacity-50" />
+
       <motion.div
         className="absolute top-1/3 left-10 w-1 h-1 bg-mint rounded-full opacity-30"
         animate={{ 

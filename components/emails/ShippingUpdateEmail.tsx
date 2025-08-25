@@ -113,14 +113,14 @@ const logoContainer = {
   padding: "20px 0",
 };
 
-const h1 = {
-  color: "#0f3933",
-  fontFamily: '"Teodor", "Arial", sans-serif',
-  fontSize: "32px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "30px 0",
-};
+// const h1 = {
+//   color: "#0f3933",
+//   fontFamily: '"Teodor", "Arial", sans-serif',
+//   fontSize: "32px",
+//   fontWeight: "bold",
+//   textAlign: "center" as const,
+//   margin: "30px 0",
+// };
 
 const text = {
   color: "#193833",

@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { ProductImageCarousel } from "./ProductImageCarousel";
 import { ProductImageModal } from "./ProductImageModal";
 import { Button } from "./ui/button";
+import { ColorSwatch } from "./ui/ColorSwatch";
 
 interface ProductDetailClientProps {
   product: Product;
@@ -26,6 +27,7 @@ export default function ProductDetailClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
   const handleImageClick = (index: number) => {
     setInitialSlide(index);
@@ -41,12 +43,27 @@ export default function ProductDetailClient({
     product.available_sizes &&
     product.available_sizes.length > 0;
 
+  const needsColorSelection =
+    (product.category === "t-shirts" || product.category === "caps") &&
+    product.colors &&
+    product.colors.length > 1;
+
+  const isAddToCartDisabled = Boolean(
+    (needsSizeSelection && !selectedSize) ||
+    (needsColorSelection && !selectedColor)
+  );
+
+
   const handleAddToCart = () => {
     if (needsSizeSelection && !selectedSize) {
       toast.error("Please select a size");
       return;
     }
-    addToCart(product, selectedSize);
+    if (needsColorSelection && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+    addToCart(product, selectedSize, selectedColor);
     toast.success(`${product.name} added to cart`);
   };
 
@@ -74,6 +91,16 @@ export default function ProductDetailClient({
           </p>
 
           <div className="mt-6">
+            {needsColorSelection && (
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium">Color</label>
+                <ColorSwatch
+                  colors={product.colors || []}
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                />
+              </div>
+            )}
             {needsSizeSelection && (
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium">Size</label>
@@ -97,7 +124,7 @@ export default function ProductDetailClient({
             )}
             <Button
               onClick={handleAddToCart}
-              disabled={!!(needsSizeSelection && !selectedSize)}
+              disabled={isAddToCartDisabled}
               className="w-full"
             >
               Add to Cart
