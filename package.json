@@ -10,7 +10,6 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "db:seed": "tsx scripts/seed.ts",
-    "upload:video": "tsx scripts/upload-video.ts",
     "test:edge-compat": "node scripts/check-edge-compatibility.js",
     "test:dev-env": "node scripts/validate-dev-environment.js",
     "test:security": "pnpm test:edge-compat && pnpm test:dev-env",

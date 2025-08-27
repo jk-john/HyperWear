@@ -51,6 +51,4 @@ export const supabaseStorage = {
 };
 
 // Pre-configured URLs for your media
-export const MEDIA_URLS = {
-  VIDEO_HOMEPAGE: "/hyperwear-hero-video.mp4" // Fallback to local video file
-} as const; 
+export const MEDIA_URLS = {} as const; 
