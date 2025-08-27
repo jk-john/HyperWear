@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import PhoneInput from "@/components/ui/phone-input";
 import { Tables } from "@/types/supabase";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

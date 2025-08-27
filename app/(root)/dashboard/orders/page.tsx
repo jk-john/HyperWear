@@ -14,7 +14,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Database } from "@/types/supabase";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 
 // Safe date formatting to prevent hydration issues
 function formatDate(dateString: string): string {

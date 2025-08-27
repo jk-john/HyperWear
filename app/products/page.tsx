@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 

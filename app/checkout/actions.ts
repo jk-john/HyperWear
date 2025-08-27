@@ -2,7 +2,7 @@
 
 import { CartItem, CheckoutFormValues, ShippingAddress } from "@/types";
 import { TablesInsert } from "@/types/supabase";
-import { createClient as getServerSupabase } from "@/utils/supabase/server";
+import { createClient as getServerSupabase } from "@/types/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";

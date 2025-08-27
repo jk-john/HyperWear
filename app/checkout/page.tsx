@@ -1,8 +1,7 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CheckoutClient } from "./CheckoutClient";
-import { CheckoutErrorBoundary } from "@/components/CheckoutErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -41,19 +40,24 @@ export default async function CheckoutPage() {
     .eq("is_default", true)
     .single();
 
-  const { data: userProfile } = await supabase
+  const { data: userData } = await supabase
     .from("users")
-    .select("wallet_address")
+    .select("wallet_address, first_name, last_name")
     .eq("id", user.id)
     .single();
 
+  const { data: userProfile } = await supabase
+    .from("user_profiles")
+    .select("phone_number, birthday")
+    .eq("user_id", user.id)
+    .single();
+
   return (
-    <CheckoutErrorBoundary>
-      <CheckoutClient
-        user={user}
-        defaultAddress={defaultAddress}
-        walletAddress={userProfile?.wallet_address}
-      />
-    </CheckoutErrorBoundary>
+    <CheckoutClient
+      user={user}
+      defaultAddress={defaultAddress}
+      walletAddress={userData?.wallet_address}
+      userProfile={userProfile}
+    />
   );
 }

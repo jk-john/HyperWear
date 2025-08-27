@@ -58,7 +58,12 @@ export function ProfileSummary({
         </Button>
       </div>
       {isEditing ? (
-        <UpdateProfileForm profile={profile} onSuccess={onSuccess} />
+        <UpdateProfileForm 
+          profile={profile} 
+          user={user}
+          defaultAddress={defaultAddress}
+          onSuccess={onSuccess} 
+        />
       ) : (
         <div className="flex flex-col items-center gap-8 md:flex-row">
           <div className="flex flex-col items-center text-center md:text-left">

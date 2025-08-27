@@ -1,7 +1,7 @@
 import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import { CartItem } from "@/types";
 import { Tables } from "@/types/supabase";
-import { createServiceClient } from "@/utils/supabase/service";
+import { createServiceClient } from "@/types/utils/supabase/service";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";

@@ -11,15 +11,14 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/stores/cart";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { ShoppingBag } from "lucide-react";
+import { Minus, Plus, ShoppingBag, X } from "@/components/ui/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Minus, Plus, X } from "lucide-react";
 
 const supabase = createClient();
 

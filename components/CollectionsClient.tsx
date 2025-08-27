@@ -21,8 +21,8 @@ function getPublicImageUrl(path: string): string {
     return path;
   }
 
-  // Get Supabase URL with fallback
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://auth.hyperwear.io";
+  // Get Supabase URL with fallback - avoid process.env in function to prevent HMR issues
+  const supabaseUrl = "https://auth.hyperwear.io"; // Using fallback to avoid HMR issues
   const storageUrl = `${supabaseUrl}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name

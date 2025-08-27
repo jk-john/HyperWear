@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Tables } from "@/types/supabase";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 

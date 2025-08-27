@@ -1,5 +1,5 @@
-import Hero from "@/components/Hero";
 import AuthTokenHandler from "@/components/AuthTokenHandler";
+import Hero from "@/components/Hero";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -19,6 +19,7 @@ const jsonLd = {
   name: "HyperWear",
   url: "https://hyperwear.io",
   description: "Community merchandise store for HyperLiquid fans. Premium t-shirts, mugs, caps, and accessories designed by the community, for the community.",
+
   sameAs: [
     "https://twitter.com/wear_hyper",
   ],
@@ -48,6 +49,7 @@ const websiteSchema = {
   name: "HyperWear.io",
   url: "https://hyperwear.io",
   description: "HyperLiquid merchandise store featuring premium t-shirts, mugs, caps, and accessories designed by the community.",
+
   potentialAction: {
     "@type": "SearchAction",
     target: "https://hyperwear.io/search?q={search_term_string}",
@@ -65,6 +67,7 @@ const storeSchema = {
   "@type": "Store",
   name: "HyperWear.io",
   description: "HyperLiquid merchandise store offering premium t-shirts, mugs, caps, and accessories for the HyperLiquid community.",
+
   url: "https://hyperwear.io",
   logo: "https://hyperwear.io/HYPE.svg",
   hasOfferCatalog: {

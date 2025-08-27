@@ -1,20 +1,15 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Search } from "@/components/ui/icons";
 
 export const SearchBar = () => {
-  const router = useRouter();
-
   return (
     <form
       action={(formData) => {
         const query = formData.get("q");
         if (typeof query === "string" && query.trim() !== "") {
-          if (typeof window !== 'undefined') {
-            router.push(`/search?q=${encodeURIComponent(query)}`);
-          }
+          window.location.href = `/search?q=${encodeURIComponent(query)}`;
         }
       }}
       className="hidden items-center md:flex"

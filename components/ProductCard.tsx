@@ -2,11 +2,11 @@
 
 // Removed 3D card imports for cleaner hover effects
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { useHypePrice } from "@/context/HypePriceContext";
 import { logError } from '@/lib/utils';
@@ -112,12 +112,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       />
       <div className="h-full w-full max-w-[320px]">
         <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-white to-gray-50/50 p-0 shadow-xl transition-all duration-500 hover:shadow-2xl hover:shadow-[var(--color-mint)]/10 dark:from-zinc-900 dark:to-zinc-800/50">
+
           {/* Image Section */}
           <div
             className="relative h-60 w-full overflow-hidden rounded-t-3xl cursor-pointer"
             onClick={() => handleImageClick(0)}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
             <ProductImageCarousel
               images={product.images || []}
               productName={product.name}
@@ -323,12 +325,12 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {selectedColor === color && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className={`w-3 h-3 rounded-full flex items-center justify-center ${
-                              getColorStyle(color) === '#FFFFFF' || ['#FFFFFF', '#EAB308', '#FBBF24'].includes(getColorStyle(color)) 
+                              getColorStyle(color) === '#FFFFFF' || ['#FFFFFF', '#EAB308', '#FBBF24'].includes(getColorStyle(color))
                                 ? 'bg-gray-800' : 'bg-white'
                             }`}>
                               <svg 
                                 className={`w-2 h-2 ${
-                                  getColorStyle(color) === '#FFFFFF' || ['#FFFFFF', '#EAB308', '#FBBF24'].includes(getColorStyle(color)) 
+                                  getColorStyle(color) === '#FFFFFF' || ['#FFFFFF', '#EAB308', '#FBBF24'].includes(getColorStyle(color))
                                     ? 'text-white' : 'text-gray-800'
                                 }`} 
                                 fill="currentColor" 
@@ -336,7 +338,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                               >
                                 <path 
                                   fillRule="evenodd" 
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                   clipRule="evenodd" 
                                 />
                               </svg>

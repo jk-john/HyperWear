@@ -2,9 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Twitter } from "lucide-react";
-import dynamic from "next/dynamic";
+import { Twitter } from "@/components/ui/icons";
 import Image from "next/image";
+import Link from "next/link";
+import dynamic from "next/dynamic";
 
 const PurrNftForm = dynamic(
   () => import("@/components/ui/PurrNftForm").then((mod) => mod.PurrNftForm),
@@ -176,14 +177,14 @@ export default function CommunityPageClient() {
               </p>
 
               <div className="mt-6 flex flex-row items-center justify-center">
-                <a
+                <Link
                   href="https://x.com/wear_hyper"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="transition-transform hover:scale-110"
                 >
                   <Twitter className="h-6 w-6 text-purple-200 hover:text-white" />
-                </a>
+                  </Link>
               </div>
             </div>
           </section>

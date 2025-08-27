@@ -1,116 +1,86 @@
-import { createClient as createServerClient } from '@/utils/supabase/server';
-import { rateLimit, getClientIdentifier, sanitizeError } from '@/lib/security';
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { CartItem, ShippingAddress } from "@/types";
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-const getShippingCost = (cartTotal: number): number => {
-  return cartTotal >= 60 ? 0 : 9.99;
-};
-
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting for checkout
-    const clientId = getClientIdentifier(request);
-    const rateLimitResult = rateLimit(clientId, { maxRequests: 5, windowMs: 60000 }); // 5 checkouts per minute
-    
-    if (!rateLimitResult.success) {
+    const body = await request.json();
+    const { userId, shippingAddress, cartItems }: {
+      userId: string;
+      shippingAddress: ShippingAddress;
+      cartItems: CartItem[];
+    } = body;
+
+    if (!userId || !shippingAddress || !cartItems?.length) {
       return NextResponse.json(
-        sanitizeError('rate_limit', 'rate_limit'),
-        { 
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': '5',
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
-          }
-        }
-      );
-    }
-
-    const { shippingAddress, cartItems } = await request.json();
-    const supabase = createServerClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(sanitizeError(authError, 'auth'), { status: 401 });
-    }
-
-    if (!cartItems || cartItems.length === 0) {
-      return NextResponse.json(
-        sanitizeError('Cart items are required', 'validation'),
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Calculate cart total to determine shipping
-    const cartTotal = cartItems.reduce((sum: number, item: { price: number; quantity: number }) => 
-      sum + (item.price * item.quantity), 0
-    );
-    const shippingCost = getShippingCost(cartTotal);
+    // Calculate total
+    const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const shippingCost = cartTotal >= 60 ? 0 : 9.99;
+    const finalTotal = cartTotal + shippingCost;
 
-    // Create dynamic line items from cart data
-    const lineItems = cartItems.map((item: { name: string; size?: string; price: number; quantity: number }) => ({
+    // Create line items for Stripe
+    const lineItems = cartItems.map((item) => ({
       price_data: {
-        currency: 'usd',
+        currency: "usd",
         product_data: {
-          name: item.name,
-          description: item.size ? `Size: ${item.size}` : undefined,
+          name: [
+            item.name,
+            item.size && `Size: ${item.size}`,
+            item.color && `Color: ${item.color}`,
+          ]
+            .filter(Boolean)
+            .join(" - "),
+          images: [item.imageUrl],
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
+        unit_amount: Math.round(item.price * 100),
       },
       quantity: item.quantity,
     }));
 
-    // Add shipping as a separate line item if applicable
+    // Add shipping as a line item if applicable
     if (shippingCost > 0) {
       lineItems.push({
         price_data: {
-          currency: 'usd',
+          currency: "usd",
           product_data: {
-            name: 'Shipping',
-            description: 'Standard shipping (Free shipping on orders over $60)',
+            name: "Shipping",
           },
-          unit_amount: Math.round(shippingCost * 100), // Convert to cents
+          unit_amount: Math.round(shippingCost * 100),
         },
         quantity: 1,
       });
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
       line_items: lineItems,
-      mode: 'payment',
-      customer_email: shippingAddress?.email,
-      client_reference_id: user.id, // Also include user ID here
+      mode: "payment",
+      customer_email: shippingAddress.email,
+      client_reference_id: userId,
       metadata: {
-        userId: user.id,
-        cartItems: JSON.stringify(cartItems),
+        userId: userId,
         shipping: JSON.stringify(shippingAddress),
+        cartItems: JSON.stringify(cartItems),
+        cartTotal: cartTotal.toString(),
+        shippingCost: shippingCost.toString(),
+        finalTotal: finalTotal.toString(),
       },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/checkout/cancel`,
     });
 
-    if (!session.url) {
-      return NextResponse.json(
-        { error: 'Failed to create checkout session' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      id: session.id,
-      url: session.url,
-    });
-  } catch (error: unknown) {
-    console.error('Stripe checkout error:', error);
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error("Checkout session creation failed:", error);
     return NextResponse.json(
-      sanitizeError(error, 'server'),
+      { error: "Failed to create checkout session" },
       { status: 500 }
     );
   }

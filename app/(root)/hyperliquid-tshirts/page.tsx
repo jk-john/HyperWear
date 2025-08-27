@@ -1,6 +1,6 @@
 import ProductGrid from "@/components/ProductGrid";
 import { Product } from "@/types";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";

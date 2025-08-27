@@ -40,12 +40,14 @@ const components: {
     title: "Caps",
     href: "/products?category=caps",
     src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
+
     description: "The best caps for your style.",
   },
   {
     title: "Accessories",
     href: "/products?category=accessories",
     src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-2-6861d32419357.png",
+
     description: "Complete your look with our accessories.",
   },
   {
@@ -69,6 +71,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                 <Link
                   href="/hyperliquid-merchandise"
                   className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
                 >
                   HyperLiquid Merchandise
                 </Link>
@@ -77,6 +80,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                 <Link
                   href="/hyperliquid-tshirts"
                   className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
                 >
                   HyperLiquid T-Shirts
                 </Link>
@@ -85,6 +89,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                 <Link
                   href="/hyperliquid-caps"
                   className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
                 >
                   HyperLiquid Caps
                 </Link>
@@ -110,6 +115,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
                       }}
                       className={cn(
                         "flex items-center justify-between py-3 px-4 -mx-4 text-base font-medium rounded-lg touch-manipulation transition-colors",
+
                         isComingSoon 
                           ? "cursor-not-allowed opacity-60 text-gray-400" 
                           : "text-gray-700 hover:text-primary hover:bg-gray-50"
@@ -137,12 +143,14 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               <Link
                 href="/collections"
                 className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
               >
                 Collections
               </Link>
               <Link
                 href="/new-arrivals"
                 className="flex items-center justify-between py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
               >
                 <span>New Arrivals</span>
                 <Badge variant="secondary" className="bg-gray-100 text-gray-500 text-xs">
@@ -152,6 +160,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               <Link 
                 href="/community" 
                 className="block py-3 px-4 -mx-4 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg touch-manipulation transition-colors"
+
               >
                 Community
               </Link>
@@ -172,27 +181,37 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               {/* Featured SEO Pages */}
               <div className="col-span-2 mb-4">
                 <h4 className="mb-3 text-sm font-semibold text-primary uppercase tracking-wider">Featured Collections</h4>
+
                 <div className="grid grid-cols-4 gap-3">
                   <Link
                     href="/hyperliquid-merchandise"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Merchandise</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Complete collection of merchandise</p>
+
                   </Link>
                   <Link
                     href="/hyperliquid-tshirts"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid T-Shirts</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium tees designed by the community</p>
+
                   </Link>
                   <Link
                     href="/hyperliquid-caps"
                     className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+
                   >
                     <div className="text-sm font-medium leading-none group-hover:text-primary">HyperLiquid Caps</div>
+
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Premium headwear for HyperLiquid fans</p>
+
                   </Link>
                 </div>
               </div>
@@ -200,6 +219,7 @@ export function Navigation({ isMobile = false }: { isMobile?: boolean }) {
               {/* Regular Product Categories */}
               <div className="col-span-2">
                 <h4 className="mb-3 text-sm font-semibold text-gray-600 uppercase tracking-wider">All Categories</h4>
+
                 <div className="grid grid-cols-2 gap-3">
                   {components.filter(c => !c.priority).map((component) => (
                     <ListItem

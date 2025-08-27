@@ -5,30 +5,28 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Get environment variables at module level to avoid HMR issues
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const nodeEnv = process.env.NODE_ENV;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export function getPublicImageUrl(path: string): string {
-  if (!path) return "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/tee-shirt.webp"; // Fallback image
+  if (!path) return "/products-img/tee-shirt.webp"; // Fallback image
 
   // If the path is already a full URL, return it directly
   if (path.startsWith("http")) {
     return path;
   }
 
-  // If the path starts with a slash, it's a local public path
-  if (path.startsWith("/")) {
-    return path;
-  }
-
-  // Get Supabase URL with fallback
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://auth.hyperwear.io";
-  const storageUrl = `${supabaseUrl}/storage/v1/object/public/`;
+  const supabaseStorageUrl = `${supabaseUrl}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name
   if (path.includes("/")) {
-    return `${storageUrl}${path}`;
+    return `${supabaseStorageUrl}${path}`;
   }
 
   // Otherwise, use the default 'product-images' bucket
-  return `${storageUrl}product-images/${path}`;
+  return `${supabaseStorageUrl}product-images/${path}`;
 }
 
 // Utility to clear potentially broken cart data from localStorage
@@ -48,10 +46,8 @@ export function clearBrokenCartData() {
 }
 
 export const getSiteUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
   if (!siteUrl) {
-    if (process.env.NODE_ENV === "development") {
+    if (nodeEnv === "development") {
       return "http://localhost:3000";
     }
     throw new Error(
@@ -80,12 +76,10 @@ export function assertEnvVars() {
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
     "RESEND_API_KEY",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
   ];
 
   const missingEnvVars = requiredEnvVars.filter(
-    (key) => !process.env[key]
+    (key) => !(process.env as Record<string, string | undefined>)[key]
   );
 
   if (missingEnvVars.length > 0) {
@@ -113,7 +107,7 @@ export function logError(error: Error, context?: string, metadata?: Record<strin
   };
   
   // In development, just console.error
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     console.error('Error:', errorData);
     return;
   }
@@ -141,7 +135,7 @@ export function logInfo(message: string, metadata?: Record<string, unknown>) {
     metadata,
   };
   
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     console.log('Info:', logData);
   } else {
     console.log('PRODUCTION_INFO:', JSON.stringify(logData));

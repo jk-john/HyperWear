@@ -1,7 +1,7 @@
 "use client";
 
 import { useHypePrice } from "@/context/HypePriceContext";
-import { BarChart3, TrendingDown, TrendingUp } from "lucide-react";
+import { BarChart3, TrendingDown, TrendingUp } from "@/components/ui/icons";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 

@@ -1,0 +1,279 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "hyperwear-ui",
+  "homepage": "https://hyperwear.io",
+  "items": [
+    {
+      "name": "3d-card",
+      "type": "registry:ui",
+      "title": "3D Card",
+      "description": "A 3D card component with hover effects and animations.",
+      "author": "HyperWear Team",
+      "categories": ["cards", "animations", "3d"],
+      "files": [
+        {
+          "path": "components/ui/3d-card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/3d-card.tsx"
+        }
+      ],
+      "dependencies": [
+        "react",
+        "framer-motion"
+      ],
+      "registryDependencies": [
+        "card"
+      ]
+    },
+    {
+      "name": "3d-carousel",
+      "type": "registry:ui",
+      "title": "3D Carousel",
+      "description": "A 3D carousel component for showcasing multiple items.",
+      "files": [
+        {
+          "path": "components/ui/3d-carousel.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "add-to-cart-button",
+      "type": "registry:ui",
+      "title": "Add to Cart Button",
+      "description": "E-commerce add to cart button with loading states.",
+      "files": [
+        {
+          "path": "components/ui/AddToCartButton.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "address-form",
+      "type": "registry:ui",
+      "title": "Address Form",
+      "description": "Form component for collecting address information.",
+      "files": [
+        {
+          "path": "components/ui/AddressForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "auth-toast",
+      "type": "registry:ui",
+      "title": "Auth Toast",
+      "description": "Toast notifications for authentication flows.",
+      "files": [
+        {
+          "path": "components/ui/AuthToast.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "careers-form",
+      "type": "registry:ui",
+      "title": "Careers Form",
+      "description": "Job application form component.",
+      "files": [
+        {
+          "path": "components/ui/CareersForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "password-reset-form",
+      "type": "registry:ui",
+      "title": "Password Reset Form",
+      "description": "Form for password reset functionality.",
+      "files": [
+        {
+          "path": "components/ui/PasswordResetForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "profile-form",
+      "type": "registry:ui",
+      "title": "Profile Form",
+      "description": "User profile editing form component.",
+      "files": [
+        {
+          "path": "components/ui/ProfileForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "profile-summary",
+      "type": "registry:ui",
+      "title": "Profile Summary",
+      "description": "User profile summary display component.",
+      "files": [
+        {
+          "path": "components/ui/ProfileSummary.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "purr-nft-form",
+      "type": "registry:ui",
+      "title": "Purr NFT Form",
+      "description": "Form component for NFT-related functionality.",
+      "files": [
+        {
+          "path": "components/ui/PurrNftForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "shimmer-button",
+      "type": "registry:ui",
+      "title": "Shimmer Button",
+      "description": "A button component with shimmer animation effects for enhanced visual appeal.",
+      "author": "HyperWear Team",
+      "categories": ["buttons", "animations"],
+      "files": [
+        {
+          "path": "components/ui/ShimmerButton.tsx",
+          "type": "registry:component",
+          "target": "components/ui/shimmer-button.tsx"
+        }
+      ],
+      "dependencies": [
+        "react",
+        "framer-motion"
+      ],
+      "registryDependencies": [
+        "button"
+      ],
+      "cssVars": {
+        "theme": {
+          "--shimmer-primary": "hsl(var(--primary))",
+          "--shimmer-secondary": "hsl(var(--secondary))"
+        },
+        "light": {
+          "--shimmer-opacity": "0.8"
+        },
+        "dark": {
+          "--shimmer-opacity": "0.6"
+        }
+      }
+    },
+    {
+      "name": "sign-in-form",
+      "type": "registry:ui",
+      "title": "Sign In Form",
+      "description": "User authentication sign-in form.",
+      "files": [
+        {
+          "path": "components/ui/SignInForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "sign-out-button",
+      "type": "registry:ui",
+      "title": "Sign Out Button",
+      "description": "Button component for user sign out functionality.",
+      "files": [
+        {
+          "path": "components/ui/SignOutButton.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "sign-up-form",
+      "type": "registry:ui",
+      "title": "Sign Up Form",
+      "description": "User registration form component.",
+      "files": [
+        {
+          "path": "components/ui/SignUpForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "update-password-form",
+      "type": "registry:ui",
+      "title": "Update Password Form",
+      "description": "Form for updating user passwords.",
+      "files": [
+        {
+          "path": "components/ui/UpdatePasswordForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "update-profile-form",
+      "type": "registry:ui",
+      "title": "Update Profile Form",
+      "description": "Form for updating user profile information.",
+      "files": [
+        {
+          "path": "components/ui/UpdateProfileForm.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "dynamic-image-showcase",
+      "type": "registry:ui",
+      "title": "Dynamic Image Showcase",
+      "description": "Dynamic image showcase component with animations.",
+      "files": [
+        {
+          "path": "components/ui/dynamic-image-showcase.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "phone-input",
+      "type": "registry:ui",
+      "title": "Phone Input",
+      "description": "International phone number input component.",
+      "files": [
+        {
+          "path": "components/ui/phone-input.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "retro-grid",
+      "type": "registry:ui",
+      "title": "Retro Grid",
+      "description": "Retro-style grid background component.",
+      "files": [
+        {
+          "path": "components/ui/retro-grid.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "scroll-based-velocity",
+      "type": "registry:ui",
+      "title": "Scroll Based Velocity",
+      "description": "Component with scroll-based velocity animations.",
+      "files": [
+        {
+          "path": "components/ui/scroll-based-velocity.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { rateLimit, getClientIdentifier, sanitizeError } from "@/lib/security";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

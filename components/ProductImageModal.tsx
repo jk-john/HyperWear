@@ -51,6 +51,7 @@ export const ProductImageModal = ({
   const needsColorSelection =
     product.category && ["t-shirts", "caps"].includes(product.category) && product.colors && product.colors.length > 0;
 
+
   useEffect(() => {
     emblaApi?.reInit();
     emblaApi?.scrollTo(initialSlide, true);
@@ -97,6 +98,7 @@ export const ProductImageModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-4xl h-auto max-h-[calc(100vh-32px)] bg-white dark:bg-gray-900 border-0 p-0 overflow-hidden [&>button.absolute.top-4.right-4]:hidden">
+
         <VisuallyHidden>
           <DialogTitle>{product.name}</DialogTitle>
           <DialogDescription>

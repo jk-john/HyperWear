@@ -1,6 +1,7 @@
 import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Header } from "@/components/Header";
+
 import { Toaster } from "@/components/ui/sonner";
 import { HypePriceProvider } from "@/context/HypePriceContext";
 import { assertEnvVars } from "@/lib/utils";
@@ -40,6 +41,7 @@ export const metadata: Metadata = {
   },
   description:
     "HyperLiquid t-shirts, mugs & merchandise designed by the community!  Premium quality Free shipping $60+ Exclusive designs Fast worldwide delivery. Shop now at HyperWear.io",
+
   keywords: [
     "HyperLiquid merchandise",
     "HyperLiquid t-shirts", 
@@ -74,6 +76,7 @@ export const metadata: Metadata = {
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
       "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+
     images: [
       {
         url: "/og-preview.png",
@@ -94,6 +97,7 @@ export const metadata: Metadata = {
     title: "HyperLiquid T-Shirts & Merchandise | HyperWear Community Store",
     description:
       "HyperLiquid t-shirts, mugs & merchandise designed by the community! Premium quality, free shipping $60+, exclusive designs.",
+
     images: ["/og-preview.png"],
   },
   alternates: {
@@ -153,7 +157,7 @@ export default function RootLayout({
           {children}
         </HypePriceProvider>
         <Footer />
-        <Toaster />
+        <Toaster /> 
         <CookieBanner />
         <SpeedInsights />
         <Analytics />
@@ -198,7 +202,7 @@ export default function RootLayout({
                 }
                 
                 // Web Vitals tracking only in production
-                if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                if (.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
                   if ('performance' in window && 'PerformanceObserver' in window) {
                     const observer = new PerformanceObserver((list) => {
                       for (const entry of list.getEntries()) {

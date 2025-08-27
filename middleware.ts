@@ -1,29 +1,8 @@
-import { createClient } from "@/utils/supabase/middleware";
+import { createClient } from "@/types/utils/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // Skip middleware for webhook endpoints
-  if (request.nextUrl.pathname.startsWith("/api/webhooks/")) {
-    return NextResponse.next();
-  }
-
   const { supabase, response } = createClient(request);
-
-  // Handle auth callback explicitly for email confirmations
-  if (request.nextUrl.pathname === "/auth/callback") {
-    // For auth callbacks, let Supabase handle session establishment
-    // The SSR client should automatically process auth tokens
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    
-    // If session was established, continue to callback page which will redirect
-    if (session) {
-      console.log("Middleware: Session established for", session.user.email);
-    }
-    
-    return response;
-  }
 
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
@@ -31,11 +10,15 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/checkout"))
-  ) {
+  console.log({
+    message: "Middleware check",
+    pathname: request.nextUrl.pathname,
+    user: user?.id,
+    hasWelcomeMessage: request.nextUrl.searchParams.has("welcome_message"),
+  });
+
+  if (!user && (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/checkout"))) {
+    console.log("Redirecting to /sign-in from middleware");
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
@@ -49,9 +32,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - api/webhooks (webhook endpoints)
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/webhooks).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/dashboard/:path*",
+    "/checkout/:path*",
   ],
 };

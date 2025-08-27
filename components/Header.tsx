@@ -1,22 +1,22 @@
 "use client";
 
+import { Cart } from "@/components/Cart";
 import { Logo } from "@/components/header/Logo";
 import { Navigation } from "@/components/header/Navigation";
-import ShimmerButton from "@/components/ui/ShimmerButton";
-import { Cart } from "@/components/Cart";
 import { SearchBar } from "@/components/header/SearchBar";
 import { UserAccountNav } from "@/components/header/UserAccountNav";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet";
-import { createClient } from "@/utils/supabase/client";
+import ShimmerButton from "@/components/ui/ShimmerButton";
+import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { Menu, X } from "lucide-react";
+import { Menu, X } from "@/components/ui/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -93,11 +93,13 @@ export const Header = () => {
               </button>
             </SheetTrigger>
             <SheetContent className="w-full max-w-full bg-white p-0 overflow-hidden flex flex-col max-h-[100vh]">
+
               <SheetHeader className="flex-shrink-0 sticky top-0 z-10 bg-white border-b border-gray-100">
                 <SheetTitle className="flex items-center justify-between px-4 py-4">
                   <Logo />
                   <SheetClose asChild>
                     <button className="p-2 -mr-2 touch-manipulation hover:bg-gray-100 rounded-full transition-colors">
+
                       <X className="h-6 w-6" />
                       <span className="sr-only">Close menu</span>
                     </button>
@@ -115,6 +117,7 @@ export const Header = () => {
                   <UserAccountNav user={user} displayMode="button" />
                   <Link href="/products" className="w-full">
                     <ShimmerButton className="w-full h-12 text-base touch-manipulation">Shop Now</ShimmerButton>
+
                   </Link>
                 </div>
               </div>

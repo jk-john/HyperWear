@@ -1,5 +1,5 @@
 import SearchPage from "@/components/SearchPage";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 
 export const metadata = {
   title: "Search • HyperWear",

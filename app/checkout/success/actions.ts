@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { createServiceClient } from "@/utils/supabase/service";
+import { createClient } from "@/types/utils/supabase/server";
+import { createServiceClient } from "@/types/utils/supabase/service";
 
 export async function getOrderDetailsBySessionId(sessionId: string) {
   // Use service role client to bypass RLS for order lookup on success page

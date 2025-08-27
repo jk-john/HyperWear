@@ -50,6 +50,7 @@ const Footer = () => {
                   {[
                     { name: "HyperLiquid Merchandise", href: "/hyperliquid-merchandise" },
                     { name: "HyperLiquid T-Shirts", href: "/hyperliquid-tshirts" },
+                    { name: "HyperLiquid Mugs", href: "/hyperliquid-mugs" },
                     { name: "HyperLiquid Caps", href: "/hyperliquid-caps" },
                     { name: "All Products", href: "/products" },
                     { name: "Collections", href: "/collections" },
@@ -203,8 +204,8 @@ const Footer = () => {
                         href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
                         className="transition-colors duration-200 flex items-center group"
                         style={{ color: 'var(--color-accent)' }}
-                        onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--color-secondary)'}
-                        onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--color-accent)'}
+                        onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = 'var(--color-secondary)'}
+                        onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = 'var(--color-accent)'}
                       >
                         <span 
                           className="w-1 h-1 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"

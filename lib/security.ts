@@ -17,6 +17,10 @@ export function generateNonce(): string {
   return btoa(String.fromCharCode(...array));
 }
 
+// Get environment variables at module level to avoid HMR issues
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const nodeEnv = process.env.NODE_ENV;
+
 // Secure CSP configuration with nonces
 export function getSecureCSP(nonce: string): string {
   return [
@@ -26,7 +30,7 @@ export function getSecureCSP(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: *.supabase.co *.hyperwear.io",
     "media-src 'self'",
-    `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''} https://api.resend.com https://api.hyperliquid.xyz https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.supabase.co https://api.stripe.com`,
+    `connect-src 'self' ${supabaseUrl} https://api.resend.com https://api.hyperliquid.xyz https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.supabase.co https://api.stripe.com`,
     "font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
     "object-src 'none'",
@@ -105,7 +109,7 @@ export function getClientIdentifier(request: NextRequest): string {
 
 // Sanitize error messages for production
 export function sanitizeError(error: unknown, context?: string): { message: string; code?: string } {
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     return {
       message: error instanceof Error ? error.message : 'Unknown error',
       code: error instanceof Error ? error.name : undefined

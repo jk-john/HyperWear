@@ -1,7 +1,7 @@
 import SubscriptionConfirmationEmail from "@/components/emails/SubscriptionConfirmationEmail";
 import { resend } from "@/lib/resend";
 import { getSiteUrl } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 
