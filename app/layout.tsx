@@ -1,6 +1,7 @@
 import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Header } from "@/components/Header";
+
 import { Toaster } from "@/components/ui/sonner";
 import { HypePriceProvider } from "@/context/HypePriceContext";
 import { assertEnvVars } from "@/lib/utils";
@@ -156,7 +157,7 @@ export default function RootLayout({
           {children}
         </HypePriceProvider>
         <Footer />
-        <Toaster />
+        <Toaster /> 
         <CookieBanner />
         <SpeedInsights />
         <Analytics />

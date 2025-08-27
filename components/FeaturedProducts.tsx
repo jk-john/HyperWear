@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import ProductGrid from "./ProductGrid";
 

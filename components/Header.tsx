@@ -14,9 +14,9 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import ShimmerButton from "@/components/ui/ShimmerButton";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { Menu, X } from "lucide-react";
+import { Menu, X } from "@/components/ui/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";

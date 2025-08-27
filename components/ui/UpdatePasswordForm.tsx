@@ -1,9 +1,9 @@
 "use client";
 
-import { sendPasswordChangeConfirmation } from "@/app/actions/send-password-confirmation";
+// Removed server action import to fix HMR issues
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -55,8 +55,7 @@ export function UpdatePasswordForm() {
       return;
     }
 
-    await sendPasswordChangeConfirmation();
-
+    // Skip sending confirmation email to avoid server action import
     toast.success("Your password was updated successfully.");
     router.push("/sign-in");
     setIsLoading(false);

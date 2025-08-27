@@ -1,6 +1,5 @@
 "use client";
 
-import { cancelOrder } from "@/app/checkout/actions";
 import { Button } from "@/components/ui/button";
 import { LEDGER_RECEIVING_ADDRESS } from "@/constants/wallet";
 import { useCartStore } from "@/stores/cart";
@@ -9,32 +8,27 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-type ConfirmationPageProps = {
-  params: { token: string };
-};
-
-function HypeConfirmation({ params }: ConfirmationPageProps) {
+export default function HypeConfirmationPage() {
+  const params = useParams<{ token: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const { setPendingOrder, clearCart } = useCartStore();
   const supabase = createClient();
 
   const [order, setOrder] = useState<Tables<"orders"> | null>(null);
-  const [isCancelled, setIsCancelled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const { clearCart, setPendingOrder } = useCartStore();
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [copiedAddress, setCopiedAddress] = useState(false);
-  const [copiedAmount, setCopiedAmount] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [successNotified, setSuccessNotified] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
   const isChecking = useRef(false);
-
-  const isPaid = order?.status === "paid" || order?.status === "completed";
-  const isExpired = timeLeft !== null && timeLeft <= 0;
 
   const receivingAddress = LEDGER_RECEIVING_ADDRESS;
 
@@ -42,52 +36,51 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
     navigator.clipboard.writeText(receivingAddress);
     setCopiedAddress(true);
     toast.success("Address copied to clipboard!");
-    setTimeout(() => setCopiedAddress(false), 2000);
+    setTimeout(() => setCopiedAddress(false), 3000);
   };
 
-  const handleCopyAmount = () => {
-    if (order?.total_token_amount) {
-      navigator.clipboard.writeText(
-        order.total_token_amount.toFixed(18).toString(),
+  const renderStatus = () => {
+    if (isPaid) {
+      return (
+        <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+            <p className="text-sm font-semibold text-emerald-800">Payment confirmed! ✅</p>
+          </div>
+        </div>
       );
-      setCopiedAmount(true);
-      toast.success("Amount copied to clipboard!");
-      setTimeout(() => setCopiedAmount(false), 2000);
     }
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
-  const getPaymentMessage = (status?: string | null) => {
-    if (!status) return null;
-    switch (status) {
-      case "underpaid":
-        return (
-          <div className="mb-4 rounded-lg bg-amber-50 p-3 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-              <p className="font-semibold text-amber-800 text-sm">Underpayment Detected</p>
-            </div>
-            <p className="text-amber-700 text-xs">Please send the remaining balance to complete your order.</p>
+    if (isCancelled) {
+      return (
+        <div className="mb-4 rounded-lg bg-gray-50 p-3 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+            <p className="text-sm font-semibold text-gray-800">Order cancelled</p>
           </div>
-        );
-      case "paid":
-      case "completed":
-        return (
-          <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <p className="text-sm font-semibold text-emerald-800">Verifying payment on the blockchain...</p>
-            </div>
-          </div>
-        );
-      default:
-        return null;
+        </div>
+      );
     }
+    if (isExpired) {
+      return (
+        <div className="mb-4 rounded-lg bg-red-50 p-3 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <p className="text-sm font-semibold text-red-800">Order expired</p>
+          </div>
+        </div>
+      );
+    }
+    if (timeLeft !== null && timeLeft > 0) {
+      return (
+        <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <p className="text-sm font-semibold text-emerald-800">Verifying payment on the blockchain...</p>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -118,30 +111,30 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
   useEffect(() => {
     if (order?.expires_at) {
       const interval = setInterval(() => {
-        const expiryTime = new Date(order.expires_at as string).getTime();
         const now = new Date().getTime();
-        const distance = expiryTime - now;
+        const expirationTime = new Date(order.expires_at!).getTime();
+        const timeLeftMs = expirationTime - now;
 
-        if (distance < 0) {
+        if (timeLeftMs <= 0) {
           setTimeLeft(0);
-          clearInterval(interval);
+          setIsExpired(true);
         } else {
-          setTimeLeft(Math.floor(distance / 1000));
+          setTimeLeft(Math.floor(timeLeftMs / 1000));
         }
       }, 1000);
+
       return () => clearInterval(interval);
     }
   }, [order]);
 
   useEffect(() => {
-    if (isCancelled) {
-      setPendingOrder(null);
+    if (isCancelled && !successNotified) {
       const timer = setTimeout(() => {
         router.push("/");
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [isCancelled, router, setPendingOrder]);
+  }, [isCancelled, router, setPendingOrder, successNotified]);
 
   useEffect(() => {
     if (isPaid && !successNotified) {
@@ -163,54 +156,87 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
 
       isChecking.current = true;
       try {
-        // First, trigger the backend to check for new transactions
-        await fetch("/api/trigger-verification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId }),
-        });
-
-        // Then, fetch the latest order status from the database
-        const { data: updatedOrder, error } = await supabase
+        const { data } = await supabase
           .from("orders")
-          .select("*")
+          .select("status, paid_amount, remaining_amount")
           .eq("id", orderId)
           .single();
 
-        if (error) {
-          console.error("Error fetching order status:", error);
-          // Do not return here, always release the lock in finally
-        } else if (updatedOrder) {
-          setOrder(updatedOrder);
-          if (updatedOrder.status === "underpaid") {
-            toast.warning("Partial payment received. Please send the rest.");
+        if (data) {
+          if (data.status === "paid") {
+            setIsPaid(true);
+          } else if (data.status === "cancelled") {
+            setIsCancelled(true);
           }
         }
+      } catch (error) {
+        console.error("Error checking order status:", error);
       } finally {
         isChecking.current = false;
       }
     };
 
-    // Trigger immediately on load
     checkOrderStatus();
-
-    const interval = setInterval(checkOrderStatus, 15000); // every 15 seconds
-
+    const interval = setInterval(checkOrderStatus, 15000);
     return () => clearInterval(interval);
   }, [orderId, isPaid, isCancelled, isExpired, supabase]);
 
   const handleCancel = async () => {
     if (!orderId || isCancelling) return;
     setIsCancelling(true);
+    
+    try {
+      // Client-side implementation of cancel order
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("User not authenticated.");
+        setIsCancelling(false);
+        return;
+      }
 
-    const result = await cancelOrder(orderId);
+      const { data: order, error: fetchError } = await supabase
+        .from("orders")
+        .select("id, user_id, status")
+        .eq("id", orderId)
+        .single();
 
-    if (result.success) {
+      if (fetchError || !order) {
+        toast.error("Order not found.");
+        setIsCancelling(false);
+        return;
+      }
+
+      if (order.user_id !== user.id) {
+        toast.error("You are not authorized to cancel this order.");
+        setIsCancelling(false);
+        return;
+      }
+
+      if (order.status !== "pending" && order.status !== "underpaid") {
+        toast.error(`Cannot cancel an order with status: ${order.status}.`);
+        setIsCancelling(false);
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status: "cancelled" })
+        .eq("id", order.id);
+
+      if (updateError) {
+        console.error("Error cancelling order:", updateError);
+        toast.error("Failed to cancel the order.");
+        setIsCancelling(false);
+        return;
+      }
+
       toast.info("Your order has been cancelled.");
-      setIsCancelled(true); // Manually trigger the UI update
-    } else {
-      toast.error(result.error || "Failed to cancel order.");
-      setIsCancelling(false); // Re-enable button only on failure
+      setIsCancelled(true);
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel the order.");
+      setIsCancelling(false);
     }
   };
 
@@ -225,185 +251,82 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
     );
   }
 
-  const tokenImages: { [key: string]: string } = {
-    hype: "/HYPE.svg",
-    usdt0: "/USDT0.svg",
-    usdhl: "/USDHL.svg",
-  };
-  const normalizedPaymentMethod =
-    order?.payment_method?.toLowerCase() || params.token;
-  const tokenImage = tokenImages[normalizedPaymentMethod];
-
-  const amountToPay = order?.total_token_amount ?? 0;
-
-  if (isCancelled) {
+  if (!order) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[--color-dark] p-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl">
-          <div className="mb-4">
-            <div className="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-          </div>
-          <h1 className="font-display text-xl font-bold text-gray-900 mb-2">
-            Order Cancelled
-          </h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            This order has been successfully cancelled. You will be redirected
-            to the homepage shortly.
+      <div className="flex min-h-screen items-center justify-center bg-[--color-dark] px-4">
+        <div className="text-center text-[--color-light]">
+          <h2 className="text-2xl font-bold mb-4">Order Not Found</h2>
+          <p className="text-[--color-accent] mb-6">
+            The order you&apos;re looking for could not be found.
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!orderId) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[--color-light]">Loading order...</p>
+          <Button
+            onClick={() => router.push("/")}
+            className="bg-[--color-secondary] text-[--color-primary] hover:bg-[--color-secondary]/90"
+          >
+            Return Home
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[--color-light]">Loading confirmation...</p>
+    <div className="min-h-screen bg-[--color-dark] py-8 px-4">
+      <div className="mx-auto max-w-lg">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-br from-[--color-primary] to-[--color-emerald] text-white p-8 text-center">
+            <div className="mb-4">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full border-4 border-white/30 backdrop-blur-sm">
+                <Image
+                  src="/HYPE.svg"
+                  alt="HYPE Token"
+                  width={40}
+                  height={40}
+                  className="drop-shadow-lg"
+                />
+              </div>
+            </div>
+            <h1 className="font-display text-3xl font-bold mb-2">
+              Complete Your Payment
+            </h1>
+            <p className="text-white/80 text-sm">
+              Send {params.token.toUpperCase()} to the address below
+            </p>
+            
+            {timeLeft !== null && timeLeft > 0 && (
+              <div className="mt-4 bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/20">
+                <div className="text-sm text-white/70">Time remaining</div>
+                <div className="text-2xl font-bold text-white">
+                  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      }
-    >
-      <div className="font-body min-h-screen bg-[--color-dark] p-4">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            {isPaid ? (
-              <div className="text-center space-y-4">
-                <div className="mb-4">
-                  <div className="w-16 h-16 mx-auto bg-emerald-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <h1 className="font-display text-2xl font-bold text-gray-900">
-                  Payment Received!
-                </h1>
-                <p className="text-[--color-primary] font-medium">
-                  Your order has been confirmed.
-                </p>
-                <p className="text-gray-600 text-sm leading-relaxed px-2">
-                  Thank you for your purchase! You will receive an email
-                  confirmation shortly with your order details.
-                </p>
-                <Button
-                  onClick={() => router.push(`/dashboard/orders`)}
-                  className="mt-6 w-full bg-[--color-primary] hover:bg-[--color-emerald] text-white rounded-full py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  View Your Orders
-                </Button>
-              </div>
-            ) : isExpired ? (
-              <div className="text-center space-y-4">
-                <div className="mb-4">
-                  <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <h1 className="font-display text-2xl font-bold text-gray-900">
-                  Order Expired
-                </h1>
-                <p className="text-gray-600">
-                  This payment request has expired.
-                </p>
-                <Button
-                  onClick={() => router.push("/checkout")}
-                  className="mt-6 w-full bg-gray-800 hover:bg-gray-700 text-white rounded-full py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  Create a New Order
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {/* Header */}
-                <div className="text-center space-y-3">
-                  <h1 className="font-display text-xl font-bold text-gray-900 leading-tight">
-                    Complete Your Payment
-                  </h1>
-                  {timeLeft !== null && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
-                      <span className="text-lg font-mono font-bold text-red-700">
-                        {formatTime(timeLeft)}
-                      </span>
-                    </div>
-                  )}
-                </div>
 
-                {getPaymentMessage(order?.status)}
+          <div className="p-8">
+            {renderStatus()}
 
-                {/* Payment Amount */}
-                <div className="text-center space-y-3">
-                  <p className="text-gray-600 text-sm font-medium">Send exactly</p>
-                  <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gray-50">
-                    {tokenImage && (
-                      <Image
-                        src={tokenImage}
-                        alt={normalizedPaymentMethod.toUpperCase()}
-                        width={28}
-                        height={28}
-                        className="flex-shrink-0"
-                      />
-                    )}
-                    <span className="font-mono text-lg font-bold text-[--color-primary] break-all">
-                      {amountToPay.toFixed(6)}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopyAmount}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm border ${
-                        copiedAmount 
-                          ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600" 
-                          : "bg-[--color-primary] text-black border-[--color-primary] hover:bg-[--color-emerald] hover:scale-105"
-                      }`}
-                    >
-                      {copiedAmount ? "✓ Copied" : "Copy"}
-                    </Button>
+            {!isPaid && !isCancelled && !isExpired && (
+              <div className="space-y-6">
+                {/* QR Code and Address */}
+                <div className="text-center space-y-4">
+                  <div className="inline-block p-6 bg-white rounded-2xl shadow-lg border-2 border-gray-100">
+                    <QRCodeSVG 
+                      value={receivingAddress} 
+                      size={200} 
+                      level="M"
+                      includeMargin={true}
+                      className="rounded-lg"
+                    />
                   </div>
-                </div>
-
-                {/* QR Code and Address in two columns on larger screens */}
-                <div className="space-y-4">
-                  <p className="text-gray-600 text-sm font-medium text-center">To the following address</p>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    {/* QR Code */}
-                    <div className="flex-shrink-0">
-                      <div className="p-3 rounded-xl bg-white shadow-md border">
-                        <QRCodeSVG
-                          value={receivingAddress}
-                          size={120}
-                          bgColor="#ffffff"
-                          fgColor="#0f3933"
-                          level="M"
-                        />
+                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                    <div className="space-y-3">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Receiving Address
                       </div>
-                    </div>
-
-                    {/* Address */}
-                    <div className="flex-1 space-y-3">
-                      <div className="p-3 rounded-xl bg-gray-50 border">
-                        <div className="font-mono text-xs text-gray-700 break-all leading-relaxed">
+                      <div className="bg-white rounded-xl p-4 border border-gray-200">
+                        <div className="font-mono text-xs text-gray-800 break-all leading-relaxed">
                           {receivingAddress}
                         </div>
                       </div>
@@ -451,24 +374,6 @@ function HypeConfirmation({ params }: ConfirmationPageProps) {
           </div>
         </div>
       </div>
-    </Suspense>
-  );
-}
-
-export default function HypeConfirmationPage() {
-  const params = useParams<{ token: string }>();
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[--color-dark]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-2 border-[--color-secondary] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[--color-light]">Loading confirmation...</p>
-          </div>
-        </div>
-      }
-    >
-      <HypeConfirmation params={{ token: params.token }} />
-    </Suspense>
+    </div>
   );
 }

@@ -6,6 +6,8 @@ interface Collection {
   description: string;
   image: string;
   link: string;
+  category?: string;
+  comingSoon?: boolean;
 }
 
 export const metadata: Metadata = {
@@ -24,57 +26,64 @@ export const metadata: Metadata = {
 };
 
 const carouselImages = [
-  "/img-collections/DSC02198.jpg",
-  "/img-collections/DSC02218.jpg",
-  "/img-collections/DSC02232.jpg",
-  "/img-collections/DSC02234.jpg",
-  "/img-collections/DSC02235.jpg",
-  "/img-collections/DSC02268.jpg",
-  "/img-collections/DSC02288.jpg",
-  "/img-collections/DSC02297.jpg",
-  "/img-collections/DSC02300.jpg",
-  "/img-collections/DSC02317.jpg",
-  "/img-collections/DSC02319.jpg",
-  "/img-collections/DSC02325.jpg",
-  "/img-collections/DSC02340.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02340.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02268.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02297.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02325.jpg",
+  "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02288.jpg",
 ];
 
 const collections: Collection[] = [
   {
     title: "Cool Caps",
     description: "Top off your look with our stylish caps.",
-    image: "/products-img/caps-2.jpg",
+    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
     link: "/products/caps",
+    category: "caps",
+    comingSoon: false,
   },
   {
     title: "Cozy Hoodies",
     description: "Stay warm and stylish with our hoodie collection.",
     image: "/products-img/hoddie-2.webp",
     link: "/products/hoodies",
+    category: "hoodies",
+    comingSoon: true,
   },
   {
     title: "Unique Mugs",
     description: "Start your day with a mug from our collection.",
-    image: "/products-img/mug-2.webp",
+    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-mug/white-glossy-mug-white-11-oz-front-view-6861d2a30720b.png",
     link: "/products/mugs",
+    category: "accessories",
+    comingSoon: false,
   },
   {
     title: "Cuddly Plushies",
     description: "Soft, cuddly, and ready for a new home.",
     image: "/products-img/plush.jpeg",
     link: "/products/plushies",
+    category: "plushies",
+    comingSoon: true,
   },
   {
     title: "Classic Tees",
     description: "Essential tees for every wardrobe.",
-    image: "/products-img/tee-shirt.webp",
+    image: "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
     link: "/products/tees",
+    category: "t-shirts",
+    comingSoon: false,
   },
   {
-    title: "Stylish Hoodies",
-    description: "Another look at our stylish hoodies.",
-    image: "/products-img/hoodie.webp",
-    link: "/products/hoodies",
+    title: "iPhone Cases",
+    description: "Protect your phone in style with our exclusive cases.",
+    image:
+      "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case/clear-case-for-iphone-iphone-13-pro-max-front-6861d36a44c96.png",
+    link: "/iphone-case",
+    category: "phone-cases",
+    comingSoon: false,
   },
 ];
 
@@ -87,8 +96,7 @@ const CollectionsPage = () => {
             Our Collections
           </h1>
           <p className="font-body mx-auto mt-4 max-w-2xl text-xl text-gray-500">
-            Discover our carefully curated collections, each with a unique style
-            and story.
+            Discover our carefully curated collections, each with a unique style and story.
           </p>
         </div>
         

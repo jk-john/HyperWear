@@ -19,6 +19,7 @@ interface SignUpConfirmationEmailProps {
   confirmationLink?: string;
 }
 
+// Get base URL at module level to avoid HMR issues  
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const SignUpConfirmationEmail = ({

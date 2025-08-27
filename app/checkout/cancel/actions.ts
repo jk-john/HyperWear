@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 
 export async function markOrderAsFailed(orderId: string) {
   const supabase = createClient();

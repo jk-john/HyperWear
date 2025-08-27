@@ -13,7 +13,7 @@ export default function Hero() {
       className="video-hero relative h-screen w-full overflow-hidden"
     >
       {/* Video Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 blur-xl">
         <video
           autoPlay
           loop
@@ -32,7 +32,7 @@ export default function Hero() {
 
 
       {/* Content Container */}
-      <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
+      <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-primary sm:p-6 md:p-8">
 
         {/* Animated Title */}
         <motion.div
@@ -44,7 +44,7 @@ export default function Hero() {
           <VelocityScroll
             tag="h1"
             defaultVelocity={2}
-            className="font-display text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
+            className="font-display text-3xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl"
           >
             The Place To House All Hyperliquid Fans.
           </VelocityScroll>
@@ -58,19 +58,13 @@ export default function Hero() {
           className="max-w-4xl text-center mb-12 px-4"
         >
           <motion.p
-            className="text-white font-body text-sm leading-6 sm:text-base md:text-lg"
-            style={{ 
-              textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
-            }}
+            className="text-primary font-body text-base leading-7 sm:text-lg md:text-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1 }}
           >
             <motion.span 
-              className="text-white font-semibold"
-              style={{ 
-                textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
-              }}
+              className="text-primary font-semibold"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 1.2 }}
@@ -85,10 +79,7 @@ export default function Hero() {
               back then but{" "}
             </motion.span>
             <motion.span 
-              className="text-white font-bold text-base sm:text-lg md:text-xl"
-              style={{ 
-                textShadow: '1px 1px 4px rgba(0, 0, 0, 0.6)' 
-              }}
+              className="text-primary font-bold text-lg sm:text-xl md:text-2xl"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1.6 }}
@@ -103,10 +94,7 @@ export default function Hero() {
               changed that. For the first time, wear the movement that{" "}
             </motion.span>
             <motion.span 
-              className="text-white font-semibold"
-              style={{ 
-                textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)' 
-              }}
+              className="text-primary font-semibold"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 2 }}
@@ -149,7 +137,7 @@ export default function Hero() {
           >
             <Button
               asChild
-              className="hero-button bg-transparent text-white hover:bg-secondary hover:text-primary hover:shadow-2xl w-56 rounded-full border-2 border-white transition-all duration-300 font-semibold text-lg py-6"
+              className="hero-button bg-transparent text-primary hover:bg-secondary hover:text-primary hover:shadow-2xl w-56 rounded-full border-2 border-primary transition-all duration-300 font-semibold text-lg py-6"
             >
               <Link href="/about-us">About Us</Link>
             </Button>
@@ -163,7 +151,7 @@ export default function Hero() {
           transition={{ duration: 1, delay: 3 }}
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
         >
-          <div className="scroll-indicator flex flex-col items-center text-white/80">
+          <div className="scroll-indicator flex flex-col items-center text-primary/80">
             <span className="text-sm font-medium mb-2 tracking-wider">SCROLL</span>
             <div className="w-[2px] h-8 bg-gradient-to-b from-secondary to-transparent rounded-full" />
           </div>

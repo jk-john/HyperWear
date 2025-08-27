@@ -6,11 +6,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = await getProductBySlug(params.slug);
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+  const { slug } = params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `HyperLiquid ${category?.toLowerCase()}`,
     ].join(', '),
     alternates: {
-      canonical: `/products/${params.slug}`,
+      canonical: `/products/${slug}`,
     },
     openGraph: {
       title: seoTitle,
@@ -72,8 +74,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductPage({ params }: Props) {
-  const product = await getProductBySlug(params.slug);
+export default async function ProductPage(props: Props) {
+  const params = await props.params;
+  const { slug } = params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return notFound();
@@ -100,7 +104,7 @@ export default async function ProductPage({ params }: Props) {
     sku: product.id,
     offers: {
       "@type": "Offer",
-      url: `https://hyperwear.io/products/${params.slug}`,
+      url: `https://hyperwear.io/products/${slug}`,
       priceCurrency: "USD",
       price: product.price,
       priceValidUntil: "2025-12-31",
@@ -175,7 +179,7 @@ export default async function ProductPage({ params }: Props) {
         "@type": "ListItem",
         position: 4,
         name: product.name,
-        item: `https://hyperwear.io/products/${params.slug}`
+        item: `https://hyperwear.io/products/${slug}`
       }
     ]
   };

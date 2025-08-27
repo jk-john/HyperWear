@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import Link from "next/link";
 import ProductGrid from "./ProductGrid";
 import { Button } from "./ui/button";

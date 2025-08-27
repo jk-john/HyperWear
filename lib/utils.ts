@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Get environment variables at module level to avoid HMR issues
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const nodeEnv = process.env.NODE_ENV;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export function getPublicImageUrl(path: string): string {
   if (!path) return "/products-img/tee-shirt.webp"; // Fallback image
 
@@ -13,15 +18,15 @@ export function getPublicImageUrl(path: string): string {
     return path;
   }
 
-  const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`;
+  const supabaseStorageUrl = `${supabaseUrl}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name
   if (path.includes("/")) {
-    return `${supabaseUrl}${path}`;
+    return `${supabaseStorageUrl}${path}`;
   }
 
   // Otherwise, use the default 'product-images' bucket
-  return `${supabaseUrl}product-images/${path}`;
+  return `${supabaseStorageUrl}product-images/${path}`;
 }
 
 // Utility to clear potentially broken cart data from localStorage
@@ -41,10 +46,8 @@ export function clearBrokenCartData() {
 }
 
 export const getSiteUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
   if (!siteUrl) {
-    if (process.env.NODE_ENV === "development") {
+    if (nodeEnv === "development") {
       return "http://localhost:3000";
     }
     throw new Error(
@@ -76,7 +79,7 @@ export function assertEnvVars() {
   ];
 
   const missingEnvVars = requiredEnvVars.filter(
-    (key) => !process.env[key]
+    (key) => !(process.env as Record<string, string | undefined>)[key]
   );
 
   if (missingEnvVars.length > 0) {
@@ -104,7 +107,7 @@ export function logError(error: Error, context?: string, metadata?: Record<strin
   };
   
   // In development, just console.error
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     console.error('Error:', errorData);
     return;
   }
@@ -132,7 +135,7 @@ export function logInfo(message: string, metadata?: Record<string, unknown>) {
     metadata,
   };
   
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     console.log('Info:', logData);
   } else {
     console.log('PRODUCTION_INFO:', JSON.stringify(logData));

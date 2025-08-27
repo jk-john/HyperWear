@@ -91,11 +91,13 @@ const formSchema = z
 
 type CheckoutFormValues = z.infer<typeof formSchema>;
 type UserAddress = Tables<"user_addresses">;
+type UserProfile = Tables<"user_profiles">;
 
 interface CheckoutClientProps {
   user: User | null;
   defaultAddress: UserAddress | null;
   walletAddress: string | null;
+  userProfile: UserProfile | null;
 }
 
 const formatTime = (seconds: number) => {
@@ -108,6 +110,7 @@ export function CheckoutClient({
   user,
   defaultAddress,
   walletAddress,
+  userProfile,
 }: CheckoutClientProps) {
   const {
     cartItems,
@@ -133,11 +136,17 @@ export function CheckoutClient({
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: defaultAddress?.first_name || "",
-      lastName: defaultAddress?.last_name || "",
+      firstName: defaultAddress?.first_name || 
+                 user?.user_metadata?.first_name || 
+                 user?.user_metadata?.full_name?.split(" ")[0] || "",
+      lastName: defaultAddress?.last_name || 
+                user?.user_metadata?.last_name || 
+                user?.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "",
       email: user?.email || "",
-      phoneNumber: isValidE164(defaultAddress?.phone_number)
-        ? defaultAddress?.phone_number
+      phoneNumber: (userProfile?.phone_number && isValidE164(userProfile.phone_number))
+        ? userProfile.phone_number
+        : (defaultAddress?.phone_number && isValidE164(defaultAddress.phone_number))
+        ? defaultAddress.phone_number
         : "",
       street: defaultAddress?.street || "",
       addressComplement: defaultAddress?.address_complement || "",

@@ -11,9 +11,9 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/stores/cart";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { Minus, Plus, ShoppingBag, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, X } from "@/components/ui/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

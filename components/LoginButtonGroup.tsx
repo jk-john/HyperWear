@@ -13,7 +13,7 @@ import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseCallbackUrl } from "@/lib/supabase/utils";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

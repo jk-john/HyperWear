@@ -14,7 +14,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Database } from "@/types/supabase";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];

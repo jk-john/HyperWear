@@ -1,8 +1,7 @@
-import { cancelOrder } from "@/app/checkout/actions";
 import { getPublicImageUrl } from "@/lib/utils";
 import { Product } from "@/types";
 import { Tables } from "@/types/supabase";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -22,6 +21,7 @@ interface CartState {
   pendingOrder: Order | null;
   timeLeft: number | null;
   timerId: number | null;
+  isCancelling: boolean;
   addToCart: (product: Product, size?: string, color?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
@@ -64,6 +64,7 @@ export const useCartStore = create<CartState>()(
       pendingOrder: null,
       timeLeft: null,
       timerId: null,
+      isCancelling: false,
 
       setPendingOrder: (order) => {
         set({ pendingOrder: order, timerId: null });
@@ -75,7 +76,7 @@ export const useCartStore = create<CartState>()(
             const distance = expiryTime - now;
             if (distance < 0) {
               set({ timeLeft: 0, timerId: null });
-              if (get().pendingOrder?.status === "pending") {
+              if (get().pendingOrder?.status === "pending" && !get().isCancelling) {
                 get().cancelPendingOrder();
               }
             } else {
@@ -161,23 +162,71 @@ export const useCartStore = create<CartState>()(
 
       cancelPendingOrder: async () => {
         const orderToCancel = get().pendingOrder;
-        if (!orderToCancel) return;
+        if (!orderToCancel || get().isCancelling) return;
 
-        // Use the new server action
-        const result = await cancelOrder(orderToCancel.id);
+        set({ isCancelling: true });
 
-        if (result.success) {
+        try {
+          // Client-side implementation of cancel order to avoid HMR issues
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (!user) {
+            toast.error("User not authenticated.");
+            set({ isCancelling: false });
+            return;
+          }
+
+          const { data: order, error: fetchError } = await supabase
+            .from("orders")
+            .select("id, user_id, status")
+            .eq("id", orderToCancel.id)
+            .single();
+
+          if (fetchError || !order) {
+            console.log("Order not found during cancellation, clearing pending order state");
+            // Clear the pending order state instead of showing error toast
+            const currentTimerId = get().timerId;
+            if (currentTimerId) {
+              clearInterval(currentTimerId);
+            }
+            set({ pendingOrder: null, timeLeft: null, timerId: null, isCancelling: false });
+            return;
+          }
+
+          if (order.user_id !== user.id) {
+            toast.error("You are not authorized to cancel this order.");
+            set({ isCancelling: false });
+            return;
+          }
+
+          if (order.status !== "pending" && order.status !== "underpaid") {
+            toast.error(`Cannot cancel an order with status: ${order.status}.`);
+            set({ isCancelling: false });
+            return;
+          }
+
+          const { error: updateError } = await supabase
+            .from("orders")
+            .update({ status: "cancelled" })
+            .eq("id", order.id);
+
+          if (updateError) {
+            console.error("Error cancelling order:", updateError);
+            toast.error("Failed to cancel the order.");
+            set({ isCancelling: false });
+            return;
+          }
+
           const currentTimerId = get().timerId;
           if (currentTimerId) {
             clearInterval(currentTimerId);
           }
-          set({ pendingOrder: null, timeLeft: null, timerId: null, cartItems: [] });
-          // Toast after state update to avoid render-time calls
+          set({ pendingOrder: null, timeLeft: null, timerId: null, cartItems: [], isCancelling: false });
           setTimeout(() => toast.success("Your pending order has been cancelled."), 0);
-        } else {
-          console.error("Error cancelling order:", result.error);
-          // Toast after logging to avoid render-time calls
-          setTimeout(() => toast.error(result.error || "Failed to cancel your order."), 0);
+        } catch (error) {
+          console.error("Error cancelling order:", error);
+          set({ isCancelling: false });
+          setTimeout(() => toast.error("Failed to cancel the order."), 0);
         }
       },
 
@@ -267,7 +316,7 @@ export const useCartStore = create<CartState>()(
         if (currentTimerId && typeof window !== 'undefined') {
           clearInterval(currentTimerId);
         }
-        set({ cartItems: [], pendingOrder: null, timeLeft: null, timerId: null });
+        set({ cartItems: [], pendingOrder: null, timeLeft: null, timerId: null, isCancelling: false });
       },
     }),
     {

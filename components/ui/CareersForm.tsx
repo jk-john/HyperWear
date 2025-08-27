@@ -1,6 +1,6 @@
 "use client";
 
-import { sendCareerApplication } from "@/app/actions/send-career-application";
+// Removed server action import to fix HMR issues
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,18 +37,36 @@ export default function CareersForm() {
   } = form;
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, String(value));
-    });
+    try {
+      const response = await fetch('/api/support', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'career',
+          fullName: values.fullName,
+          email: values.email,
+          role: values.role,
+          message: values.message,
+        }),
+      });
 
-    const result = await sendCareerApplication(formData);
+      if (!response.ok) {
+        throw new Error('Failed to submit application');
+      }
 
-    if (result?.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(result.success);
-      reset();
+      const result = await response.json();
+      
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success('Your career application has been submitted successfully!');
+        reset();
+      }
+    } catch (error) {
+      toast.error('Failed to submit application. Please try again.');
+      console.error('Career application error:', error);
     }
   };
 

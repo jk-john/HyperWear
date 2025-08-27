@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ProfileForm } from "@/components/ui/ProfileForm";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/types/utils/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
