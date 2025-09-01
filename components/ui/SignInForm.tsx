@@ -55,7 +55,7 @@ export function SignInForm({ callbackUrl, successMessage }: { callbackUrl?: stri
       if (session && successMessage) {
         // User is signed in and we have a success message, redirect after a short delay
         setTimeout(() => {
-          router.push(callbackUrl || "/dashboard");
+          router.push(callbackUrl || "/");
         }, 2000); // 2 second delay to show the success message
       }
     };
