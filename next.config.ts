@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// Bundle analyzer for performance monitoring
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   typescript: {
@@ -7,6 +12,11 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  
+  // Remove console logs in production
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   images: {
     remotePatterns: [
@@ -39,9 +49,19 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   experimental: {
-    optimizePackageImports: ["@radix-ui/react-icons", "lucide-react", "@supabase/supabase-js"],
+    // Reduced optimizePackageImports to avoid conflicts with Turbopack
+    optimizePackageImports: [
+      "@supabase/supabase-js",
+      "zustand"
+    ],
     scrollRestoration: true,
+    webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB'],
+    optimizeCss: true,
+    serverMinification: true,
   },
+  
+  // Removed modularizeImports due to conflicts with Turbopack and optimizePackageImports
+  // optimizePackageImports above handles tree-shaking for these libraries
   turbopack: {
     rules: {
       "*.svg": {
@@ -130,4 +150,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

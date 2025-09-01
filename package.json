@@ -15,7 +15,11 @@
     "test:security": "pnpm test:edge-compat && pnpm test:dev-env",
     "test:security-ci": "pnpm test:edge-compat",
     "predev": "pnpm test:security-ci",
-    "prebuild": "pnpm test:security-ci"
+    "prebuild": "pnpm test:security-ci",
+    "analyze": "ANALYZE=true pnpm build",
+    "analyze:server": "BUNDLE_ANALYZE=server pnpm build",
+    "analyze:browser": "BUNDLE_ANALYZE=browser pnpm build",
+    "perf:lighthouse": "pnpm build && pnpm start &; sleep 5; npx lighthouse http://localhost:3000 --view; kill %1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -73,11 +77,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^2.0.5",
+    "@next/bundle-analyzer": "^15.5.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19.1.6",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "critters": "^0.0.25",
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",

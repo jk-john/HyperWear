@@ -136,16 +136,105 @@ export default function RootLayout({
         <link rel="preconnect" href="https://jhxxuhisdypknlvhaklm.supabase.co" />
         <link rel="preconnect" href="https://api.hyperliquid.xyz" />
         
-        {/* Critical CSS for faster render */}
+        {/* Critical CSS for instant rendering */}
         <style dangerouslySetInnerHTML={{
           __html: `
             /* Critical CSS for above-the-fold content */
-            body { font-family: var(--font-body), system-ui, -apple-system, sans-serif; }
-            .hero-section { height: 100vh; position: relative; overflow: hidd en; }
-            .hero-button { transition: all 0.3s ease; }
-            .sticky { position: sticky; top: 0; z-index: 50; }
-            .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+            body { 
+              font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+              font-display: swap;
+            }
+            
+            /* Hero skeleton styles for instant visibility */
+            .hero { 
+              height: 100vh; 
+              position: relative; 
+              overflow: hidden;
+              background: linear-gradient(135deg, #1a5f5f 0%, #2d4a4a 50%, #0f3460 100%);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+            }
+            
+            .hero-content {
+              text-align: center;
+              z-index: 20;
+              position: relative;
+            }
+            
+            .hero-button { 
+              transition: all 0.3s ease;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              padding: 1.5rem 2rem;
+              border-radius: 9999px;
+              font-weight: 600;
+              font-size: 1.125rem;
+              width: 14rem;
+              border: 2px solid;
+            }
+            
+            .hero-button:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Loading states */
+            .animate-pulse { 
+              animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; 
+            }
+            
+            @keyframes pulse { 
+              0%, 100% { opacity: 1; } 
+              50% { opacity: .5; } 
+            }
+            
+            /* Reduce motion for accessibility */
+            @media (prefers-reduced-motion: reduce) {
+              *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+              }
+            }
+            
+            /* Progressive enhancement classes */
+            .enhanced-loading {
+              opacity: 0;
+              animation: fadeInEnhancement 0.5s ease-in-out 2s forwards;
+            }
+            
+            @keyframes fadeInEnhancement {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Grid and layout optimizations */
+            .product-grid {
+              display: grid;
+              gap: 2rem;
+              grid-template-columns: 1fr;
+            }
+            
+            @media (min-width: 640px) {
+              .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+              }
+            }
+            
+            @media (min-width: 1024px) {
+              .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+              }
+            }
+            
+            /* Font loading optimization */
+            .font-loading {
+              font-display: swap;
+              font-family: system-ui, -apple-system, sans-serif;
+            }
           `
         }} />
         {/* Font preload scripts removed to prevent hydration issues */}
@@ -159,8 +248,13 @@ export default function RootLayout({
         <Footer />
         <Toaster /> 
         <CookieBanner />
-        <SpeedInsights />
-        <Analytics />
+        {/* Load analytics after initial render for better performance */}
+        {typeof window !== 'undefined' && (
+          <>
+            <SpeedInsights />
+            <Analytics />
+          </>
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -202,7 +296,7 @@ export default function RootLayout({
                 }
                 
                 // Web Vitals tracking only in production
-                if (.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
                   if ('performance' in window && 'PerformanceObserver' in window) {
                     const observer = new PerformanceObserver((list) => {
                       for (const entry of list.getEntries()) {
