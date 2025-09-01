@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: "HyperWear <noreply@hyperwear.io>",
-      to: "contact@hyperwear.io",
+      to: "hyperwear.store@gmail.com",
       subject: `Support Request: ${subject}`,
       replyTo: email,
       html: `

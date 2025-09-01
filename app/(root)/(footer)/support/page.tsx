@@ -78,13 +78,13 @@ export default function SupportPage() {
                 <MessageSquare className="h-7 w-7" />
                 <span>Chat messaging on the website</span>
               </div>
-              <a
+              {/* <a
                 href="mailto:contact@hyperwear.io"
                 className="hover:text-accent flex items-center gap-4 text-lg transition-colors"
               >
                 <AtSign className="h-7 w-7" />
                 <span>contact@hyperwear.io</span>
-              </a>
+              </a> */}
             </div>
           </div>
 

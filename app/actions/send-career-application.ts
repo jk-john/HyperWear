@@ -25,7 +25,7 @@ export async function sendCareerApplication(formData: FormData) {
   try {
     await resend.emails.send({
       from: "HyperWear Careers <no-reply@hyperwear.io>",
-      to: "contact@hyperwear.io",
+      to: "hyperwear.store@gmail.com",
       subject: `New Career Application: ${role}`,
       replyTo: email,
       react: CareerApplicationEmail({
