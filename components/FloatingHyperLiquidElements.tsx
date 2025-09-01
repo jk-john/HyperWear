@@ -33,7 +33,7 @@ export default function FloatingHyperLiquidElements() {
           alt="HYPE"
           width={400}
           height={400}
-          className="opacity-3 "
+          className="opacity-2 "
           priority
         />
       </motion.div>

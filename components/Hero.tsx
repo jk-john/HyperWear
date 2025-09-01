@@ -1,175 +1,146 @@
 "use client";
 
 import FloatingHyperLiquidElements from "@/components/FloatingHyperLiquidElements";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { VelocityScroll } from "./ui/scroll-based-velocity";
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion();
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.12, delayChildren: 0.3 }
+    },
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] } },
+  };
 
   return (
-    <section 
-      className="hero relative h-screen w-full overflow-hidden"
+    <section
+      className="relative w-full min-h-[80svh] max-w-[90%] mx-auto overflow-hidden bg-[#02231e] text-white"
+      aria-label="HyperWear hero"
     >
-      
-      {/* Floating Elements */}
-      <FloatingHyperLiquidElements />
-
-      {/* Content Container */}
-      <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
-
-        {/* Animated Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-          className="h-20 w-full overflow-hidden sm:h-28 md:h-36 mb-8"
-        >
-          <VelocityScroll
-            tag="h1"
-            defaultVelocity={0.8}
-            className="font-display text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
-          >
-            The Place To House All Hyperliquid Fans.
-          </VelocityScroll>
-
-        </motion.div>
-
-        {/* Subtitle with simple text visibility */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-          className="max-w-4xl text-center mb-12 px-4"
-        >
-          <motion.p
-            className="text-white font-body text-base leading-7 sm:text-lg md:text-xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
-          >
-            <motion.span 
-              className="text-white font-semibold"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-            >
-              Crypto was fragmented
-            </motion.span>{" "}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.4 }}
-            >
-              back then but{" "}
-            </motion.span>
-            <motion.span 
-              className="text-white font-bold text-lg sm:text-xl md:text-2xl"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 1.6 }}
-            >
-              HyperLiquid
-            </motion.span>{" "}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.8 }}
-            >
-              changed that. For the first time, wear the movement that{" "}
-            </motion.span>
-            <motion.span 
-              className="text-white font-semibold"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2 }}
-            >
-              unites projects, creators, and assets
-            </motion.span>{" "}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 2.2 }}
-            >
-              under one seamless ecosystem.
-            </motion.span>
-          </motion.p>
-        </motion.div>
-
-        {/* Call-to-Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.4, ease: "easeOut" }}
-          className="flex w-full flex-col items-center justify-center gap-6 sm:w-auto sm:flex-row"
-        >
-          <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <Button
-              asChild
-              className="hero-button bg-secondary text-primary hover:bg-white hover:shadow-2xl w-56 rounded-full border-2 border-secondary transition-all duration-300 hover:text-primary font-semibold text-lg py-6"
-            >
-              <Link href="/products">Shop Now</Link>
-            </Button>
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <Button
-              asChild
-              className="hero-button bg-transparent text-white hover:bg-secondary hover:text-primary hover:shadow-2xl w-56 rounded-full border-2 border-white transition-all duration-300 font-semibold text-lg py-6"
-            >
-              <Link href="/about-us">About Us</Link>
-            </Button>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 3 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        >
-          <div className="scroll-indicator flex flex-col items-center text-white/80">
-            <span className="text-sm font-medium mb-2 tracking-wider text-white">SCROLL</span>
-            <div className="w-[2px] h-8 bg-gradient-to-b from-secondary to-transparent rounded-full" />
-          </div>
-        </motion.div>
+      {/* Ambient gradient + grid overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(75%_60%_at_50%_20%,rgba(151,252,228,0.25)_0%,rgba(2,35,30,0.2)_40%,rgba(2,35,30,0.95)_100%)]" />
+        <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent_90%)] opacity-20">
+          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M40 0H0V40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
       </div>
 
-      {/* Floating Elements */}
+      {/* Floating branded bits */}
+      <FloatingHyperLiquidElements />
 
+      {/* Content */}
       <motion.div
-        className="absolute top-1/3 left-10 w-1 h-1 bg-mint rounded-full opacity-30"
-        animate={{ 
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.7, 0.3]
-        }}
-        transition={{ 
-          duration: 5, 
-          repeat: Infinity,
-          delay: 2
-        }}
-      />
-      <motion.div
-        className="absolute bottom-1/3 right-10 w-1.5 h-1.5 bg-light rounded-full opacity-40"
-        animate={{ 
-          rotate: [0, 360],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ 
-          duration: 8, 
-          repeat: Infinity,
-          delay: 3
-        }}
-      />
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="relative z-10 mx-auto flex max-w-6xl flex-col items-center justify-center px-4 pt-28 pb-20 text-center sm:px-6 md:px-8 lg:pt-36"
+      >
+
+        {/* Title with Velocity Scroll + accessible fallback */}
+        <motion.div variants={fadeUp} className="mb-6 w-full max-w-4xl">
+          <VelocityScroll
+            tag="h1"
+            defaultVelocity={0.7}
+            className="whitespace-nowrap font-display text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl"
+          >
+            The Place To House All HyperLiquid Fans.
+          </VelocityScroll>
+          {/* Fallback for assistive tech / no-JS */}
+          <h1 className="sr-only">
+            The Place To House All HyperLiquid Fans.
+          </h1>
+        </motion.div>
+
+        {/* Subtitle */}
+        <motion.p
+          variants={fadeUp}
+          className="mb-10 max-w-2xl text-pretty text-white/90 text-base leading-7 sm:text-lg md:text-xl"
+        >
+          <span className="font-semibold">Crypto was fragmented</span> back then, but{" "}
+          <span className="font-bold">HyperLiquid</span> changed that. Wear the movement that{" "}
+          <span className="font-semibold">unites projects, creators, and assets</span>{" "}
+          under one seamless ecosystem.
+        </motion.p>
+
+        {/* CTAs */}
+        <motion.div
+          variants={fadeUp}
+          className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6"
+        >
+          <Button
+            asChild
+            className="w-56 rounded-full border-black shadow-lg bg-[#97fce4] text-[#02231e] hover:bg-primary hover:text-white transition"
+          >
+            <Link href="/products" aria-label="Browse HyperWear products">Shop Now</Link>
+          </Button> 
+
+          <Button
+            asChild
+            variant="outline"
+            className="w-56 rounded-full border-white/40 shadow-lg bg-transparent text-white hover:bg-secondary hover:text-black transition"
+          >
+            <Link href="/about-us" aria-label="Learn more about HyperWear">About Us</Link>
+          </Button>
+        </motion.div>
+
+        {/* Mini social proof / stat (optional, helps fill space on wide screens) */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-8 flex items-center gap-3 text-sm text-white/70"
+        >
+          <div className="flex -space-x-3">
+            <div className="h-8 w-8 rounded-full border border-white/10 overflow-hidden">
+              <Image
+                src="/purr-logo.jpg"
+                alt="Purr logo"
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="h-8 w-8 rounded-full border border-white/10 overflow-hidden">
+              <Image
+                src="/purr-logo.jpg"
+                alt="Purr logo"
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="h-8 w-8 rounded-full border border-white/10 overflow-hidden">
+              <Image
+                src="/purr-logo.jpg"
+                alt="Purr logo"
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+          <span>Trusted by some of the HyperLiquid Community</span>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
