@@ -96,17 +96,28 @@ export function SignInForm({ callbackUrl, successMessage }: { callbackUrl?: stri
   const handleOAuthSignIn = async (provider: "google") => {
     const supabase = createClient();
     const redirectTo = getSupabaseCallbackUrl(callbackUrl);
-    const { error } = await supabase.auth.signInWithOAuth({
+  
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo,
       },
     });
-
+  
     if (error) {
       toast.error(error.message);
+      console.error("❌ OAuth error:", error);
+      return;
+    }
+  
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      toast.error("Something went wrong with Google sign-in.");
     }
   };
+  
+  
 
   return (
     <Card className="w-full border-[var(--color-emerald)] bg-[var(--color-deep)] sm:w-96">
