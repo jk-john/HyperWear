@@ -1,12 +1,10 @@
 "use client";
 
+import FloatingHyperLiquidElements from "@/components/FloatingHyperLiquidElements";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { VelocityScroll } from "./ui/scroll-based-velocity";
-import AnimatedBackground from "./hero/AnimatedBackground";
-import FloatingHyperLiquidElements from "./hero/FloatingHyperLiquidElements";
-import ParticleCanvas from "./hero/ParticleCanvas";
 
 export default function Hero() {
 
@@ -14,18 +12,9 @@ export default function Hero() {
     <section 
       className="hero relative h-screen w-full overflow-hidden"
     >
-      {/* Animated Background */}
-      <AnimatedBackground />
-      
-      {/* Particle System */}
-      <ParticleCanvas />
       
       {/* Floating Elements */}
       <FloatingHyperLiquidElements />
-
-      {/* Light Overlay for text readability */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
-
 
       {/* Content Container */}
       <div className="relative z-20 flex h-full flex-col items-center justify-center p-4 text-center text-white sm:p-6 md:p-8">
@@ -39,14 +28,15 @@ export default function Hero() {
         >
           <VelocityScroll
             tag="h1"
-            defaultVelocity={2}
+            defaultVelocity={0.8}
             className="font-display text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
           >
             The Place To House All Hyperliquid Fans.
           </VelocityScroll>
+
         </motion.div>
 
-                {/* Subtitle with simple text visibility */}
+        {/* Subtitle with simple text visibility */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -155,9 +145,6 @@ export default function Hero() {
       </div>
 
       {/* Floating Elements */}
-      <div className="floating-element-1 absolute top-20 right-20 w-3 h-3 bg-secondary rounded-full opacity-60" />
-
-      <div className="floating-element-2 absolute bottom-40 left-20 w-2 h-2 bg-accent rounded-full opacity-50" />
 
       <motion.div
         className="absolute top-1/3 left-10 w-1 h-1 bg-mint rounded-full opacity-30"
