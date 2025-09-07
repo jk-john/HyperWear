@@ -1,7 +1,7 @@
-import { getPublicImageUrl } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { getCartImageUrl } from "@/lib/utils";
 import { Product } from "@/types";
 import { Tables } from "@/types/supabase";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -14,7 +14,7 @@ interface CartItem extends Product {
   imageUrl: string; // Full URL for the product image
 }
 
-type Order = Tables<"orders">;
+type Order = Tables<"orders">;    
 
 interface CartState {
   cartItems: CartItem[];
@@ -34,28 +34,8 @@ interface CartState {
 
 const supabase = createClient();
 
-// Helper function to ensure we get a valid image URL for the cart
-const getCartImageUrl = (product: Product, variantName?: string): string => {
-  let bestImageUrl = product.images?.[0] || "";
-  
-  // Try to find a better image based on variant name
-  if (product.images && product.images.length > 1 && variantName) {
-    const foundImage = product.images.find((img) =>
-      img.toLowerCase().includes(variantName.toLowerCase().trim()),
-    );
-    if (foundImage) {
-      bestImageUrl = foundImage;
-    }
-  }
 
-  // If we already have a full URL (starts with http), return it directly
-  if (bestImageUrl.startsWith("http")) {
-    return bestImageUrl;
-  }
 
-  // Otherwise, process it through getPublicImageUrl
-  return getPublicImageUrl(bestImageUrl);
-};
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -240,9 +220,8 @@ export const useCartStore = create<CartState>()(
 
         const cartItemId = `${product.id!}-${size || "nosize"}-${color || "nocolor"}`;
 
-        // Get the best image URL for this product variant
-        const variantName = product.name.split(" - ")[1];
-        const imageUrl = getCartImageUrl(product, variantName);
+        // Get the best image URL for this product
+        const imageUrl = getCartImageUrl(product);
 
         const state = get();
         const itemInCart = state.cartItems.find(

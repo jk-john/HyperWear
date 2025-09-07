@@ -23,6 +23,7 @@ export const ProductImageCarousel = ({
     Autoplay({ playOnInit: true, delay: 2000, stopOnInteraction: true }),
   ]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
 
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
@@ -49,6 +50,11 @@ export const ProductImageCarousel = ({
     };
   }, [emblaApi]);
 
+  const handleImageError = useCallback((index: number, src: string) => {
+    console.warn(`Image failed to load at index ${index}:`, src);
+    setBrokenImages(prev => new Set(prev.add(index)));
+  }, []);
+
   const hasImages = images && images.length > 0;
   const showCarousel = hasImages && images.length > 1;
 
@@ -68,11 +74,12 @@ export const ProductImageCarousel = ({
                   className="embla__slide relative h-full w-full flex-[0_0_100%]"
                 >
                   <Image
-                    src={getPublicImageUrl(image)}
+                    src={brokenImages.has(index) ? "/products-img/fallback.webp" : getPublicImageUrl(image)}
                     alt={`${productName} - Web3 clothing by HyperWear`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onError={() => handleImageError(index, getPublicImageUrl(image))}
                   />
                 </div>
               ))}
@@ -115,7 +122,7 @@ export const ProductImageCarousel = ({
           onClick={() => onImageClick(0)}
         >
           <Image
-            src={getPublicImageUrl(images?.[0])}
+            src={brokenImages.has(0) ? "/products-img/fallback.webp" : getPublicImageUrl(images?.[0])}
             alt={
               hasImages
                 ? `${productName} - Web3 clothing by HyperWear`
@@ -124,6 +131,7 @@ export const ProductImageCarousel = ({
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => handleImageError(0, getPublicImageUrl(images?.[0]))}
           />
         </div>
       )}

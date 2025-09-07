@@ -42,6 +42,7 @@ export const ProductImageModal = ({
   });
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
+  const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -60,6 +61,11 @@ export const ProductImageModal = ({
       setSelectedColor(undefined);
     }
   }, [emblaApi, initialSlide, isOpen]);
+
+  const handleImageError = useCallback((index: number, src: string) => {
+    console.warn(`Modal image failed to load at index ${index}:`, src);
+    setBrokenImages(prev => new Set(prev.add(index)));
+  }, []);
 
   const getColorStyle = (color: string) => {
     const colorMap: { [key: string]: string } = {
@@ -123,11 +129,12 @@ export const ProductImageModal = ({
                 {(product.images || []).map((image, index) => (
                   <div key={index} className="embla__slide relative min-w-full">
                     <Image
-                      src={getPublicImageUrl(image)}
+                      src={brokenImages.has(index) ? "/products-img/fallback.webp" : getPublicImageUrl(image)}
                       alt={`${product.name} image ${index + 1}`}
                       fill
                       className="object-contain p-4 sm:p-6 lg:p-8"
                       priority={index === initialSlide}
+                      onError={() => handleImageError(index, getPublicImageUrl(image))}
                     />
                   </div>
                 ))}

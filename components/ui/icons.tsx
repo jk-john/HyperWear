@@ -1,97 +1,28 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Edit,
+  LogOut,
+  Mail,
+  Menu,
+  Minus,
+  MoreHorizontal,
+  Plus,
+  Search,
+  ShoppingBag,
+  TrendingDown,
+  TrendingUp,
+  Twitter,
+  User,
+  X,
+} from "lucide-react";
+import * as React from "react";
 
-// Centralized dynamic imports for commonly used Lucide icons
-// This prevents HMR module factory issues by using dynamic imports
-
-// Loading placeholder component for icons
-const IconPlaceholder = ({ size = "h-4 w-4" }: { size?: string }) => (
-  <div className={`${size} bg-gray-400/20 rounded animate-pulse`} />
-);
-
-// Commonly used icons with dynamic imports
-export const Menu = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Menu })), {
-  ssr: false,
-  loading: () => <IconPlaceholder size="h-6 w-6" />
-});
-
-export const X = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.X })), {
-  ssr: false,
-  loading: () => <IconPlaceholder size="h-6 w-6" />
-});
-
-export const Search = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Search })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const ShoppingBag = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.ShoppingBag })), {
-  ssr: false,
-  loading: () => <IconPlaceholder size="h-6 w-6" />
-});
-
-export const Plus = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Plus })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const Minus = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Minus })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const LogOut = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.LogOut })), {
-  ssr: false,
-  loading: () => <IconPlaceholder size="h-5 w-5" />
-});
-
-export const User = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.User })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const Mail = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Mail })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const Twitter = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Twitter })), {
-  ssr: false,
-  loading: () => <IconPlaceholder size="h-6 w-6" />
-});
-
-export const ChevronLeft = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.ChevronLeft })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const ChevronRight = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.ChevronRight })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const BarChart3 = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.BarChart3 })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const TrendingUp = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.TrendingUp })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const TrendingDown = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.TrendingDown })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-export const Edit = dynamic(() => import("lucide-react").then((mod) => ({ default: mod.Edit })), {
-  ssr: false,
-  loading: () => <IconPlaceholder />
-});
-
-// Google Icon Component (not from Lucide)  
+// Google Icon Component (not from Lucide)
 const GoogleIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
@@ -124,4 +55,11 @@ export const Icons = {
   google: GoogleIcon,
 };
 
-// Add more icons as needed...
+// Export individual icons for direct use
+export {
+  BarChart3, ChevronLeft,
+  ChevronRight,
+  ChevronUp, Edit, LogOut, Mail, Menu, Minus, MoreHorizontal, Plus, Search,
+  ShoppingBag, TrendingDown, TrendingUp, Twitter, User, X
+};
+

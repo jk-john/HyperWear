@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "@/components/ui/icons";
 import * as React from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";

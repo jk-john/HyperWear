@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp } from "@/components/ui/icons";
 
 export const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);

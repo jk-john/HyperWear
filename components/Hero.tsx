@@ -1,7 +1,7 @@
 "use client";
 
 import FloatingHyperLiquidElements from "@/components/FloatingHyperLiquidElements";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -10,7 +10,7 @@ import { VelocityScroll } from "./ui/scroll-based-velocity";
 export default function Hero() {
   const reduceMotion = useReducedMotion();
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -18,16 +18,16 @@ export default function Hero() {
     },
   };
 
-  const fadeUp = {
+  const fadeUp: Variants = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] } },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] as const } },
   };
 
   return (
     <section
-      className="relative w-full min-h-[80svh] max-w-[90%] mx-auto overflow-hidden bg-[#02231e] text-white"
-      aria-label="HyperWear hero"
-    >
+    className="relative w-full min-h-90vh w-[95%] mx-auto overflow-hidden bg-[#02231e] text-white flex items-center justify-center"
+   aria-label="HyperWear hero"
+> 
       {/* Ambient gradient + grid overlay */}
       <div
         aria-hidden
@@ -47,15 +47,18 @@ export default function Hero() {
       </div>
 
       {/* Floating branded bits */}
+      
       <FloatingHyperLiquidElements />
 
+
+      
       {/* Content */}
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
         className="relative z-10 mx-auto flex max-w-6xl flex-col items-center justify-center px-4 pt-28 pb-20 text-center sm:px-6 md:px-8 lg:pt-36"
-      >
+        >
 
         {/* Title with Velocity Scroll + accessible fallback */}
         <motion.div variants={fadeUp} className="mb-6 w-full max-w-4xl">
@@ -63,7 +66,7 @@ export default function Hero() {
             tag="h1"
             defaultVelocity={0.7}
             className="whitespace-nowrap font-display text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl"
-          >
+            >
             The Place To House All HyperLiquid Fans.
           </VelocityScroll>
           {/* Fallback for assistive tech / no-JS */}
@@ -73,21 +76,22 @@ export default function Hero() {
         </motion.div>
 
         {/* Subtitle */}
-        <motion.p
-          variants={fadeUp}
-          className="mb-10 max-w-2xl text-pretty text-white/90 text-base leading-7 sm:text-lg md:text-xl"
-        >
-          <span className="font-semibold">Crypto was fragmented</span> back then, but{" "}
-          <span className="font-bold">HyperLiquid</span> changed that. Wear the movement that{" "}
-          <span className="font-semibold">unites projects, creators, and assets</span>{" "}
-          under one seamless ecosystem.
-        </motion.p>
+        <motion.div variants={fadeUp}>
+          <motion.p
+            className="mb-10 max-w-2xl text-pretty text-white/90 text-base leading-7 sm:text-lg md:text-xl"
+            >
+            <span className="font-semibold">Crypto was fragmented</span> back then, but{" "}
+            <span className="font-bold">HyperLiquid</span> changed that. Wear the movement that{" "}
+            <span className="font-semibold">unites projects, creators, and assets</span>{" "}
+            under one seamless ecosystem.
+          </motion.p>
+        </motion.div>
 
         {/* CTAs */}
         <motion.div
           variants={fadeUp}
           className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6"
-        >
+          >
           <Button
             asChild
             className="w-56 rounded-full border-black shadow-lg bg-[#97fce4] text-[#02231e] hover:bg-primary hover:text-white transition"
@@ -141,6 +145,7 @@ export default function Hero() {
           <span>Trusted by some of the HyperLiquid Community</span>
         </motion.div>
       </motion.div>
+
     </section>
   );
 }

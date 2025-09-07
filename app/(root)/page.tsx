@@ -1,5 +1,6 @@
 import AuthTokenHandler from "@/components/AuthTokenHandler";
 import Hero from "@/components/Hero";
+import GalleryImagesFetcher from "@/components/GalleryImagesFetcher";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -103,25 +104,6 @@ const storeSchema = {
 };
 
 export default function Home() {
-  // Collection images for the 3D carousel
-  const carouselImages = [
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02268.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02288.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02297.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02300.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02317.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02319.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02325.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02340.jpg",
-  ];
-
-  // Pass original array to avoid hydration mismatch - shuffling will happen client-side
-  const shuffledImages = carouselImages;
 
   return (
     <>
@@ -155,7 +137,11 @@ export default function Home() {
               <span className="text-primary">for the Community</span>
             </h2>
           </div>
-          <DynamicImageShowcaseWrapper images={shuffledImages} />
+          <Suspense fallback={<div className="h-80 animate-pulse bg-gray-100 rounded-lg" />}>
+            <GalleryImagesFetcher>
+              {(images) => <DynamicImageShowcaseWrapper images={images} />}
+            </GalleryImagesFetcher>
+          </Suspense>
         </section>
 
         {/* Trusted by Community Section */}

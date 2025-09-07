@@ -22,10 +22,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "isvemgxsvoefjoqflbyl.supabase.co",
-      },
-      {
-        protocol: "https",
         hostname: "jhxxuhisdypknlvhaklm.supabase.co",
       },
       {
@@ -95,7 +91,7 @@ const nextConfig: NextConfig = {
               "child-src *.youtube.com *.google.com *.twitter.com",
               "style-src 'self' 'unsafe-inline' *.googleapis.com",
               "img-src 'self' data: blob: https:",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''} https://api.resend.com https://api.hyperliquid.xyz https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.supabase.co`,
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''} https://api.resend.com https://api.hyperliquid.xyz https://vitals.vercel-insights.com https://*.supabase.co`,
               "font-src 'self' *.googleapis.com *.gstatic.com",
               "frame-src *.youtube.com *.twitter.com",
             ].join('; '),
