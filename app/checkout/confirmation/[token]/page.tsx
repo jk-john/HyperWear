@@ -286,24 +286,24 @@ export default function HypeConfirmationPage() {
                 />
               </div>
             </div>
-            <h1 className="font-display text-3xl font-bold mb-2">
+            <h1 className="font-display text-3xl font-bold mb-2 text-primary">
               Complete Your Payment
             </h1>
-            <p className="text-white/80 text-sm">
+            <p className="text-sm text-primary">
               Send {params.token.toUpperCase()} to the address below
             </p>
             
             {timeLeft !== null && timeLeft > 0 && (
               <div className="mt-4 bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/20">
-                <div className="text-sm text-white/70">Time remaining</div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-sm text-primary">Time remaining</div>
+                <div className="text-2xl font-bold text-primary">
                   {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-8">
+          <div className="px-8 py-4">
             {renderStatus()}
 
             {!isPaid && !isCancelled && !isExpired && (
