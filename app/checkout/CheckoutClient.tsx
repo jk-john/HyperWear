@@ -613,10 +613,16 @@ export function CheckoutClient({
                             </SelectItem>
                             <SelectItem
                               value="usdt0"
-                              className="border-b-2 border-black bg-white"
+                              className="border-b-2 border-black bg-gray-100 opacity-60 cursor-not-allowed"
+                              disabled
                             >
                               <div className="flex w-full items-center justify-between">
-                                <span>Pay with USDT0 on HyperEVM</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500">Pay with USDT0 on HyperEVM</span>
+                                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                    Coming Soon
+                                  </span>
+                                </div>
                                 <div className="ml-2 flex items-center gap-2">
                                   <Image
                                     src="/USDT0.svg"
@@ -624,16 +630,23 @@ export function CheckoutClient({
                                     width={24}
                                     height={24}
                                     quality={90}
+                                    className="opacity-50"
                                   />
                                 </div>
                               </div>
                             </SelectItem>
                             <SelectItem
                               value="usdhl"
-                              className="border-b-2 border-black bg-white"
+                              className="border-b-2 border-black bg-gray-100 opacity-60 cursor-not-allowed"
+                              disabled
                             >
                               <div className="flex w-full items-center justify-between">
-                                <span>Pay with USDHL on HyperEVM</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500">Pay with USDHL on HyperEVM</span>
+                                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                    Coming Soon
+                                  </span>
+                                </div>
                                 <div className="ml-2 flex items-center gap-2">
                                   <Image
                                     src="/USDHL.svg"
@@ -641,22 +654,29 @@ export function CheckoutClient({
                                     width={24}
                                     height={24}
                                     quality={90}
+                                    className="opacity-50"
                                   />
                                 </div>
                               </div>
                             </SelectItem>
                             <SelectItem
                               value="hype"
-                              className="border-b-2 border-black bg-white"
+                              className="border-b-2 border-black bg-gray-100 opacity-60 cursor-not-allowed"
+                              disabled
                             >
                               <div className="flex w-full items-center justify-between">
-                                <span>Pay with $HYPE on HyperEVM</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500">Pay with $HYPE on HyperEVM</span>
+                                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                    Coming Soon
+                                  </span>
+                                </div>
                                 <Image
                                   src="/HYPE.svg"
                                   alt="HYPE cryptocurrency logo"
                                   width={24}
                                   height={24}
-                                  className="ml-2"
+                                  className="ml-2 opacity-50"
                                   quality={90}
                                 />
                               </div>
