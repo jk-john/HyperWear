@@ -311,15 +311,21 @@ export const SignupForm = ({ errorType, errorMessage }: { errorType?: string; er
 
       const result = await response.json();
 
-      if (response.ok && result.ok) {
-        toast.success("Check your email to confirm your account.");
-        router.push("/sign-in");
+      if (response.ok) {
+        toast.success("Account created successfully! Check your email to confirm your account.");
+        // Don't redirect immediately - let user see the success message
+        setTimeout(() => {
+          router.push("/sign-in");
+        }, 2000);
       } else if (result.error) {
+        console.error("Signup API error:", result.error);
         toast.error(result.error);
       } else if (response.status >= 500) {
+        console.warn("API route failed, trying client-side signup");
         // Fallback: try client-side signup if API route fails with 500
         await handleClientSideSignUp(values);
       } else {
+        console.error("Unexpected signup error:", { status: response.status, result });
         toast.error("Something went wrong signing up. Please try again.");
       }
     } catch {

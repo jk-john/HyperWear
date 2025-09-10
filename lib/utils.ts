@@ -103,7 +103,7 @@ export const getSiteUrl = () => {
 };
 
 export const getCallbackUrl = () => {
-  return `${getSiteUrl()}auth/callback`;
+  return `${getSiteUrl()}/auth/callback`;
 };
 
 export const formatPrice = (price: number) => {
