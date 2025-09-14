@@ -1,4 +1,5 @@
 import { AuthToast } from "@/components/ui/AuthToast";
+import NewsletterBanner from "@/components/NewsletterBanner";
 import { Suspense } from "react";
 
 export default function RootLayout({
@@ -12,6 +13,7 @@ export default function RootLayout({
       <Suspense>
         <AuthToast />
       </Suspense>
+      <NewsletterBanner />
     </div>
   );
 }

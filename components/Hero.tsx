@@ -26,7 +26,7 @@ export default function Hero() {
   return (
     <section
     className="relative w-full min-h-90vh w-[95%] mx-auto overflow-hidden bg-[#02231e] text-white flex items-center justify-center"
-   aria-label="HyperWear hero"
+    aria-label="HyperWear hero"
 > 
       {/* Ambient gradient + grid overlay */}
       <div
@@ -71,7 +71,7 @@ export default function Hero() {
           </VelocityScroll>
           {/* Fallback for assistive tech / no-JS */}
           <h1 className="sr-only">
-            The Place To House All HyperLiquid Fans.
+            The Place To House All HyperLiquid Fans. HyperLiquid Merchandise.
           </h1>
         </motion.div>
 
