@@ -6,13 +6,13 @@ import Link from "next/link";
 import * as React from "react";
 
 import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
@@ -33,20 +33,20 @@ const components: {
   {
     title: "T-Shirts",
     href: "/products?category=t-shirts",
-    src: "https://auth.hyperwear.io/storage/v1/object/public/t-shirts-images/Front.png",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-x-hyperwear-bi-tone-logo-tee/unisex-classic-tee-white-front-and-back-6861cc2f4b550.webp",
     description: "Re-discover the basics",
   },
   {
     title: "Caps",
     href: "/products?category=caps",
-    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-quote-edition-embroidered/classic-dad-hat-white-right-front-6861cfef1df7f.webp",
 
     description: "The best caps for your style.",
   },
   {
     title: "Accessories",
     href: "/products?category=accessories",
-    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-2-6861d32419357.png",
+    src: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case/clear-case-for-iphone-iphone-13-pro-max-front-6861d36a44c96.webp",
 
     description: "Complete your look with our accessories.",
   },

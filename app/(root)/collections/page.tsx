@@ -39,7 +39,7 @@ const collections: Collection[] = [
   {
     title: "Cool Caps",
     description: "Top off your look with our stylish caps.",
-    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-purr-edition-no-embroidery/classic-dad-hat-white-front-686467c7ce7d8.png",
+    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-cap-embroidered/classic-dad-hat-white-front-6861cf08e0a36.webp",
     link: "/products/caps",
     category: "caps",
     comingSoon: false,
@@ -55,7 +55,7 @@ const collections: Collection[] = [
   {
     title: "Unique Mugs",
     description: "Start your day with a mug from our collection.",
-    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-mug/white-glossy-mug-white-11-oz-front-view-6861d2a30720b.png",
+    image: "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-mug/white-glossy-mug-white-11-oz-front-view-6861d2a30720b.webp",
     link: "/products/mugs",
     category: "accessories",
     comingSoon: false,
@@ -80,7 +80,7 @@ const collections: Collection[] = [
     title: "iPhone Cases",
     description: "Protect your phone in style with our exclusive cases.",
     image:
-      "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case/clear-case-for-iphone-iphone-13-pro-max-front-6861d36a44c96.png",
+      "https://auth.hyperwear.io/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-4-6861d324193c2.webp",
     link: "/iphone-case",
     category: "phone-cases",
     comingSoon: false,
