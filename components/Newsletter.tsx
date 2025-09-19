@@ -56,17 +56,17 @@ export default function Newsletter({ onClose, className }: NewsletterProps) {
           className
         )}
       >
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-full">
-                <Gift className="h-6 w-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+              <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
+                <Gift className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-lg font-semibold text-white">
                   Thank you! 🎉
                 </h3>
-                <p className="text-white text-sm">
+                <p className="text-white text-xs sm:text-sm">
                   We'll send you a special gift soon!
                 </p>
               </div>
@@ -76,9 +76,9 @@ export default function Newsletter({ onClose, className }: NewsletterProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-white hover:bg-white/20 hover:text-white"
+                className="text-white hover:bg-white/20 hover:text-white flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             )}
           </div>
@@ -94,25 +94,35 @@ export default function Newsletter({ onClose, className }: NewsletterProps) {
         className
       )}
     >
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-full">
-              <Gift className="h-6 w-6 text-white" />
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+            <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
+              <Gift className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm sm:text-lg font-semibold text-white">
                 Hey, we have a gift for your first shop! 🎁
               </h3>
-              <p className="text-white text-sm">
+              <p className="text-white text-xs sm:text-sm">
                 Subscribe to get exclusive deals and your welcome gift
               </p>
             </div>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="text-white hover:bg-white/20 hover:text-white flex-shrink-0 cursor-pointer sm:hidden h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           
-          <div className="flex items-center gap-3">
-            <form onSubmit={handleSubmit} className="flex gap-2 min-w-0">
-              <div className="relative">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 flex-1 sm:flex-none">
+              <div className="relative flex-1 sm:flex-none">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="email"
@@ -121,13 +131,13 @@ export default function Newsletter({ onClose, className }: NewsletterProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="pl-10 bg-white border-white/20 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-white min-w-[280px]"
+                  className="pl-10 bg-white border-white/20 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-white w-full sm:min-w-[280px] h-9 sm:h-10 text-sm"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={isLoading || !email.trim()}
-                className="bg-white text-primary hover:bg-white/90 font-medium px-6 cursor-pointer"
+                className="bg-white text-primary hover:bg-white/90 font-medium px-4 sm:px-6 cursor-pointer h-9 sm:h-10 text-sm sm:text-base"
               >
                 {isLoading ? "..." : "Get Gift"}
               </Button>
@@ -138,16 +148,16 @@ export default function Newsletter({ onClose, className }: NewsletterProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-white hover:bg-white/20 hover:text-white flex-shrink-0 cursor-pointer"
+                className="text-white hover:bg-white/20 hover:text-white flex-shrink-0 cursor-pointer hidden sm:flex h-8 w-8 sm:h-10 sm:w-10"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             )}
           </div>
         </div>
         
         {error && (
-          <div className="mt-3 text-white text-sm bg-red-500/20 rounded-md px-3 py-2 border border-red-500/30">
+          <div className="mt-3 text-white text-xs sm:text-sm bg-red-500/20 rounded-md px-3 py-2 border border-red-500/30">
             {error}
           </div>
         )}
