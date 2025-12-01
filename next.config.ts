@@ -32,10 +32,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "pbs.twimg.com",
       },
-      {
-        protocol: "https",
-        hostname: "auth.hyperwear.io",
-      },
     ],
     formats: ["image/webp", "image/avif"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
@@ -45,11 +41,6 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   experimental: {
-    // Reduced optimizePackageImports to avoid conflicts with Turbopack
-    optimizePackageImports: [
-      "@supabase/supabase-js",
-      "zustand"
-    ],
     scrollRestoration: true,
     webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB'],
     optimizeCss: true,

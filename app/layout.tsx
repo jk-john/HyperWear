@@ -1,3 +1,4 @@
+import { CartProvider } from "@/components/CartProvider";
 import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -139,11 +140,13 @@ export default function RootLayout({
 
       </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
-        <Header />
-        <HypePriceProvider>
-          {children}
-        </HypePriceProvider>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <HypePriceProvider>
+            {children}
+          </HypePriceProvider>
+          <Footer />
+        </CartProvider>
         <Toaster /> 
         <CookieBanner />
         <SpeedInsights />

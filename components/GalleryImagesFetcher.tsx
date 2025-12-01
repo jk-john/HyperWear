@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/types/utils/supabase/server';
 
 interface GalleryImagesFetcherProps {
   children: (images: string[]) => React.ReactNode;
@@ -52,11 +52,11 @@ export default async function GalleryImagesFetcher({ children }: GalleryImagesFe
   
   // Fallback images if Supabase fetch fails
   const fallbackImages = [
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
-    "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
+    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
+    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
+    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
+    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
+    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
   ];
   
   const finalImages = images.length > 0 ? images : fallbackImages;

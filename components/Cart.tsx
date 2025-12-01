@@ -20,8 +20,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
-const supabase = createClient();
-
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -50,6 +48,7 @@ export const Cart = ({
 
   useEffect(() => {
     const getUser = async () => {
+      const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();

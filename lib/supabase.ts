@@ -1,8 +1,7 @@
-import { createClient } from "@/lib/supabase/client";
-
-const supabase = createClient();
+import { createClient } from "@/types/utils/supabase/server";
 
 export async function searchProducts(query: string) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -13,6 +12,7 @@ export async function searchProducts(query: string) {
 }
 
 export async function getProductBySlug(slug: string) {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
     .select("*")

@@ -4,17 +4,17 @@ import { Product } from "@/types";
 import { Tables } from "@/types/supabase";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist, type StorageValue, type PersistStorage } from "zustand/middleware";
 
 interface CartItem extends Product {
   quantity: number;
   size?: string;
   color?: string;
-  cartItemId: string; // Unique ID for the cart item (product.id + size + color)
-  imageUrl: string; // Full URL for the product image
+  cartItemId: string;
+  imageUrl: string;
 }
 
-type Order = Tables<"orders">;    
+type Order = Tables<"orders">;
 
 interface CartState {
   cartItems: CartItem[];
@@ -32,7 +32,40 @@ interface CartState {
   setPendingOrder: (order: Order | null) => void;
 }
 
-const supabase = createClient();
+const safeStorage: PersistStorage<CartState> = {
+  getItem: (name: string): StorageValue<CartState> | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const value = window.localStorage.getItem(name);
+      return value ? JSON.parse(value) : null;
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name: string, value: StorageValue<CartState>): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(name, JSON.stringify(value));
+    } catch {
+      // Ignore storage errors
+    }
+  },
+  removeItem: (name: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.removeItem(name);
+    } catch {
+      // Ignore storage errors
+    }
+  },
+};
+
+const getSupabaseClient = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return createClient();
+};
 
 
 
@@ -84,6 +117,9 @@ export const useCartStore = create<CartState>()(
       },
 
       checkPendingOrder: async (userId: string) => {
+        const supabase = getSupabaseClient();
+        if (!supabase) return;
+
         const { data: order, error } = await supabase
           .from("orders")
           .select("*")
@@ -146,8 +182,13 @@ export const useCartStore = create<CartState>()(
 
         set({ isCancelling: true });
 
+        const supabase = getSupabaseClient();
+        if (!supabase) {
+          set({ isCancelling: false });
+          return;
+        }
+
         try {
-          // Client-side implementation of cancel order to avoid HMR issues
           const { data: { user } } = await supabase.auth.getUser();
           
           if (!user) {
@@ -300,13 +341,8 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage-v2",
-      storage: createJSONStorage(() => 
-        typeof window !== 'undefined' ? localStorage : {
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {}
-        }
-      ),
+      storage: safeStorage,
+      skipHydration: true,
     },
   ),
 );

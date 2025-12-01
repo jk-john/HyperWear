@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 
 // Local utility function to handle image URLs
 function getPublicImageUrl(path: string): string {
-  if (!path) return "https://auth.hyperwear.io/storage/v1/object/public/hyperwear-images/tee-shirt.webp";
+  if (!path) return "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/tee-shirt.webp";
 
   // If the path is already a full URL, return it directly
   if (path.startsWith("http")) {
@@ -22,7 +22,7 @@ function getPublicImageUrl(path: string): string {
   }
 
   // Get Supabase URL with fallback - avoid process.env in function to prevent HMR issues
-  const supabaseUrl = "https://auth.hyperwear.io"; // Using fallback to avoid HMR issues
+  const supabaseUrl = "https://jhxxuhisdypknlvhaklm.supabase.co"; // Using fallback to avoid HMR issues
   const storageUrl = `${supabaseUrl}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name

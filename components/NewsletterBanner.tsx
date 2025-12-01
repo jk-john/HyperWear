@@ -8,9 +8,11 @@ export default function NewsletterBanner() {
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const dismissed = localStorage.getItem("newsletter-dismissed");
     const subscribed = localStorage.getItem("newsletter-subscribed");
-    
+
     if (!dismissed && !subscribed) {
       const timer = setTimeout(() => {
         setIsVisible(true);
@@ -23,7 +25,9 @@ export default function NewsletterBanner() {
   const handleClose = () => {
     setIsVisible(false);
     setIsDismissed(true);
-    localStorage.setItem("newsletter-dismissed", "true");
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("newsletter-dismissed", "true");
+    }
   };
 
   if (!isVisible || isDismissed) {
