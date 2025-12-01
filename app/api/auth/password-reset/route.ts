@@ -1,12 +1,13 @@
 import PasswordResetEmail from "@/components/emails/PasswordResetEmail";
+import { getSupabaseAuthUrl, getSupabaseServiceRoleKey } from "@/lib/supabase/config";
 import { resend } from "@/lib/resend";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const supabaseAdmin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    getSupabaseAuthUrl(),
+    getSupabaseServiceRoleKey()
   );
   const { email } = await request.json();
 

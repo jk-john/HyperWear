@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, type UnsafeUnwrappedCookies } from "next/headers";
+import { getSupabaseAnonKey, getSupabaseAuthUrl } from "@/lib/supabase/config";
 
 export const createClient = () => {
   const cookieStore = (cookies() as unknown as UnsafeUnwrappedCookies);
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseAuthUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         async getAll() {

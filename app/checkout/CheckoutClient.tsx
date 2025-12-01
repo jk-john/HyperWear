@@ -318,6 +318,9 @@ export function CheckoutClient({
                 quantity: item.quantity,
                 size: item.size,
                 color: item.color,
+                iphoneModel: item.iphoneModel,
+                imageUrl: item.imageUrl,
+                cartItemId: item.cartItemId,
               })),
             }),
           });
@@ -736,6 +739,11 @@ export function CheckoutClient({
                           <p className="font-semibold text-sm sm:text-base truncate">
                             {item.name} {item.size && `(${item.size})`}
                           </p>
+                          {item.iphoneModel && (
+                            <p className="text-xs sm:text-sm text-white/70">
+                              Model: {item.iphoneModel}
+                            </p>
+                          )}
                           <p className="text-xs sm:text-sm text-white/70">
                             Qty: {item.quantity}
                           </p>

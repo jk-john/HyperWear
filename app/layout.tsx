@@ -136,6 +136,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://jhxxuhisdypknlvhaklm.supabase.co" />
+        <link rel="preconnect" href="https://auth.hyperwear.io" />
         <link rel="preconnect" href="https://api.hyperliquid.xyz" />
 
       </head>

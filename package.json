@@ -15,6 +15,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "test:edge-compat": "node scripts/check-edge-compatibility.js",
     "test:dev-env": "node scripts/validate-dev-environment.js",
+    "test:supabase-config": "tsx scripts/test-supabase-config.ts",
     "test:security": "pnpm test:edge-compat && pnpm test:dev-env",
     "test:security-ci": "pnpm test:edge-compat",
     "predev": "pnpm test:security-ci",

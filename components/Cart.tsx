@@ -202,6 +202,11 @@ export const Cart = ({
                         Size: {item.size}
                       </p>
                     )}
+                    {item.iphoneModel && (
+                      <p className="text-primary/80 text-sm font-medium">
+                        Model: {item.iphoneModel}
+                      </p>
+                    )}
                     <p className="text-primary/80 text-sm">
                       ${item.price.toFixed(2)}
                     </p>

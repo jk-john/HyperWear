@@ -1,12 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getSupabaseStorageUrl } from "@/lib/supabase/config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Get environment variables at module level to avoid HMR issues
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const nodeEnv = process.env.NODE_ENV;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -23,7 +22,7 @@ export function getPublicImageUrl(path: string, productSlug?: string): string {
     return path;
   }
 
-  const supabaseStorageUrl = `${supabaseUrl}/storage/v1/object/public/`;
+  const supabaseStorageUrl = `${getSupabaseStorageUrl()}/storage/v1/object/public/`;
 
   // If the path includes a slash, it's assumed to contain the bucket name
   if (path.includes("/")) {

@@ -42,11 +42,16 @@ async function sendOrderConfirmationEmail(
   }
 
   try {
-    const items = cartItems.map((item) => ({
-      name: item.size ? `${item.name} (Size: ${item.size})` : item.name,
-      quantity: item.quantity ?? 0,
-      price: item.price ?? 0,
-    }));
+    const items = cartItems.map((item) => {
+      let name = item.name;
+      if (item.size) name += ` (Size: ${item.size})`;
+      if (item.iphoneModel) name += ` (Model: ${item.iphoneModel})`;
+      return {
+        name,
+        quantity: item.quantity ?? 0,
+        price: item.price ?? 0,
+      };
+    });
 
     await resend.emails.send({
       from: "HyperWear <noreply@hyperwear.io>",
@@ -171,6 +176,9 @@ export async function POST(req: Request) {
           }
         }
         
+        // Extract iPhone model from cart items (if any)
+        const iphoneModel = cartItems.find((item: CartItem) => item.iphoneModel)?.iphoneModel || null;
+
         const { data: order, error } = await supabase
           .from("orders")
           .insert({
@@ -195,6 +203,7 @@ export async function POST(req: Request) {
             shipping_city: shippingDetails.city || '',
             shipping_postal_code: shippingDetails.postal_code || shippingDetails.zip || '',
             shipping_country: shippingDetails.country || '',
+            iphone_model: iphoneModel,
           })
           .select()
           .single();
@@ -207,13 +216,14 @@ export async function POST(req: Request) {
         console.log(`[WEBHOOK] Order created successfully! Order ID: ${order.id}, Stripe Session ID: ${order.stripe_session_id}`);
 
         if (order && cartItems.length > 0) {
-          const orderItems = cartItems.map((item) => ({
+          const orderItems = cartItems.map((item: CartItem) => ({
             order_id: order.id,
             product_id: item.id,
             quantity: item.quantity,
             price_at_purchase: item.price,
             size: item.size,
             color: item.color,
+            iphone_model: item.iphoneModel,
           }));
 
           const { error: itemsError } = await supabase

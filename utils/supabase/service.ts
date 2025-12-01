@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAuthUrl, getSupabaseServiceRoleKey } from "@/lib/supabase/config";
 
-// Service role client for server-side operations that bypass RLS
 export const createServiceClient = () => {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    getSupabaseAuthUrl(),
+    getSupabaseServiceRoleKey(),
     {
       auth: {
         autoRefreshToken: false,

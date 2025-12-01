@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServiceRoleKey, getSupabaseStorageUrl } from '@/lib/supabase/config';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      getSupabaseStorageUrl(),
+      getSupabaseServiceRoleKey()
     );
     
     const { data: files, error } = await supabase.storage

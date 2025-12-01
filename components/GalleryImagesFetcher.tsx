@@ -1,13 +1,16 @@
 import { createClient } from '@/types/utils/supabase/server';
+import { SUPABASE_PROJECT_URL } from '@/lib/supabase/config';
 
 interface GalleryImagesFetcherProps {
   children: (images: string[]) => React.ReactNode;
 }
 
+const STORAGE_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/hyperwear-images`;
+
 async function fetchGalleryImages(): Promise<string[]> {
   try {
     const supabase = createClient();
-    
+
     const { data: files, error } = await supabase.storage
       .from('hyperwear-images')
       .list('', {
@@ -25,10 +28,8 @@ async function fetchGalleryImages(): Promise<string[]> {
       return [];
     }
 
-    // Generate public URLs for all images
     const imageUrls = files
       .filter(file => {
-        // Only include image files
         const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
         return isImage && file.name !== '.emptyFolderPlaceholder';
       })
@@ -49,17 +50,16 @@ async function fetchGalleryImages(): Promise<string[]> {
 
 export default async function GalleryImagesFetcher({ children }: GalleryImagesFetcherProps) {
   const images = await fetchGalleryImages();
-  
-  // Fallback images if Supabase fetch fails
+
   const fallbackImages = [
-    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
-    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02218.jpg",
-    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
-    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02234.jpg",
-    "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02235.jpg",
+    `${STORAGE_BASE}/DSC02198.jpg`,
+    `${STORAGE_BASE}/DSC02218.jpg`,
+    `${STORAGE_BASE}/DSC02232.jpg`,
+    `${STORAGE_BASE}/DSC02234.jpg`,
+    `${STORAGE_BASE}/DSC02235.jpg`,
   ];
-  
+
   const finalImages = images.length > 0 ? images : fallbackImages;
-  
+
   return <>{children(finalImages)}</>;
 }

@@ -1,4 +1,5 @@
 import CollectionsClient from "@/components/CollectionsClient";
+import { SUPABASE_PROJECT_URL } from "@/lib/supabase/config";
 import { Metadata } from "next";
 
 interface Collection {
@@ -25,21 +26,23 @@ export const metadata: Metadata = {
   },
 };
 
+const STORAGE_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public`;
+
 const carouselImages = [
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02198.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02340.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02268.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02297.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02325.jpg",
-  "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02288.jpg",
+  `${STORAGE_BASE}/hyperwear-images/DSC02198.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02340.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02232.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02268.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02297.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02325.jpg`,
+  `${STORAGE_BASE}/hyperwear-images/DSC02288.jpg`,
 ];
 
 const collections: Collection[] = [
   {
     title: "Cool Caps",
     description: "Top off your look with our stylish caps.",
-    image: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-cap-embroidered/classic-dad-hat-white-front-6861cf08e0a36.webp",
+    image: `${STORAGE_BASE}/products-images/hyperliquid-cap-embroidered/classic-dad-hat-white-front-6861cf08e0a36.webp`,
     link: "/products/caps",
     category: "caps",
     comingSoon: false,
@@ -55,7 +58,7 @@ const collections: Collection[] = [
   {
     title: "Unique Mugs",
     description: "Start your day with a mug from our collection.",
-    image: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-mug/white-glossy-mug-white-11-oz-front-view-6861d2a30720b.webp",
+    image: `${STORAGE_BASE}/products-images/hyperliquid-mug/white-glossy-mug-white-11-oz-front-view-6861d2a30720b.webp`,
     link: "/products/mugs",
     category: "accessories",
     comingSoon: false,
@@ -71,7 +74,7 @@ const collections: Collection[] = [
   {
     title: "Classic Tees",
     description: "Essential tees for every wardrobe.",
-    image: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/hyperwear-images/DSC02232.jpg",
+    image: `${STORAGE_BASE}/hyperwear-images/DSC02232.jpg`,
     link: "/products/tees",
     category: "t-shirts",
     comingSoon: false,
@@ -79,8 +82,7 @@ const collections: Collection[] = [
   {
     title: "iPhone Cases",
     description: "Protect your phone in style with our exclusive cases.",
-    image:
-      "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-4-6861d324193c2.webp",
+    image: `${STORAGE_BASE}/products-images/hyperliquid-iphone-case-purr-edition/clear-case-for-iphone-iphone-14-pro-lifestyle-4-6861d324193c2.webp`,
     link: "/iphone-case",
     category: "phone-cases",
     comingSoon: false,

@@ -124,6 +124,7 @@ export type Database = {
           color: string | null
           created_at: string
           id: string
+          iphone_model: string | null
           order_id: string
           price_at_purchase: number
           product_id: string
@@ -134,6 +135,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: string
+          iphone_model?: string | null
           order_id: string
           price_at_purchase: number
           product_id: string
@@ -144,6 +146,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: string
+          iphone_model?: string | null
           order_id?: string
           price_at_purchase?: number
           product_id?: string
@@ -178,6 +181,7 @@ export type Database = {
           email_sent: boolean | null
           expires_at: string | null
           id: string
+          iphone_model: string | null
           paid_amount: number | null
           payment_method: string | null
           receipt_url: string | null
@@ -211,6 +215,7 @@ export type Database = {
           email_sent?: boolean | null
           expires_at?: string | null
           id?: string
+          iphone_model?: string | null
           paid_amount?: number | null
           payment_method?: string | null
           receipt_url?: string | null
@@ -244,6 +249,7 @@ export type Database = {
           email_sent?: boolean | null
           expires_at?: string | null
           id?: string
+          iphone_model?: string | null
           paid_amount?: number | null
           payment_method?: string | null
           receipt_url?: string | null

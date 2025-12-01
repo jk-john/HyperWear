@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { SUPABASE_PROJECT_URL } from "@/lib/supabase/config";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -15,6 +16,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+
+const STORAGE_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/products-images`;
 
 const components: {
   title: string;
@@ -33,19 +36,19 @@ const components: {
   {
     title: "T-Shirts",
     href: "/products?category=t-shirts",
-    src: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-x-hyperwear-bi-tone-logo-tee/unisex-classic-tee-white-front-and-back-6861cc2f4b550.webp",
+    src: `${STORAGE_BASE}/hyperliquid-x-hyperwear-bi-tone-logo-tee/unisex-classic-tee-white-front-and-back-6861cc2f4b550.webp`,
     description: "Re-discover the basics",
   },
   {
     title: "Caps",
     href: "/products?category=caps",
-    src: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-cap-quote-edition-embroidered/classic-dad-hat-white-right-front-6861cfef1df7f.webp",
+    src: `${STORAGE_BASE}/hyperliquid-cap-quote-edition-embroidered/classic-dad-hat-white-right-front-6861cfef1df7f.webp`,
     description: "The best caps for your style.",
   },
   {
     title: "Accessories",
     href: "/products?category=accessories",
-    src: "https://jhxxuhisdypknlvhaklm.supabase.co/storage/v1/object/public/products-images/hyperliquid-iphone-case/clear-case-for-iphone-iphone-13-pro-max-front-6861d36a44c96.webp",
+    src: `${STORAGE_BASE}/hyperliquid-iphone-case/clear-case-for-iphone-iphone-13-pro-max-front-6861d36a44c96.webp`,
     description: "Complete your look with our accessories.",
   },
   {

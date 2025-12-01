@@ -1,4 +1,5 @@
 import { createBrowserClient, type SupabaseClient } from "@supabase/ssr";
+import { getSupabaseAnonKey, getSupabaseAuthUrl } from "@/lib/supabase/config";
 
 let supabaseInstance: SupabaseClient | null = null;
 
@@ -9,8 +10,8 @@ export function createClient(): SupabaseClient {
 
   if (!supabaseInstance) {
     supabaseInstance = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      getSupabaseAuthUrl(),
+      getSupabaseAnonKey(),
       {
         auth: {
           autoRefreshToken: true,

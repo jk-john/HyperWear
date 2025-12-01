@@ -10,6 +10,7 @@ interface CartItem extends Product {
   quantity: number;
   size?: string;
   color?: string;
+  iphoneModel?: string;
   cartItemId: string;
   imageUrl: string;
 }
@@ -22,7 +23,7 @@ interface CartState {
   timeLeft: number | null;
   timerId: number | null;
   isCancelling: boolean;
-  addToCart: (product: Product, size?: string, color?: string) => void;
+  addToCart: (product: Product, size?: string, color?: string, iphoneModel?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   totalPrice: () => number;
@@ -156,13 +157,15 @@ export const useCartStore = create<CartState>()(
             .filter((item) => item.products)
             .map((item) => {
               const product = item.products as Product;
+              const iphoneModel = (item as { iphone_model?: string | null }).iphone_model;
               return {
                 ...product,
                 price: Number(item.price_at_purchase),
                 quantity: item.quantity,
                 size: item.size ?? undefined,
                 color: item.color ?? undefined,
-                cartItemId: `${product.id!}-${item.size || "nosize"}-${item.color || "nocolor"}`,
+                iphoneModel: iphoneModel ?? undefined,
+                cartItemId: `${product.id!}-${item.size || "nosize"}-${item.color || "nocolor"}-${iphoneModel || "nomodel"}`,
                 imageUrl: getCartImageUrl(product),
               };
             });
@@ -251,7 +254,7 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      addToCart: (product, size, color) => {
+      addToCart: (product, size, color, iphoneModel) => {
         if (get().pendingOrder) {
           toast.error(
             "You have a pending payment. Please complete or cancel it before adding new items.",
@@ -259,7 +262,7 @@ export const useCartStore = create<CartState>()(
           return;
         }
 
-        const cartItemId = `${product.id!}-${size || "nosize"}-${color || "nocolor"}`;
+        const cartItemId = `${product.id!}-${size || "nosize"}-${color || "nocolor"}-${iphoneModel || "nomodel"}`;
 
         // Get the best image URL for this product
         const imageUrl = getCartImageUrl(product);
@@ -280,16 +283,16 @@ export const useCartStore = create<CartState>()(
           // Toast after state update to avoid render-time calls
           setTimeout(() => toast.success(`Added another ${product.name} to your cart.`), 0);
         } else {
-          const sizeColorText = [size, color].filter(Boolean).join(", ");
+          const variantText = [size, color, iphoneModel].filter(Boolean).join(", ");
           set({
             cartItems: [
               ...state.cartItems,
-              { ...product, quantity: 1, size, color, cartItemId, imageUrl },
+              { ...product, quantity: 1, size, color, iphoneModel, cartItemId, imageUrl },
             ],
           });
           // Toast after state update to avoid render-time calls
           setTimeout(() => toast.success(
-            `Added ${product.name}${sizeColorText ? ` (${sizeColorText})` : ""} to your cart.`,
+            `Added ${product.name}${variantText ? ` (${variantText})` : ""} to your cart.`,
           ), 0);
         }
       },
@@ -340,7 +343,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: "cart-storage-v2",
+      name: "cart-storage-v3",
       storage: safeStorage,
       skipHydration: true,
     },

@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
             item.name,
             item.size && `Size: ${item.size}`,
             item.color && `Color: ${item.color}`,
+            item.iphoneModel && `Model: ${item.iphoneModel}`,
           ]
             .filter(Boolean)
             .join(" - "),

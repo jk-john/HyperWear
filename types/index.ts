@@ -27,6 +27,7 @@ export type CartItem = {
   quantity: number;
   size?: string;
   color?: string;
+  iphoneModel?: string;
   variant_id?: string | null;
   imageUrl: string;
   cartItemId: string;

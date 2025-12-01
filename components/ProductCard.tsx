@@ -8,6 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { IPhoneModelSelect } from "@/components/ui/IPhoneModelSelect";
 import { useHypePrice } from "@/context/HypePriceContext";
 import { logError } from '@/lib/utils';
 import { useCartStore } from "@/stores/cart";
@@ -30,6 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [initialSlide, setInitialSlide] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
+  const [selectedIPhoneModel, setSelectedIPhoneModel] = useState<string | undefined>();
   const { hypePrice, isLoading: hypeLoading } = useHypePrice();
 
   const handleImageClick = (index: number) => {
@@ -46,10 +48,18 @@ export default function ProductCard({ product }: ProductCardProps) {
     product.available_sizes &&
     product.available_sizes.length > 0;
 
-  const needsColorSelection = 
+  const needsColorSelection =
     (product.category === "t-shirts" || product.category === "caps") &&
     product.colors &&
     product.colors.length > 0;
+
+  const productNameLower = product.name.toLowerCase();
+  const isPhoneCase =
+    product.category === "phone-cases" ||
+    (product.category === "accessories" &&
+      (productNameLower.includes("iphone") || productNameLower.includes("phone case")));
+
+  const needsIPhoneModelSelection = isPhoneCase;
 
   const handleAddToCart = () => {
     try {
@@ -61,12 +71,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         toast.error("Please select a color");
         return;
       }
-      addToCart(product, selectedSize, selectedColor);
+      if (needsIPhoneModelSelection && !selectedIPhoneModel) {
+        toast.error("Please select your iPhone model");
+        return;
+      }
+      addToCart(product, selectedSize, selectedColor, selectedIPhoneModel);
     } catch (error) {
       logError(error instanceof Error ? error : new Error(String(error)), 'Add to Cart', {
         productId: product.id,
         selectedSize,
-        selectedColor
+        selectedColor,
+        selectedIPhoneModel
       });
       toast.error("Something went wrong");
     }
@@ -361,13 +376,33 @@ export default function ProductCard({ product }: ProductCardProps) {
               </div>
             )}
 
+            {/* iPhone Model Selection */}
+            {needsIPhoneModelSelection && (
+              <div className="w-full">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    iPhone Model *
+                  </label>
+                  <IPhoneModelSelect
+                    value={selectedIPhoneModel}
+                    onValueChange={setSelectedIPhoneModel}
+                  />
+                  {!selectedIPhoneModel && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Please select your iPhone model
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Add to Cart Button */}
             <div className="w-full pt-2">
               <Button
                 onClick={handleAddToCart}
-                disabled={!!(needsSizeSelection && !selectedSize) || !!(needsColorSelection && !selectedColor)}
+                disabled={!!(needsSizeSelection && !selectedSize) || !!(needsColorSelection && !selectedColor) || !!(needsIPhoneModelSelection && !selectedIPhoneModel)}
                 className={`w-full h-10 text-sm font-medium rounded-md transition-all duration-200 ${
-                  (needsSizeSelection && !selectedSize) || (needsColorSelection && !selectedColor)
+                  (needsSizeSelection && !selectedSize) || (needsColorSelection && !selectedColor) || (needsIPhoneModelSelection && !selectedIPhoneModel)
                     ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed border border-gray-200 dark:border-gray-700"
                     : "bg-[var(--color-primary)] hover:bg-[var(--color-emerald)] text-white shadow-md hover:shadow-lg active:scale-[0.98]"
                 }`}
@@ -376,6 +411,8 @@ export default function ProductCard({ product }: ProductCardProps) {
                   "Select a size"
                 ) : needsColorSelection && !selectedColor ? (
                   "Select a color"
+                ) : needsIPhoneModelSelection && !selectedIPhoneModel ? (
+                  "Select iPhone model"
                 ) : (
                   "Add to Cart"
                 )}

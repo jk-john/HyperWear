@@ -11,6 +11,11 @@ const getShippingCost = (cartTotal: number): number => {
   return cartTotal >= 60 ? 0 : 9.99;
 };
 
+const getIPhoneModelFromCart = (cartItems: CartItem[]): string | null => {
+  const itemWithModel = cartItems.find((item) => item.iphoneModel);
+  return itemWithModel?.iphoneModel || null;
+};
+
 // TODO: Add your Stripe secret key to your environment variables.
 // You can find your secret key in the Stripe dashboard.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -69,6 +74,7 @@ async function findOrCreateOrder(
     price_at_purchase: item.price,
     size: item.size,
     color: item.color,
+    iphone_model: item.iphoneModel,
   }));
 
   const { error: itemsError } = await supabase
@@ -134,6 +140,7 @@ export async function createCheckoutSession(
         shipping_country: shippingAddress.country,
         shipping_phone_number: shippingAddress.phone_number,
         shipping_email: email,
+        iphone_model: getIPhoneModelFromCart(cartItems),
       } as TablesInsert<"orders">,
       cartItems,
     );
@@ -146,6 +153,7 @@ export async function createCheckoutSession(
             item.name,
             item.size && `Size: ${item.size}`,
             item.color && `Color: ${item.color}`,
+            item.iphoneModel && `Model: ${item.iphoneModel}`,
           ]
             .filter(Boolean)
             .join(" - "),
@@ -299,6 +307,7 @@ export async function initiateHypePayment(
         shipping_postal_code: formValues.zip,
         shipping_country: formValues.country,
         shipping_phone_number: formValues.phoneNumber,
+        iphone_model: getIPhoneModelFromCart(cartItems),
       } as TablesInsert<"orders">,
       cartItems,
     );

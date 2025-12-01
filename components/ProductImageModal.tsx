@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "./ui/select";
+import { IPhoneModelSelect } from "./ui/IPhoneModelSelect";
 
 interface ProductImageModalProps {
   product: Product;
@@ -42,6 +43,7 @@ export const ProductImageModal = ({
   });
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
+  const [selectedIPhoneModel, setSelectedIPhoneModel] = useState<string | undefined>();
   const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -52,6 +54,13 @@ export const ProductImageModal = ({
   const needsColorSelection =
     product.category && ["t-shirts", "caps"].includes(product.category) && product.colors && product.colors.length > 0;
 
+  const productNameLower = product.name.toLowerCase();
+  const isPhoneCase =
+    product.category === "phone-cases" ||
+    (product.category === "accessories" &&
+      (productNameLower.includes("iphone") || productNameLower.includes("phone case")));
+  const needsIPhoneModelSelection = isPhoneCase;
+
 
   useEffect(() => {
     emblaApi?.reInit();
@@ -59,6 +68,7 @@ export const ProductImageModal = ({
     if (isOpen) {
       setSelectedSize(undefined);
       setSelectedColor(undefined);
+      setSelectedIPhoneModel(undefined);
     }
   }, [emblaApi, initialSlide, isOpen]);
 
@@ -94,7 +104,11 @@ export const ProductImageModal = ({
       toast.error("Please select a color before adding to cart.");
       return;
     }
-    addToCart(product, selectedSize, selectedColor);
+    if (needsIPhoneModelSelection && !selectedIPhoneModel) {
+      toast.error("Please select your iPhone model before adding to cart.");
+      return;
+    }
+    addToCart(product, selectedSize, selectedColor, selectedIPhoneModel);
     onClose();
   };
 
@@ -277,6 +291,24 @@ export const ProductImageModal = ({
                     )}
                   </div>
                 )}
+
+                {/* iPhone Model Selection */}
+                {needsIPhoneModelSelection && (
+                  <div>
+                    <label className="block text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
+                      iPhone Model
+                    </label>
+                    <IPhoneModelSelect
+                      value={selectedIPhoneModel}
+                      onValueChange={setSelectedIPhoneModel}
+                    />
+                    {!selectedIPhoneModel && (
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 sm:mt-3">
+                        Please select your iPhone model to continue
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -292,10 +324,10 @@ export const ProductImageModal = ({
                 </Button>
                 <Button
                   onClick={handleAddToCart}
-                  disabled={Boolean((needsSizeSelection && !selectedSize) || (needsColorSelection && !selectedColor))}
+                  disabled={Boolean((needsSizeSelection && !selectedSize) || (needsColorSelection && !selectedColor) || (needsIPhoneModelSelection && !selectedIPhoneModel))}
                   className="w-full sm:flex-2 h-12 sm:h-14 text-sm sm:text-base font-medium text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 disabled:opacity-50 touch-manipulation"
                 >
-                  {needsSizeSelection && !selectedSize ? "Please Select Size" : needsColorSelection && !selectedColor ? "Please Select Color" : "Add to Cart"}
+                  {needsSizeSelection && !selectedSize ? "Please Select Size" : needsColorSelection && !selectedColor ? "Please Select Color" : needsIPhoneModelSelection && !selectedIPhoneModel ? "Please Select iPhone Model" : "Add to Cart"}
                 </Button>
               </div>
               

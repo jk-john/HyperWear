@@ -7,6 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { IPhoneModelSelect } from "@/components/ui/IPhoneModelSelect";
 import { useCartStore } from "@/stores/cart";
 import { Product } from "@/types";
 import { useState } from "react";
@@ -28,6 +29,7 @@ export default function ProductDetailClient({
   const [initialSlide, setInitialSlide] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
+  const [selectedIPhoneModel, setSelectedIPhoneModel] = useState<string | undefined>();
 
   const handleImageClick = (index: number) => {
     setInitialSlide(index);
@@ -48,9 +50,18 @@ export default function ProductDetailClient({
     product.colors &&
     product.colors.length > 1;
 
+  const productNameLower = product.name.toLowerCase();
+  const isPhoneCase =
+    product.category === "phone-cases" ||
+    (product.category === "accessories" &&
+      (productNameLower.includes("iphone") || productNameLower.includes("phone case")));
+
+  const needsIPhoneModelSelection = isPhoneCase;
+
   const isAddToCartDisabled = Boolean(
     (needsSizeSelection && !selectedSize) ||
-    (needsColorSelection && !selectedColor)
+    (needsColorSelection && !selectedColor) ||
+    (needsIPhoneModelSelection && !selectedIPhoneModel)
   );
 
 
@@ -63,7 +74,11 @@ export default function ProductDetailClient({
       toast.error("Please select a color");
       return;
     }
-    addToCart(product, selectedSize, selectedColor);
+    if (needsIPhoneModelSelection && !selectedIPhoneModel) {
+      toast.error("Please select your iPhone model");
+      return;
+    }
+    addToCart(product, selectedSize, selectedColor, selectedIPhoneModel);
     toast.success(`${product.name} added to cart`);
   };
 
@@ -120,6 +135,15 @@ export default function ProductDetailClient({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+            {needsIPhoneModelSelection && (
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium">iPhone Model</label>
+                <IPhoneModelSelect
+                  value={selectedIPhoneModel}
+                  onValueChange={setSelectedIPhoneModel}
+                />
               </div>
             )}
             <Button
